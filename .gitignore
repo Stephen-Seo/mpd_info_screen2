@@ -1,0 +1,7 @@
+/compile_commands.json
+/third_party/include/
+/third_party/lib/
+/third_party/raylib-5.5.tar.gz
+/objdir/
+/mpd_info_screen2
+/.cache/
