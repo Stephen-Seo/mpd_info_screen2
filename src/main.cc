@@ -1,8 +1,18 @@
+// local includes
+#include "args.h"
+
+// third-party includes
 #include <raylib.h>
 
 constexpr Color CLEAR_BG_COLOR = {50, 50, 50, 255};
 
 int main(int argc, char **argv) {
+  Args args(argc, argv);
+
+  if (args.is_error()) {
+    return 1;
+  }
+
   InitWindow(800, 600, "mpd_info_screen2");
   SetWindowState(FLAG_WINDOW_RESIZABLE);
 

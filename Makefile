@@ -8,6 +8,7 @@ WORKING_DIR != pwd
 
 CXX_LINKER_FLAGS := -Ithird_party/include
 CXX_FLAGS := \
+	-std=c++23 \
 	-Wall -Wformat -Wformat=2 -Wconversion -Wimplicit-fallthrough \
 	-Werror=format-security \
 	-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3 \
@@ -21,7 +22,11 @@ CXX_FLAGS := \
 	${CXX_COMMON_FLAGS}
 
 SOURCES := \
-	src/main.cc
+	src/main.cc \
+	src/args.cc
+
+HEADERS := \
+	src/args.h
 
 OBJDIR := objdir
 OBJECTS := $(addprefix ${OBJDIR}/,$(subst .cc,.cc.o,${SOURCES}))
@@ -31,7 +36,7 @@ all: mpd_info_screen2
 mpd_info_screen2: ${OBJECTS} third_party/lib/libraylib.a
 	${CXX} -o mpd_info_screen2 ${CXX_LINKER_FLAGS} ${CXX_FLAGS} ${OBJECTS} third_party/lib/libraylib.a
 
-${OBJDIR}/%.cc.o: %.cc | format
+${OBJDIR}/%.cc.o: %.cc ${HEADERS} | format
 	@mkdir -p $(dir $@)
 	${CXX} -o $@ -c ${CXX_FLAGS} $<
 
@@ -62,4 +67,4 @@ clean:
 	rm -rf third_party/raylib_BUILD
 
 format:
-	test -x /usr/bin/clang-format && clang-format -i --style=file ${SOURCES} || true
+	test -x /usr/bin/clang-format && clang-format -i --style=file ${SOURCES} ${HEADERS} || true
