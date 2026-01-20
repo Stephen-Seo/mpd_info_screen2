@@ -23,18 +23,27 @@ CXX_FLAGS := \
 
 SOURCES := \
 	src/main.cc \
-	src/args.cc
+	src/args.cc \
+	src/mpd_client.cc \
+	src/constants.cc \
+	src/helpers.cc
 
 HEADERS := \
-	src/args.h
+	src/args.h \
+	src/mpd_client.h \
+	src/constants.h \
+	src/helpers.h
 
 OBJDIR := objdir
 OBJECTS := $(addprefix ${OBJDIR}/,$(subst .cc,.cc.o,${SOURCES}))
 
-all: mpd_info_screen2
+all: mpd_info_screen2 unittest
 
 mpd_info_screen2: ${OBJECTS} third_party/lib/libraylib.a
-	${CXX} -o mpd_info_screen2 ${CXX_LINKER_FLAGS} ${CXX_FLAGS} ${OBJECTS} third_party/lib/libraylib.a
+	${CXX} -o mpd_info_screen2 ${CXX_LINKER_FLAGS} ${CXX_FLAGS} $^
+
+unittest: ${OBJDIR}/src/test.cc.o $(filter-out ${OBJDIR}/src/main.cc.o,${OBJECTS}) third_party/lib/libraylib.a
+	${CXX} -o unittest -g -Og $^
 
 ${OBJDIR}/%.cc.o: %.cc ${HEADERS} | format
 	@mkdir -p $(dir $@)
@@ -60,6 +69,7 @@ third_party/raylib-5.5.tar.gz:
 
 clean:
 	rm -f mpd_info_screen2
+	rm -f unittest
 	rm -rf ${OBJDIR}
 	rm -rf third_party/lib
 	rm -rf third_party/include
@@ -67,4 +77,4 @@ clean:
 	rm -rf third_party/raylib_BUILD
 
 format:
-	test -x /usr/bin/clang-format && clang-format -i --style=file ${SOURCES} ${HEADERS} || true
+	test -x /usr/bin/clang-format && clang-format -i --style=file ${SOURCES} ${HEADERS} src/test.cc || true

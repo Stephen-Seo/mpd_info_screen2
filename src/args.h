@@ -6,7 +6,8 @@
 #include <optional>
 #include <string>
 
-enum class LogLevel { ERROR, WARNING, DEBUG, VERBOSE };
+// local includes
+#include "constants.h"
 
 class Args {
  public:
