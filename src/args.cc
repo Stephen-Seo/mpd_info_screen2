@@ -68,6 +68,11 @@ Args::Args(int argc, char **argv)
         flags.set(0);
         return;
       }
+    } else if (std::strcmp("-h", argv[0]) == 0 ||
+               std::strcmp("--help", argv[0]) == 0) {
+      flags.set(0);
+      flags.set(8);
+      return;
     } else {
       std::println(stderr, "ERROR: Invalid arg: {}", argv[0]);
       flags.set(0);

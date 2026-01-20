@@ -31,6 +31,7 @@ class Args {
   // 5 - disable show percentage
   // 6 - prompt for password
   // 7 - don't scale fill the album art
+  // 8 - -h or --help received
   std::bitset<64> flags;
   std::string host_ip_addr;
   std::optional<std::string> password_file;
