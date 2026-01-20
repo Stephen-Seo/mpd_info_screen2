@@ -31,7 +31,7 @@ all: mpd_info_screen2
 mpd_info_screen2: ${OBJECTS} third_party/lib/libraylib.a
 	${CXX} -o mpd_info_screen2 ${CXX_LINKER_FLAGS} ${CXX_FLAGS} ${OBJECTS} third_party/lib/libraylib.a
 
-${OBJDIR}/%.cc.o: %.cc
+${OBJDIR}/%.cc.o: %.cc | format
 	@mkdir -p $(dir $@)
 	${CXX} -o $@ -c ${CXX_FLAGS} $<
 
@@ -51,7 +51,7 @@ third_party/raylib-5.5.tar.gz:
 	curl -L -o third_party/raylib-5.5.tar.gz https://github.com/raysan5/raylib/archive/refs/tags/5.5.tar.gz
 	sha256sum -c third_party/raylib-5.5_SHA256SUMS.txt || (rm -f third_party/raylib-5.5.tar.gz && false)
 
-.PHONY: clean
+.PHONY: clean format
 
 clean:
 	rm -f mpd_info_screen2
@@ -60,3 +60,6 @@ clean:
 	rm -rf third_party/include
 	rm -rf third_party/raylib-5.5
 	rm -rf third_party/raylib_BUILD
+
+format:
+	test -x /usr/bin/clang-format && clang-format -i --style=file ${SOURCES} || true

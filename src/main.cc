@@ -1,20 +1,20 @@
 #include <raylib.h>
 
-constexpr Color CLEAR_BG_COLOR = {30, 30, 30, 255};
+constexpr Color CLEAR_BG_COLOR = {50, 50, 50, 255};
 
 int main(int argc, char **argv) {
-    InitWindow(800, 600, "mpd_info_screen2");
-    SetWindowState(FLAG_WINDOW_RESIZABLE);
+  InitWindow(800, 600, "mpd_info_screen2");
+  SetWindowState(FLAG_WINDOW_RESIZABLE);
 
-    SetTargetFPS(5);
+  SetTargetFPS(5);
 
-    while (!WindowShouldClose()) {
-        BeginDrawing();
-        ClearBackground(CLEAR_BG_COLOR);
-        EndDrawing();
-    }
+  while (!WindowShouldClose()) {
+    BeginDrawing();
+    ClearBackground(CLEAR_BG_COLOR);
+    EndDrawing();
+  }
 
-    CloseWindow();
+  CloseWindow();
 
-    return 0;
+  return 0;
 }
