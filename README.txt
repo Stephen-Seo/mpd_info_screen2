@@ -6,7 +6,7 @@ THIS PROGRAM IS STILL A WORK IN PROGRESS!
 
 mpd_info_screen2 should eventually have feature parity with mpd_info_screen.
 
-The original mpd_info screen can be found here:
+The original mpd_info_screen can be found here:
 
 https://crates.io/crates/mpd_info_screen
 https://github.com/Stephen-Seo/mpd_info_screen
