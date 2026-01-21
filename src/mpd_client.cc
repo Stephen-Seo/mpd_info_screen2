@@ -27,7 +27,6 @@ MPDClient::MPDClient(std::string host_ip, uint16_t host_port, LogLevel level)
     flags.set(0);
   } else {
     flags.set(1);
-    flags.set(5);
   }
 }
 
