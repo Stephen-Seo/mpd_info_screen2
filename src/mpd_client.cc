@@ -6,6 +6,7 @@
 
 // Standard library includes
 #include <cstring>
+#include <thread>
 #include <vector>
 
 // Unix includes
@@ -30,11 +31,7 @@ MPDClient::MPDClient(std::string host_ip, uint16_t host_port, LogLevel level)
   }
 }
 
-MPDClient::~MPDClient() {
-  if (tcp_socket >= 0) {
-    close(tcp_socket);
-  }
-}
+MPDClient::~MPDClient() { cleanup_close_tcp(); }
 
 MPDClient::MPDClient(MPDClient &&other)
     : flags(std::move(other.flags)),
@@ -61,10 +58,7 @@ MPDClient &MPDClient::operator=(MPDClient &&other) {
 void MPDClient::reset_connection() {
   flags.reset(0);
   flags.set(1);
-  if (tcp_socket >= 0) {
-    close(tcp_socket);
-    tcp_socket = -1;
-  }
+  cleanup_close_tcp();
 }
 
 bool MPDClient::is_ok() const { return !flags.test(0); }
@@ -106,9 +100,9 @@ void MPDClient::attempt_auth(std::string passwd) {
     return;
   }
 
-  uint8_t buf[1024];
-  std::memset(buf, 0, 1024);
-  ssize_t read_ret = read(tcp_socket, buf, 1024);
+  uint8_t buf[READ_BUF_SIZE];
+  std::memset(buf, 0, READ_BUF_SIZE);
+  ssize_t read_ret = read(tcp_socket, buf, READ_BUF_SIZE);
   if (read_ret > 1) {
     LOG_PRINT(level, LogLevel::VERBOSE, "{:.{}s}",
               reinterpret_cast<const char *>(buf), read_ret);
@@ -131,10 +125,7 @@ void MPDClient::update() {
     flags.reset(1);
 
     // Initialize connection.
-    if (tcp_socket >= 0) {
-      close(tcp_socket);
-      tcp_socket = -1;
-    }
+    cleanup_close_tcp();
 
     tcp_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (tcp_socket < 0) {
@@ -162,107 +153,280 @@ void MPDClient::update() {
         tcp_socket, reinterpret_cast<const struct sockaddr *>(&ipv4_sockaddr),
         sizeof(struct sockaddr_in));
     if (connect_ret != 0) {
-      close(tcp_socket);
-      tcp_socket = -1;
+      cleanup_close_tcp();
       flags.set(0);
       LOG_PRINT(level, LogLevel::ERROR,
                 "ERROR: Failed to connect to host! errno {}", errno);
       return;
     }
 
-    uint8_t buf[1024];
-    std::memset(buf, 0, 1024);
-    ssize_t read_ret = read(tcp_socket, buf, 1024);
-    if (read_ret > 0) {
-      LOG_PRINT(level, LogLevel::VERBOSE, "{:.{}s}",
-                reinterpret_cast<const char *>(buf), read_ret);
-      if (buf[0] != 'O' || buf[1] != 'K') {
+    flags.set(4);
+    auto [status, buf] = write_read("");
+    if (flags.test(0)) {
+      return;
+    } else if (!buf.empty()) {
+      if (buf[0] == 'O' && buf[1] == 'K') {
+        // Successful, do nothing here.
+      } else {
+        cleanup_close_tcp();
         flags.set(0);
         LOG_PRINT(level, LogLevel::ERROR,
                   "ERROR: Failed to get initial OK from MPD!");
+        return;
       }
     } else {
+      cleanup_close_tcp();
       flags.set(0);
       LOG_PRINT(level, LogLevel::ERROR,
                 "ERROR: Failed to read initial OK from MPD!");
+      return;
     }
+
+    // Set the max binary size:
+    bool binary_size_set = false;
+    do {
+      std::tie(status, buf) = write_read("binarylimit 4000\n");
+      if (flags.test(0) || (status != StatusEnum::SE_SUCCESS &&
+                            status != StatusEnum::SE_EAGAIN_ON_READ)) {
+        cleanup_close_tcp();
+        flags.set(0);
+        return;
+      } else if (status == StatusEnum::SE_EAGAIN_ON_READ) {
+        flags.set(4);
+      } else if (status == StatusEnum::SE_SUCCESS) {
+        if (buf[0] == 'O' && buf[1] == 'K') {
+          // Success.
+          binary_size_set = true;
+          continue;
+        } else {
+          cleanup_close_tcp();
+          flags.set(0);
+          LOG_PRINT(level, LogLevel::ERROR,
+                    "ERROR: Failed to set \"binarylimit\", no OK!");
+          return;
+        }
+      } else {
+        cleanup_close_tcp();
+        flags.set(0);
+        LOG_PRINT(level, LogLevel::ERROR,
+                  "ERROR: Failed to set \"binarylimit\"!");
+        return;
+      }
+
+      std::this_thread::sleep_for(LOOP_SLEEP_TIME);
+    } while (!binary_size_set);
   } else if (flags.test(5)) {
     // Do nothing, wait for authentication.
-  } else if (flags.test(2) && !flags.test(3)) {
-    if (!flags.test(4)) {
-      LOG_PRINT(level, LogLevel::DEBUG, "DEBUG: Attempting status write...");
-      ssize_t write_ret = write(tcp_socket, "status\n", 7);
-      if (write_ret != 7) {
-        LOG_PRINT(level, LogLevel::ERROR, "ERROR: Failed to send \"status\"!");
+  } else if (!flags.test(2)) {
+    // Do ping.
+    bool successful_write_read = false;
+    do {
+      auto [status, buf] = write_read("ping\n");
+
+      if (flags.test(0) || (status != StatusEnum::SE_SUCCESS &&
+                            status != StatusEnum::SE_EAGAIN_ON_READ)) {
+        cleanup_close_tcp();
         flags.set(0);
         return;
-      }
-      flags.set(4);
-    }
-    uint8_t buf[1024];
-    std::memset(buf, 0, 1024);
-    LOG_PRINT(level, LogLevel::DEBUG, "DEBUG: Attempting status read...");
-    ssize_t read_ret = read(tcp_socket, buf, 1024);
-    if (read_ret > 0) {
-      flags.reset(4);
-      LOG_PRINT(level, LogLevel::VERBOSE, "{:.{}s}",
-                reinterpret_cast<const char *>(buf), read_ret);
-      if (buf[read_ret - 3] == 'O' && buf[read_ret - 2] == 'K' &&
-          buf[read_ret - 1] == '\n') {
-        flags.set(3);
-        flags.reset(5);
-      } else if (buf[0] == 'A' && buf[1] == 'C' && buf[2] == 'K') {
-        if (buf[5] == '4' && buf[6] == '@') {
-          // Permission/Auth required
-          flags.set(5);
-          LOG_PRINT(level, LogLevel::WARNING, "WARNING: MPD requires auth!");
+      } else if (status == StatusEnum::SE_EAGAIN_ON_READ) {
+        flags.set(4);
+      } else if (status == StatusEnum::SE_SUCCESS) {
+        if (buf[0] == 'O' && buf[1] == 'K') {
+          // Success
+          successful_write_read = true;
+          flags.set(2);
+          continue;
         } else {
+          cleanup_close_tcp();
           flags.set(0);
-          LOG_PRINT(level, LogLevel::ERROR, "ERROR: Failed to get MPD status!");
+          LOG_PRINT(level, LogLevel::ERROR,
+                    "ERROR: Failed to ping MPD (no OK)!");
+          return;
         }
-      }
-    } else if (errno != EAGAIN) {
-      LOG_PRINT(level, LogLevel::ERROR,
-                "ERROR: Failed to receive after sending status! errno {}",
-                errno);
-      flags.set(0);
-      return;
-    }
-
-    if (!flags.test(4)) {
-      LOG_PRINT(level, LogLevel::DEBUG, "DEBUG: Done with status.");
-    }
-  } else {
-    if (!flags.test(4)) {
-      LOG_PRINT(level, LogLevel::DEBUG, "DEBUG: Attempting ping write...");
-      ssize_t write_ret = write(tcp_socket, "ping\n", 5);
-      if (write_ret != 5) {
-        LOG_PRINT(level, LogLevel::ERROR, "ERROR: Failed to send \"ping\"!");
+      } else {
+        cleanup_close_tcp();
         flags.set(0);
+        LOG_PRINT(level, LogLevel::ERROR, "ERROR: Failed to ping MPD!");
         return;
       }
-      flags.set(4);
-    }
-    uint8_t buf[1024];
-    std::memset(buf, 0, 1024);
-    LOG_PRINT(level, LogLevel::DEBUG, "DEBUG: Attempting ping read...");
-    ssize_t read_ret = read(tcp_socket, buf, 1024);
-    if (read_ret > 0) {
-      flags.reset(4);
-      LOG_PRINT(level, LogLevel::VERBOSE, "{:.{}s}",
-                reinterpret_cast<const char *>(buf), read_ret);
-      if (buf[0] == 'O' && buf[1] == 'K') {
-        flags.set(2);
-      }
-    } else if (errno != EAGAIN) {
-      LOG_PRINT(level, LogLevel::ERROR,
-                "ERROR: Failed to receive after sending ping!");
-      flags.set(0);
-      return;
-    }
 
-    if (!flags.test(4)) {
-      LOG_PRINT(level, LogLevel::DEBUG, "DEBUG: Done with ping.");
+      std::this_thread::sleep_for(LOOP_SLEEP_TIME);
+    } while (!successful_write_read);
+  } else if (!flags.test(3)) {
+    // Do "status".
+    bool successful_write_read = false;
+    do {
+      auto [status, buf] = write_read("status\n");
+
+      if (flags.test(0) || (status != StatusEnum::SE_SUCCESS &&
+                            status != StatusEnum::SE_EAGAIN_ON_READ)) {
+        cleanup_close_tcp();
+        flags.set(0);
+        return;
+      } else if (status == StatusEnum::SE_EAGAIN_ON_READ) {
+        flags.set(4);
+      } else if (status == StatusEnum::SE_SUCCESS) {
+        if (buf.at(buf.size() - 3) == 'O' && buf.at(buf.size() - 2) == 'K' &&
+            buf.at(buf.size() - 1) == '\n') {
+          // Success
+          flags.set(3);
+          successful_write_read = true;
+          continue;
+        } else if (buf.at(0) == 'A' && buf.at(1) == 'C' && buf.at(2) == 'K') {
+          if (buf.at(5) == '4' && buf.at(6) == '@') {
+            // Permission/Auth required
+            flags.set(5);
+            LOG_PRINT(level, LogLevel::WARNING, "WARNING: MPD requires auth!");
+            return;
+          } else {
+            cleanup_close_tcp();
+            flags.set(0);
+            LOG_PRINT(level, LogLevel::ERROR,
+                      "ERROR: Failed to \"status\" MPD (ACK)!");
+            return;
+          }
+        } else {
+          cleanup_close_tcp();
+          flags.set(0);
+          LOG_PRINT(level, LogLevel::ERROR,
+                    "ERROR: Failed to \"status\" MPD (no OK)!");
+          return;
+        }
+      } else {
+        cleanup_close_tcp();
+        flags.set(0);
+        LOG_PRINT(level, LogLevel::ERROR, "ERROR: Failed to \"status\" MPD!");
+        return;
+      }
+
+      std::this_thread::sleep_for(LOOP_SLEEP_TIME);
+    } while (!successful_write_read);
+  } else if (!flags.test(6)) {
+    // Do "currentsong".
+    bool successful_write_read = false;
+    do {
+      auto [status, buf] = write_read("currentsong\n");
+
+      if (flags.test(0) || (status != StatusEnum::SE_SUCCESS &&
+                            status != StatusEnum::SE_EAGAIN_ON_READ)) {
+        cleanup_close_tcp();
+        flags.set(0);
+        return;
+      } else if (status == StatusEnum::SE_EAGAIN_ON_READ) {
+        flags.set(4);
+      } else if (status == StatusEnum::SE_SUCCESS) {
+        if (buf.at(buf.size() - 3) == 'O' && buf.at(buf.size() - 2) == 'K' &&
+            buf.at(buf.size() - 1) == '\n') {
+          // Success
+          flags.set(6);
+          successful_write_read = true;
+          continue;
+        } else if (buf.at(0) == 'A' && buf.at(1) == 'C' && buf.at(2) == 'K') {
+          if (buf.at(5) == '4' && buf.at(6) == '@') {
+            // Permission/Auth required
+            flags.set(5);
+            LOG_PRINT(level, LogLevel::WARNING, "WARNING: MPD requires auth!");
+            return;
+          } else {
+            cleanup_close_tcp();
+            flags.set(0);
+            LOG_PRINT(level, LogLevel::ERROR,
+                      "ERROR: Failed to \"currentsong\" MPD (ACK)!");
+            return;
+          }
+        } else {
+          cleanup_close_tcp();
+          flags.set(0);
+          LOG_PRINT(level, LogLevel::ERROR,
+                    "ERROR: Failed to \"currentsong\" MPD (no OK)!");
+          return;
+        }
+      } else {
+        cleanup_close_tcp();
+        flags.set(0);
+        LOG_PRINT(level, LogLevel::ERROR,
+                  "ERROR: Failed to \"currentsong\" MPD!");
+        return;
+      }
+
+      std::this_thread::sleep_for(LOOP_SLEEP_TIME);
+    } while (!successful_write_read);
+  } else {
+  }
+}
+
+std::tuple<MPDClient::StatusEnum, std::vector<char> > MPDClient::write_read(
+    std::string to_send) {
+  if (!is_ok() || tcp_socket < 0) {
+    return {StatusEnum::SE_GENERIC_ERROR, {}};
+  }
+
+  LOG_PRINT(level, LogLevel::VERBOSE, "VERBOSE: sending: {}", to_send);
+
+  bool did_write_this_iteration = false;
+  if (!flags.test(4)) {
+    ssize_t write_ret = write(tcp_socket, to_send.data(), to_send.size());
+    if (write_ret == static_cast<ssize_t>(to_send.size())) {
+      // Success.
+      flags.set(4);
+      did_write_this_iteration = true;
+    } else if (write_ret < 0) {
+      cleanup_close_tcp();
+      flags.set(0);
+      LOG_PRINT(level, LogLevel::ERROR,
+                "ERROR: Failed to write \"{}\"! (errno {})", to_send, errno);
+      return {};
+    } else {
+      cleanup_close_tcp();
+      flags.set(0);
+      LOG_PRINT(level, LogLevel::ERROR, "ERROR: Failed to write \"{}\"!",
+                to_send);
+      return {StatusEnum::SE_GENERIC_ERROR, {}};
     }
+  }
+
+  std::vector<char> buf;
+  buf.resize(READ_BUF_SIZE);
+
+  ssize_t read_ret = read(tcp_socket, buf.data(), buf.size());
+  if (read_ret > 0) {
+    flags.reset(4);
+    buf.resize(static_cast<size_t>(read_ret));
+    LOG_PRINT(level, LogLevel::VERBOSE, "{:.{}s}", buf.data(), buf.size());
+    return {StatusEnum::SE_SUCCESS, std::move(buf)};
+  } else if (read_ret < 0) {
+    if (errno == EAGAIN) {
+      return {StatusEnum::SE_EAGAIN_ON_READ, {}};
+    }
+    cleanup_close_tcp();
+    flags.set(0);
+    if (did_write_this_iteration) {
+      LOG_PRINT(level, LogLevel::ERROR,
+                "ERROR: Failed to read after writing \"{}\"! (errno {})",
+                to_send, errno);
+    } else {
+      LOG_PRINT(level, LogLevel::ERROR,
+                "ERROR: Failed to read after writing! (errno {})", errno);
+    }
+    return {StatusEnum::SE_GENERIC_ERROR, {}};
+  } else {
+    cleanup_close_tcp();
+    flags.set(0);
+    if (did_write_this_iteration) {
+      LOG_PRINT(level, LogLevel::ERROR,
+                "ERROR: Read EOF after writing \"{}\"! (errno {})", to_send,
+                errno);
+    } else {
+      LOG_PRINT(level, LogLevel::ERROR,
+                "ERROR: Read EOF after writing! (errno {})", errno);
+    }
+    return {StatusEnum::SE_GENERIC_ERROR, {}};
+  }
+}
+
+void MPDClient::cleanup_close_tcp() {
+  if (tcp_socket > 0) {
+    close(tcp_socket);
+    tcp_socket = -1;
   }
 }

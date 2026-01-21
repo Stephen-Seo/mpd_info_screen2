@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <tuple>
 #include <vector>
 
 // local includes
@@ -35,18 +36,25 @@ class MPDClient {
   Event get_event();
 
  private:
+  enum StatusEnum { SE_SUCCESS, SE_EAGAIN_ON_READ, SE_GENERIC_ERROR };
+
   // 0 - invalid state
   // 1 - initial state
   // 2 - successful ping
   // 3 - successful status
   // 4 - waiting on read
   // 5 - permission/auth required
+  // 6 - successful "currentsong"
   std::bitset<64> flags;
   std::vector<Event> events;
   LogLevel level;
   std::optional<uint32_t> host_ip_value;
   uint16_t host_port;
   int tcp_socket;
+
+  std::tuple<StatusEnum, std::vector<char> > write_read(std::string to_send);
+
+  void cleanup_close_tcp();
 };
 
 #endif
