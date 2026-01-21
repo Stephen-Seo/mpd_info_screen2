@@ -13,8 +13,6 @@
 
 class MPDClient {
  public:
-  enum Event { OK, PassRequested };
-
   MPDClient(std::string host_ip, uint16_t host_port, LogLevel level);
   ~MPDClient();
 
@@ -33,7 +31,15 @@ class MPDClient {
   void attempt_auth(std::string passwd);
 
   void update();
-  Event get_event();
+
+  const std::string &get_song_title() const;
+  const std::string &get_song_artist() const;
+  const std::string &get_song_album() const;
+  const std::string &get_song_filename() const;
+  double get_song_duration() const;
+  double get_elapsed_time() const;
+
+  void request_data_update();
 
  private:
   enum StatusEnum { SE_SUCCESS, SE_EAGAIN_ON_READ, SE_GENERIC_ERROR };
@@ -46,15 +52,24 @@ class MPDClient {
   // 5 - permission/auth required
   // 6 - successful "currentsong"
   std::bitset<64> flags;
-  std::vector<Event> events;
   LogLevel level;
   std::optional<uint32_t> host_ip_value;
   uint16_t host_port;
   int tcp_socket;
 
-  std::tuple<StatusEnum, std::vector<char> > write_read(std::string to_send);
+  // current song info
+  std::string song_title;
+  std::string song_artist;
+  std::string song_album;
+  std::string song_filename;
+  double elapsed_time;
+  double song_duration;
+
+  std::tuple<StatusEnum, std::string> write_read(std::string to_send);
 
   void cleanup_close_tcp();
+
+  void parse_for_song_info(const std::string &buf);
 };
 
 #endif

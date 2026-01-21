@@ -17,7 +17,6 @@
 
 MPDClient::MPDClient(std::string host_ip, uint16_t host_port, LogLevel level)
     : flags(),
-      events(),
       level(level),
       host_ip_value(helper_ipv4_str_to_value(host_ip)),
       host_port(host_port),
@@ -35,7 +34,6 @@ MPDClient::~MPDClient() { cleanup_close_tcp(); }
 
 MPDClient::MPDClient(MPDClient &&other)
     : flags(std::move(other.flags)),
-      events(std::move(other.events)),
       level(std::move(other.level)),
       host_ip_value(std::move(other.host_ip_value)),
       host_port(other.host_port),
@@ -45,7 +43,6 @@ MPDClient::MPDClient(MPDClient &&other)
 
 MPDClient &MPDClient::operator=(MPDClient &&other) {
   this->flags = std::move(other.flags);
-  this->events = std::move(other.events);
   this->level = std::move(other.level);
   this->host_ip_value = std::move(other.host_ip_value);
   this->host_port = other.host_port;
@@ -100,9 +97,9 @@ void MPDClient::attempt_auth(std::string passwd) {
     return;
   }
 
-  uint8_t buf[READ_BUF_SIZE];
-  std::memset(buf, 0, READ_BUF_SIZE);
-  ssize_t read_ret = read(tcp_socket, buf, READ_BUF_SIZE);
+  uint8_t buf[READ_BUF_SIZE_SMALL];
+  std::memset(buf, 0, READ_BUF_SIZE_SMALL);
+  ssize_t read_ret = read(tcp_socket, buf, READ_BUF_SIZE_SMALL);
   if (read_ret > 1) {
     LOG_PRINT(level, LogLevel::VERBOSE, "{:.{}s}",
               reinterpret_cast<const char *>(buf), read_ret);
@@ -161,11 +158,11 @@ void MPDClient::update() {
     }
 
     flags.set(4);
-    auto [status, buf] = write_read("");
+    auto [status, str] = write_read("");
     if (flags.test(0)) {
       return;
-    } else if (!buf.empty()) {
-      if (buf[0] == 'O' && buf[1] == 'K') {
+    } else if (!str.empty()) {
+      if (str.at(0) == 'O' && str.at(1) == 'K') {
         // Successful, do nothing here.
       } else {
         cleanup_close_tcp();
@@ -185,7 +182,7 @@ void MPDClient::update() {
     // Set the max binary size:
     bool binary_size_set = false;
     do {
-      std::tie(status, buf) = write_read("binarylimit 4000\n");
+      std::tie(status, str) = write_read("binarylimit 4000\n");
       if (flags.test(0) || (status != StatusEnum::SE_SUCCESS &&
                             status != StatusEnum::SE_EAGAIN_ON_READ)) {
         cleanup_close_tcp();
@@ -194,7 +191,7 @@ void MPDClient::update() {
       } else if (status == StatusEnum::SE_EAGAIN_ON_READ) {
         flags.set(4);
       } else if (status == StatusEnum::SE_SUCCESS) {
-        if (buf[0] == 'O' && buf[1] == 'K') {
+        if (str.at(0) == 'O' && str.at(1) == 'K') {
           // Success.
           binary_size_set = true;
           continue;
@@ -221,7 +218,7 @@ void MPDClient::update() {
     // Do ping.
     bool successful_write_read = false;
     do {
-      auto [status, buf] = write_read("ping\n");
+      auto [status, str] = write_read("ping\n");
 
       if (flags.test(0) || (status != StatusEnum::SE_SUCCESS &&
                             status != StatusEnum::SE_EAGAIN_ON_READ)) {
@@ -231,7 +228,7 @@ void MPDClient::update() {
       } else if (status == StatusEnum::SE_EAGAIN_ON_READ) {
         flags.set(4);
       } else if (status == StatusEnum::SE_SUCCESS) {
-        if (buf[0] == 'O' && buf[1] == 'K') {
+        if (str.at(0) == 'O' && str.at(1) == 'K') {
           // Success
           successful_write_read = true;
           flags.set(2);
@@ -256,7 +253,7 @@ void MPDClient::update() {
     // Do "status".
     bool successful_write_read = false;
     do {
-      auto [status, buf] = write_read("status\n");
+      auto [status, str] = write_read("status\n");
 
       if (flags.test(0) || (status != StatusEnum::SE_SUCCESS &&
                             status != StatusEnum::SE_EAGAIN_ON_READ)) {
@@ -266,14 +263,15 @@ void MPDClient::update() {
       } else if (status == StatusEnum::SE_EAGAIN_ON_READ) {
         flags.set(4);
       } else if (status == StatusEnum::SE_SUCCESS) {
-        if (buf.at(buf.size() - 3) == 'O' && buf.at(buf.size() - 2) == 'K' &&
-            buf.at(buf.size() - 1) == '\n') {
+        if (str.at(str.size() - 3) == 'O' && str.at(str.size() - 2) == 'K' &&
+            str.at(str.size() - 1) == '\n') {
           // Success
           flags.set(3);
           successful_write_read = true;
+          parse_for_song_info(str);
           continue;
-        } else if (buf.at(0) == 'A' && buf.at(1) == 'C' && buf.at(2) == 'K') {
-          if (buf.at(5) == '4' && buf.at(6) == '@') {
+        } else if (str.at(0) == 'A' && str.at(1) == 'C' && str.at(2) == 'K') {
+          if (str.at(5) == '4' && str.at(6) == '@') {
             // Permission/Auth required
             flags.set(5);
             LOG_PRINT(level, LogLevel::WARNING, "WARNING: MPD requires auth!");
@@ -305,7 +303,7 @@ void MPDClient::update() {
     // Do "currentsong".
     bool successful_write_read = false;
     do {
-      auto [status, buf] = write_read("currentsong\n");
+      auto [status, str] = write_read("currentsong\n");
 
       if (flags.test(0) || (status != StatusEnum::SE_SUCCESS &&
                             status != StatusEnum::SE_EAGAIN_ON_READ)) {
@@ -315,14 +313,15 @@ void MPDClient::update() {
       } else if (status == StatusEnum::SE_EAGAIN_ON_READ) {
         flags.set(4);
       } else if (status == StatusEnum::SE_SUCCESS) {
-        if (buf.at(buf.size() - 3) == 'O' && buf.at(buf.size() - 2) == 'K' &&
-            buf.at(buf.size() - 1) == '\n') {
+        if (str.at(str.size() - 3) == 'O' && str.at(str.size() - 2) == 'K' &&
+            str.at(str.size() - 1) == '\n') {
           // Success
           flags.set(6);
           successful_write_read = true;
+          parse_for_song_info(str);
           continue;
-        } else if (buf.at(0) == 'A' && buf.at(1) == 'C' && buf.at(2) == 'K') {
-          if (buf.at(5) == '4' && buf.at(6) == '@') {
+        } else if (str.at(0) == 'A' && str.at(1) == 'C' && str.at(2) == 'K') {
+          if (str.at(5) == '4' && str.at(6) == '@') {
             // Permission/Auth required
             flags.set(5);
             LOG_PRINT(level, LogLevel::WARNING, "WARNING: MPD requires auth!");
@@ -355,7 +354,21 @@ void MPDClient::update() {
   }
 }
 
-std::tuple<MPDClient::StatusEnum, std::vector<char> > MPDClient::write_read(
+const std::string &MPDClient::get_song_title() const { return song_title; }
+const std::string &MPDClient::get_song_artist() const { return song_artist; }
+const std::string &MPDClient::get_song_album() const { return song_album; }
+const std::string &MPDClient::get_song_filename() const {
+  return song_filename;
+}
+double MPDClient::get_song_duration() const { return song_duration; }
+double MPDClient::get_elapsed_time() const { return elapsed_time; }
+
+void MPDClient::request_data_update() {
+  flags.reset(3);
+  flags.reset(6);
+}
+
+std::tuple<MPDClient::StatusEnum, std::string> MPDClient::write_read(
     std::string to_send) {
   if (!is_ok() || tcp_socket < 0) {
     return {StatusEnum::SE_GENERIC_ERROR, {}};
@@ -385,15 +398,15 @@ std::tuple<MPDClient::StatusEnum, std::vector<char> > MPDClient::write_read(
     }
   }
 
-  std::vector<char> buf;
-  buf.resize(READ_BUF_SIZE);
+  std::string str;
+  str.resize(READ_BUF_SIZE);
 
-  ssize_t read_ret = read(tcp_socket, buf.data(), buf.size());
+  ssize_t read_ret = read(tcp_socket, str.data(), str.size());
   if (read_ret > 0) {
     flags.reset(4);
-    buf.resize(static_cast<size_t>(read_ret));
-    LOG_PRINT(level, LogLevel::VERBOSE, "{:.{}s}", buf.data(), buf.size());
-    return {StatusEnum::SE_SUCCESS, std::move(buf)};
+    str.resize(static_cast<size_t>(read_ret));
+    LOG_PRINT(level, LogLevel::VERBOSE, "{}", str);
+    return {StatusEnum::SE_SUCCESS, std::move(str)};
   } else if (read_ret < 0) {
     if (errno == EAGAIN) {
       return {StatusEnum::SE_EAGAIN_ON_READ, {}};
@@ -428,5 +441,89 @@ void MPDClient::cleanup_close_tcp() {
   if (tcp_socket > 0) {
     close(tcp_socket);
     tcp_socket = -1;
+  }
+}
+
+void MPDClient::parse_for_song_info(const std::string &str) {
+  size_t idx = 0;
+
+  while (idx < str.size()) {
+    if (str.size() - idx > 6 &&
+        std::strncmp("Title: ", str.data() + idx, 6) == 0) {
+      idx += 6;
+      size_t end_idx = str.find("\n", idx);
+      if (end_idx == std::string::npos) {
+        break;
+      }
+      song_title = std::string(str.data() + idx, end_idx - idx);
+      idx = end_idx + 1;
+    } else if (str.size() - idx > 8 &&
+               std::strncmp("Artist: ", str.data() + idx, 8) == 0) {
+      idx += 8;
+      size_t end_idx = str.find("\n", idx);
+      if (end_idx == std::string::npos) {
+        break;
+      }
+      song_artist = std::string(str.data() + idx, end_idx - idx);
+      idx = end_idx + 1;
+    } else if (str.size() - idx > 7 &&
+               std::strncmp("Album: ", str.data() + idx, 7) == 0) {
+      idx += 7;
+      size_t end_idx = str.find("\n", idx);
+      if (end_idx == std::string::npos) {
+        break;
+      }
+      song_album = std::string(str.data() + idx, end_idx - idx);
+      idx = end_idx + 1;
+    } else if (str.size() - idx > 6 &&
+               std::strncmp("file: ", str.data() + idx, 6) == 0) {
+      idx += 6;
+      size_t end_idx = str.find("\n", idx);
+      if (end_idx == std::string::npos) {
+        break;
+      }
+      song_filename = std::string(str.data() + idx, end_idx - idx);
+      idx = end_idx + 1;
+    } else if (str.size() - idx > 10 &&
+               std::strncmp("duration: ", str.data() + idx, 10) == 0) {
+      idx += 10;
+      size_t end_idx = str.find("\n", idx);
+      if (end_idx == std::string::npos) {
+        break;
+      }
+      std::string song_duration_str =
+          std::string(str.data() + idx, end_idx - idx);
+      try {
+        song_duration = std::stod(song_duration_str);
+      } catch (const std::exception &e) {
+        LOG_PRINT(level, LogLevel::WARNING,
+                  "WARNING: Failed to parse song duration! {}",
+                  song_duration_str);
+      }
+      idx = end_idx + 1;
+    } else if (str.size() - idx > 9 &&
+               std::strncmp("elapsed: ", str.data() + idx, 9) == 0) {
+      idx += 9;
+      size_t end_idx = str.find("\n", idx);
+      if (end_idx == std::string::npos) {
+        break;
+      }
+      std::string song_elapsed_str =
+          std::string(str.data() + idx, end_idx - idx);
+      try {
+        elapsed_time = std::stod(song_elapsed_str);
+      } catch (const std::exception &e) {
+        LOG_PRINT(level, LogLevel::WARNING,
+                  "WARNING: Failed to parse song elapsed! {}",
+                  song_elapsed_str);
+      }
+      idx = end_idx + 1;
+    } else {
+      size_t end_idx = str.find("\n", idx);
+      if (end_idx == std::string::npos) {
+        break;
+      }
+      idx = end_idx + 1;
+    }
   }
 }

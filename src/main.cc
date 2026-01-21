@@ -1,11 +1,13 @@
 // local includes
 #include "args.h"
+#include "constants.h"
 #include "helpers.h"
 #include "mpd_client.h"
 #include "signal_handler.h"
 
 // Standard library includes
 #include <atomic>
+#include <chrono>
 #include <fstream>
 
 // third-party includes
@@ -66,9 +68,32 @@ int main(int argc, char **argv) {
 
   register_signals();
 
+  auto update_time_point = std::chrono::steady_clock::now();
+#ifndef NDEBUG
+  auto print_info_time_point = std::chrono::steady_clock::now();
+#endif
+
   while (!WindowShouldClose() &&
          !IS_SIGNAL_HANDLED.load(std::memory_order_relaxed)) {
     // update
+    auto new_time_point = std::chrono::steady_clock::now();
+
+    if (new_time_point - update_time_point > UPDATE_INFO_INTERVAL) {
+      cli.request_data_update();
+      update_time_point = new_time_point;
+    }
+#ifndef NDEBUG
+    if (new_time_point - print_info_time_point > DEBUG_PRINT_INFO_INTERVAL) {
+      LOG_PRINT(args.get_log_level(), LogLevel::DEBUG,
+                "Title: {}\nArtist: {}\nAlbum: {}\nFilename: {}\nDuration: "
+                "{}\nElapsed: {}",
+                cli.get_song_title(), cli.get_song_artist(),
+                cli.get_song_album(), cli.get_song_filename(),
+                cli.get_song_duration(), cli.get_elapsed_time());
+      print_info_time_point = new_time_point;
+    }
+#endif
+
     cli.update();
     if (cli.needs_auth()) {
       do_auth();
