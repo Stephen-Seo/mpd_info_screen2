@@ -6,6 +6,7 @@
 
 // Standard library includes
 #include <cstring>
+#include <vector>
 
 // Unix includes
 #include <errno.h>
@@ -26,6 +27,7 @@ MPDClient::MPDClient(std::string host_ip, uint16_t host_port, LogLevel level)
     flags.set(0);
   } else {
     flags.set(1);
+    flags.set(5);
   }
 }
 
@@ -68,6 +70,61 @@ void MPDClient::reset_connection() {
 
 bool MPDClient::is_ok() const { return !flags.test(0); }
 
+bool MPDClient::needs_auth() const { return flags.test(5); }
+
+void MPDClient::attempt_auth(std::string passwd) {
+  if (!is_ok() || tcp_socket < 0) {
+    return;
+  }
+
+  std::vector<char> vec;
+  vec.push_back('p');
+  vec.push_back('a');
+  vec.push_back('s');
+  vec.push_back('s');
+  vec.push_back('w');
+  vec.push_back('o');
+  vec.push_back('r');
+  vec.push_back('d');
+  vec.push_back(' ');
+
+  for (char c : passwd) {
+    vec.push_back(c);
+  }
+  vec.push_back('\n');
+
+  ssize_t write_ret = write(tcp_socket, vec.data(), vec.size());
+  if (write_ret == static_cast<ssize_t>(vec.size())) {
+    // Successful write, do nothing here.
+  } else if (errno == EAGAIN) {
+    // Re-attempt auth later.
+    LOG_PRINT(level, LogLevel::VERBOSE, "VERBOSE: Re-attempt auth later.");
+    return;
+  } else {
+    flags.set(0);
+    LOG_PRINT(level, LogLevel::ERROR,
+              "ERROR: Failed to auth with MPD! errno {}", errno);
+    return;
+  }
+
+  uint8_t buf[1024];
+  std::memset(buf, 0, 1024);
+  ssize_t read_ret = read(tcp_socket, buf, 1024);
+  if (read_ret > 1) {
+    LOG_PRINT(level, LogLevel::VERBOSE, "{:.{}s}",
+              reinterpret_cast<const char *>(buf), read_ret);
+    if (buf[0] == 'O' && buf[1] == 'K') {
+      // Success, clear "need auth" flag.
+      flags.reset(5);
+    }
+  } else {
+    flags.set(0);
+    LOG_PRINT(level, LogLevel::ERROR,
+              "ERROR: Failed to auth with MPD (check OK)!");
+    return;
+  }
+}
+
 void MPDClient::update() {
   if (flags.test(0)) {
     return;
@@ -83,7 +140,7 @@ void MPDClient::update() {
     tcp_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (tcp_socket < 0) {
       flags.set(0);
-      LOG_PRINT(level, LogLevel::ERROR, "Failed to create tpc socket: errno {}",
+      LOG_PRINT(level, LogLevel::ERROR, "Failed to create tcp socket: errno {}",
                 errno);
       return;
     }
@@ -98,7 +155,8 @@ void MPDClient::update() {
     }
     ipv4_sockaddr.sin_addr.s_addr = host_ip_value.value();
 
-    LOG_PRINT(level, LogLevel::VERBOSE, "host_ip: {:x}, host port: {:x}",
+    LOG_PRINT(level, LogLevel::VERBOSE,
+              "VERBOSE: host_ip: {:x}, host port: {:x}",
               ipv4_sockaddr.sin_addr.s_addr, ipv4_sockaddr.sin_port);
 
     int connect_ret = connect(
@@ -112,53 +170,100 @@ void MPDClient::update() {
                 "ERROR: Failed to connect to host! errno {}", errno);
       return;
     }
-  } else if (flags.test(2) && !flags.test(3)) {
-    LOG_PRINT(level, LogLevel::DEBUG, "Attempting status write...");
-    ssize_t write_ret = write(tcp_socket, "CMD status\n", 9);
-    if (write_ret != 9) {
-      LOG_PRINT(level, LogLevel::ERROR,
-                "ERROR: Failed to send \"CMD status\"!");
-      flags.set(0);
-      return;
-    }
+
     uint8_t buf[1024];
-    LOG_PRINT(level, LogLevel::DEBUG, "Attempting status read...");
+    std::memset(buf, 0, 1024);
     ssize_t read_ret = read(tcp_socket, buf, 1024);
     if (read_ret > 0) {
-      std::println("{:.{}s}", reinterpret_cast<const char *>(buf), read_ret);
-      if (buf[0] == 'O' && buf[1] == 'K') {
-        flags.set(3);
+      LOG_PRINT(level, LogLevel::VERBOSE, "{:.{}s}",
+                reinterpret_cast<const char *>(buf), read_ret);
+      if (buf[0] != 'O' || buf[1] != 'K') {
+        flags.set(0);
+        LOG_PRINT(level, LogLevel::ERROR,
+                  "ERROR: Failed to get initial OK from MPD!");
       }
     } else {
+      flags.set(0);
+      LOG_PRINT(level, LogLevel::ERROR,
+                "ERROR: Failed to read initial OK from MPD!");
+    }
+  } else if (flags.test(5)) {
+    // Do nothing, wait for authentication.
+  } else if (flags.test(2) && !flags.test(3)) {
+    if (!flags.test(4)) {
+      LOG_PRINT(level, LogLevel::DEBUG, "DEBUG: Attempting status write...");
+      ssize_t write_ret = write(tcp_socket, "status\n", 7);
+      if (write_ret != 7) {
+        LOG_PRINT(level, LogLevel::ERROR, "ERROR: Failed to send \"status\"!");
+        flags.set(0);
+        return;
+      }
+      flags.set(4);
+    }
+    uint8_t buf[1024];
+    std::memset(buf, 0, 1024);
+    LOG_PRINT(level, LogLevel::DEBUG, "DEBUG: Attempting status read...");
+    ssize_t read_ret = read(tcp_socket, buf, 1024);
+    if (read_ret > 0) {
+      flags.reset(4);
+      LOG_PRINT(level, LogLevel::VERBOSE, "{:.{}s}",
+                reinterpret_cast<const char *>(buf), read_ret);
+      if (buf[read_ret - 3] == 'O' && buf[read_ret - 2] == 'K' &&
+          buf[read_ret - 1] == '\n') {
+        flags.set(3);
+        flags.reset(5);
+      } else if (buf[0] == 'A' && buf[1] == 'C' && buf[2] == 'K') {
+        if (buf[5] == '4' && buf[6] == '@') {
+          // Permission/Auth required
+          flags.set(5);
+          LOG_PRINT(level, LogLevel::WARNING, "WARNING: MPD requires auth!");
+        } else {
+          flags.set(0);
+          LOG_PRINT(level, LogLevel::ERROR, "ERROR: Failed to get MPD status!");
+        }
+      }
+    } else if (errno != EAGAIN) {
       LOG_PRINT(level, LogLevel::ERROR,
                 "ERROR: Failed to receive after sending status! errno {}",
                 errno);
       flags.set(0);
       return;
     }
-    LOG_PRINT(level, LogLevel::DEBUG, "Done with status.");
+
+    if (!flags.test(4)) {
+      LOG_PRINT(level, LogLevel::DEBUG, "DEBUG: Done with status.");
+    }
   } else {
-    LOG_PRINT(level, LogLevel::DEBUG, "Attempting ping write...");
-    ssize_t write_ret = write(tcp_socket, "CMD ping\n", 9);
-    if (write_ret != 9) {
-      LOG_PRINT(level, LogLevel::ERROR, "ERROR: Failed to send \"CMD ping\"!");
-      flags.set(0);
-      return;
+    if (!flags.test(4)) {
+      LOG_PRINT(level, LogLevel::DEBUG, "DEBUG: Attempting ping write...");
+      ssize_t write_ret = write(tcp_socket, "ping\n", 5);
+      if (write_ret != 5) {
+        LOG_PRINT(level, LogLevel::ERROR, "ERROR: Failed to send \"ping\"!");
+        flags.set(0);
+        return;
+      }
+      flags.set(4);
     }
     uint8_t buf[1024];
-    LOG_PRINT(level, LogLevel::DEBUG, "Attempting ping read...");
+    std::memset(buf, 0, 1024);
+    LOG_PRINT(level, LogLevel::DEBUG, "DEBUG: Attempting ping read...");
     ssize_t read_ret = read(tcp_socket, buf, 1024);
     if (read_ret > 0) {
-      std::println("{:.{}s}", reinterpret_cast<const char *>(buf), read_ret);
+      flags.reset(4);
+      LOG_PRINT(level, LogLevel::VERBOSE, "{:.{}s}",
+                reinterpret_cast<const char *>(buf), read_ret);
       if (buf[0] == 'O' && buf[1] == 'K') {
         flags.set(2);
       }
-    } else {
+    } else if (errno != EAGAIN) {
       LOG_PRINT(level, LogLevel::ERROR,
                 "ERROR: Failed to receive after sending ping!");
       flags.set(0);
       return;
     }
-    LOG_PRINT(level, LogLevel::DEBUG, "Done with ping.");
+
+    if (!flags.test(4)) {
+      LOG_PRINT(level, LogLevel::DEBUG, "DEBUG: Done with ping.");
+    }
   }
 }

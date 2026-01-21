@@ -28,6 +28,9 @@ class MPDClient {
   void reset_connection();
   bool is_ok() const;
 
+  bool needs_auth() const;
+  void attempt_auth(std::string passwd);
+
   void update();
   Event get_event();
 
@@ -36,6 +39,8 @@ class MPDClient {
   // 1 - initial state
   // 2 - successful ping
   // 3 - successful status
+  // 4 - waiting on read
+  // 5 - permission/auth required
   std::bitset<64> flags;
   std::vector<Event> events;
   LogLevel level;
