@@ -21,12 +21,14 @@
 #include "helpers.h"
 
 // Standard library includes
+#include <chrono>
 #include <cstring>
 #include <thread>
 #include <vector>
 
 // Unix includes
 #include <errno.h>
+#include <fcntl.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -170,6 +172,16 @@ void MPDClient::update() {
       flags.set(0);
       LOG_PRINT(level, LogLevel::ERROR,
                 "ERROR: Failed to connect to host! errno {}", errno);
+      return;
+    }
+
+    int fcntl_ret = fcntl(tcp_socket, F_SETFD, O_NONBLOCK);
+    if (fcntl_ret == -1) {
+      cleanup_close_tcp();
+      flags.set(0);
+      LOG_PRINT(level, LogLevel::ERROR,
+                "ERROR: Failed to set non-blocking on tcp socket! errno {}",
+                errno);
       return;
     }
 
@@ -394,63 +406,88 @@ std::tuple<MPDClient::StatusEnum, std::string> MPDClient::write_read(
 
   bool did_write_this_iteration = false;
   if (!flags.test(4)) {
-    ssize_t write_ret = write(tcp_socket, to_send.data(), to_send.size());
-    if (write_ret == static_cast<ssize_t>(to_send.size())) {
-      // Success.
-      flags.set(4);
-      did_write_this_iteration = true;
-    } else if (write_ret < 0) {
-      cleanup_close_tcp();
-      flags.set(0);
-      LOG_PRINT(level, LogLevel::ERROR,
-                "ERROR: Failed to write \"{}\"! (errno {})", to_send, errno);
-      return {};
-    } else {
-      cleanup_close_tcp();
-      flags.set(0);
-      LOG_PRINT(level, LogLevel::ERROR, "ERROR: Failed to write \"{}\"!",
-                to_send);
-      return {StatusEnum::SE_GENERIC_ERROR, {}};
-    }
+    bool successful_write = false;
+    do {
+      ssize_t write_ret = write(tcp_socket, to_send.data(), to_send.size());
+      if (write_ret == static_cast<ssize_t>(to_send.size())) {
+        // Success.
+        flags.set(4);
+        did_write_this_iteration = true;
+        successful_write = true;
+        continue;
+      } else if (write_ret < 0) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+          // Non-blocking IO, try again soon.
+          std::this_thread::sleep_for(LOOP_SLEEP_TIME);
+          continue;
+        }
+        cleanup_close_tcp();
+        flags.set(0);
+        LOG_PRINT(level, LogLevel::ERROR,
+                  "ERROR: Failed to write \"{}\"! (errno {})", to_send, errno);
+        return {};
+      } else {
+        cleanup_close_tcp();
+        flags.set(0);
+        LOG_PRINT(level, LogLevel::ERROR, "ERROR: Failed to write \"{}\"!",
+                  to_send);
+        return {StatusEnum::SE_GENERIC_ERROR, {}};
+      }
+    } while (!successful_write);
   }
 
   std::string str;
   str.resize(READ_BUF_SIZE);
 
-  ssize_t read_ret = read(tcp_socket, str.data(), str.size());
-  if (read_ret > 0) {
-    flags.reset(4);
-    str.resize(static_cast<size_t>(read_ret));
-    LOG_PRINT(level, LogLevel::VERBOSE, "{}", str);
-    return {StatusEnum::SE_SUCCESS, std::move(str)};
-  } else if (read_ret < 0) {
-    if (errno == EAGAIN) {
-      return {StatusEnum::SE_EAGAIN_ON_READ, {}};
-    }
-    cleanup_close_tcp();
-    flags.set(0);
-    if (did_write_this_iteration) {
-      LOG_PRINT(level, LogLevel::ERROR,
-                "ERROR: Failed to read after writing \"{}\"! (errno {})",
-                to_send, errno);
+  const auto start_timestamp = std::chrono::steady_clock::now();
+  bool successful_read = false;
+  do {
+    ssize_t read_ret = read(tcp_socket, str.data(), str.size());
+    if (read_ret > 0) {
+      flags.reset(4);
+      successful_read = true;
+      str.resize(static_cast<size_t>(read_ret));
+      LOG_PRINT(level, LogLevel::VERBOSE, "{}", str);
+      return {StatusEnum::SE_SUCCESS, std::move(str)};
+    } else if (read_ret < 0) {
+      if (errno == EAGAIN || errno == EWOULDBLOCK) {
+        // Non-blocking IO, try again soon.
+        const auto current_timestamp = std::chrono::steady_clock::now();
+        if (current_timestamp - start_timestamp > MPD_CLI_READ_TIMEOUT) {
+          LOG_PRINT(level, LogLevel::WARNING,
+                    "WARNING: MPDCli read timed out!");
+          return {StatusEnum::SE_READ_TIMED_OUT, {}};
+        }
+        std::this_thread::sleep_for(LOOP_SLEEP_TIME);
+        continue;
+      }
+      cleanup_close_tcp();
+      flags.set(0);
+      if (did_write_this_iteration) {
+        LOG_PRINT(level, LogLevel::ERROR,
+                  "ERROR: Failed to read after writing \"{}\"! (errno {})",
+                  to_send, errno);
+      } else {
+        LOG_PRINT(level, LogLevel::ERROR,
+                  "ERROR: Failed to read after writing! (errno {})", errno);
+      }
+      return {StatusEnum::SE_GENERIC_ERROR, {}};
     } else {
-      LOG_PRINT(level, LogLevel::ERROR,
-                "ERROR: Failed to read after writing! (errno {})", errno);
+      cleanup_close_tcp();
+      flags.set(0);
+      if (did_write_this_iteration) {
+        LOG_PRINT(level, LogLevel::ERROR,
+                  "ERROR: Read EOF after writing \"{}\"! (errno {})", to_send,
+                  errno);
+      } else {
+        LOG_PRINT(level, LogLevel::ERROR,
+                  "ERROR: Read EOF after writing! (errno {})", errno);
+      }
+      return {StatusEnum::SE_GENERIC_ERROR, {}};
     }
-    return {StatusEnum::SE_GENERIC_ERROR, {}};
-  } else {
-    cleanup_close_tcp();
-    flags.set(0);
-    if (did_write_this_iteration) {
-      LOG_PRINT(level, LogLevel::ERROR,
-                "ERROR: Read EOF after writing \"{}\"! (errno {})", to_send,
-                errno);
-    } else {
-      LOG_PRINT(level, LogLevel::ERROR,
-                "ERROR: Read EOF after writing! (errno {})", errno);
-    }
-    return {StatusEnum::SE_GENERIC_ERROR, {}};
-  }
+  } while (!successful_read);
+
+  return {StatusEnum::SE_GENERIC_ERROR, {}};
 }
 
 void MPDClient::cleanup_close_tcp() {

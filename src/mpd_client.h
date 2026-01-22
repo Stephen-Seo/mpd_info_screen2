@@ -58,7 +58,12 @@ class MPDClient {
   void request_data_update();
 
  private:
-  enum StatusEnum { SE_SUCCESS, SE_EAGAIN_ON_READ, SE_GENERIC_ERROR };
+  enum StatusEnum {
+    SE_SUCCESS,
+    SE_EAGAIN_ON_READ,
+    SE_GENERIC_ERROR,
+    SE_READ_TIMED_OUT
+  };
 
   // 0 - invalid state
   // 1 - initial state
@@ -67,6 +72,7 @@ class MPDClient {
   // 4 - waiting on read
   // 5 - permission/auth required
   // 6 - successful "currentsong"
+  // 7 - non-blocking set
   std::bitset<64> flags;
   LogLevel level;
   std::optional<uint32_t> host_ip_value;
