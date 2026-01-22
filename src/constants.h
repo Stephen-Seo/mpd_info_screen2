@@ -29,7 +29,8 @@ constexpr std::chrono::milliseconds UPDATE_INFO_INTERVAL =
     std::chrono::milliseconds(3000);
 constexpr std::chrono::seconds DEBUG_PRINT_INFO_INTERVAL =
     std::chrono::seconds(5);
-constexpr std::chrono::seconds MPD_CLI_READ_TIMEOUT = std::chrono::seconds(1);
+constexpr std::chrono::seconds MPD_CLI_READ_TIMEOUT = std::chrono::seconds(2);
+constexpr std::chrono::seconds MPD_CLI_WRITE_TIMEOUT = MPD_CLI_READ_TIMEOUT;
 
 #define LOG_PRINT(setting, level, msg, ...)       \
   if (log_level_can_log(setting, level)) {        \

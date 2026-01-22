@@ -404,6 +404,7 @@ std::tuple<MPDClient::StatusEnum, std::string> MPDClient::write_read(
 
   LOG_PRINT(level, LogLevel::VERBOSE, "VERBOSE: sending: {}", to_send);
 
+  const auto write_timestamp = std::chrono::steady_clock::now();
   bool did_write_this_iteration = false;
   if (!flags.test(4)) {
     bool successful_write = false;
@@ -418,6 +419,12 @@ std::tuple<MPDClient::StatusEnum, std::string> MPDClient::write_read(
       } else if (write_ret < 0) {
         if (errno == EAGAIN || errno == EWOULDBLOCK) {
           // Non-blocking IO, try again soon.
+          const auto current_timestamp = std::chrono::steady_clock::now();
+          if (current_timestamp - write_timestamp > MPD_CLI_WRITE_TIMEOUT) {
+            LOG_PRINT(level, LogLevel::WARNING,
+                      "WARNING: MPDCli write timed out!");
+            return {StatusEnum::SE_WRITE_TIMED_OUT, {}};
+          }
           std::this_thread::sleep_for(LOOP_SLEEP_TIME);
           continue;
         }
@@ -439,7 +446,7 @@ std::tuple<MPDClient::StatusEnum, std::string> MPDClient::write_read(
   std::string str;
   str.resize(READ_BUF_SIZE);
 
-  const auto start_timestamp = std::chrono::steady_clock::now();
+  const auto read_timestamp = std::chrono::steady_clock::now();
   bool successful_read = false;
   do {
     ssize_t read_ret = read(tcp_socket, str.data(), str.size());
@@ -453,7 +460,7 @@ std::tuple<MPDClient::StatusEnum, std::string> MPDClient::write_read(
       if (errno == EAGAIN || errno == EWOULDBLOCK) {
         // Non-blocking IO, try again soon.
         const auto current_timestamp = std::chrono::steady_clock::now();
-        if (current_timestamp - start_timestamp > MPD_CLI_READ_TIMEOUT) {
+        if (current_timestamp - read_timestamp > MPD_CLI_READ_TIMEOUT) {
           LOG_PRINT(level, LogLevel::WARNING,
                     "WARNING: MPDCli read timed out!");
           return {StatusEnum::SE_READ_TIMED_OUT, {}};

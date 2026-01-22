@@ -62,7 +62,8 @@ class MPDClient {
     SE_SUCCESS,
     SE_EAGAIN_ON_READ,
     SE_GENERIC_ERROR,
-    SE_READ_TIMED_OUT
+    SE_READ_TIMED_OUT,
+    SE_WRITE_TIMED_OUT
   };
 
   // 0 - invalid state
