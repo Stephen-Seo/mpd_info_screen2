@@ -655,7 +655,13 @@ void MPDClient::parse_for_song_info(const std::string &str) {
       if (end_idx == std::string::npos) {
         break;
       }
-      song_filename = std::string(str.data() + idx, end_idx - idx);
+      std::string song_filename = std::string(str.data() + idx, end_idx - idx);
+      if (song_filename != this->song_filename) {
+        // New song, info is stale.
+        request_data_update();
+        request_refetch_album_art();
+        this->song_filename = song_filename;
+      }
       idx = end_idx + 1;
     } else if (str.size() - idx > 10 &&
                std::strncmp("duration: ", str.data() + idx, 10) == 0) {
