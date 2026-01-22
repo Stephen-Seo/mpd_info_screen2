@@ -498,8 +498,8 @@ void MPDClient::update() {
                 "DEBUG: Fetched \"readpicture/albumart\" data.");
 #ifndef NDEBUG
       LOG_PRINT(level, LogLevel::DEBUG,
-                "DEBUG: First bytes of \"readpicture\" data: {:x} {:x} {:x} "
-                "{:x} {:x} {:x} {:x} {:x}",
+                "DEBUG: First bytes of \"readpicture/albumart\" data: {:x} "
+                "{:x} {:x} {:x} {:x} {:x} {:x} {:x}",
                 album_art.value().at(0), album_art.value().at(1),
                 album_art.value().at(2), album_art.value().at(3),
                 album_art.value().at(4), album_art.value().at(5),
