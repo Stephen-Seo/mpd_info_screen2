@@ -100,16 +100,16 @@ int main(int argc, char **argv) {
     }
 #ifndef NDEBUG
     if (new_time_point - print_info_time_point > DEBUG_PRINT_INFO_INTERVAL) {
-      LOG_PRINT(args.get_log_level(), LogLevel::DEBUG,
-                "Title: {}\nArtist: {}\nAlbum: {}\nFilename: {}\nDuration: "
-                "{}\nElapsed: {}\nAlbumArtSize: {}\nAlbumArtMimeType: {}",
-                cli.get_song_title(), cli.get_song_artist(),
-                cli.get_song_album(), cli.get_song_filename(),
-                cli.get_song_duration(), cli.get_elapsed_time(),
-                cli.get_album_art().has_value()
-                    ? cli.get_album_art().value().size()
-                    : 0,
-                cli.get_album_art_mime_type());
+      LOG_PRINT(
+          args.get_log_level(), LogLevel::DEBUG,
+          "Title: {}\nArtist: {}\nAlbum: {}\nFilename: {}\nDuration: "
+          "{}\nElapsed: {}\nAlbumArtSize: {}\nAlbumArtMimeType: {}",
+          cli.get_song_title(), cli.get_song_artist(), cli.get_song_album(),
+          cli.get_song_filename(), cli.get_song_duration(),
+          std::get<double>(cli.get_elapsed_time()),
+          cli.get_album_art().has_value() ? cli.get_album_art().value().size()
+                                          : 0,
+          cli.get_album_art_mime_type());
       print_info_time_point = new_time_point;
     }
 #endif

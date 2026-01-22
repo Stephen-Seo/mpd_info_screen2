@@ -44,6 +44,7 @@ MPDClient::MPDClient(std::string host_ip, uint16_t host_port, LogLevel level)
       song_artist(),
       song_album(),
       song_filename(),
+      elapsed_time_point(std::chrono::steady_clock::now()),
       elapsed_time(0.0),
       song_duration(0.0),
       album_art(),
@@ -72,6 +73,7 @@ MPDClient::MPDClient(MPDClient &&other)
       song_artist(std::move(other.song_artist)),
       song_album(std::move(other.song_album)),
       song_filename(std::move(other.song_filename)),
+      elapsed_time_point(std::move(other.elapsed_time_point)),
       elapsed_time(other.elapsed_time),
       song_duration(other.song_duration),
       album_art(std::move(other.album_art)),
@@ -88,6 +90,17 @@ MPDClient &MPDClient::operator=(MPDClient &&other) {
   this->host_port = other.host_port;
   this->tcp_socket = other.tcp_socket;
   other.tcp_socket = -1;
+  this->song_title = std::move(other.song_title);
+  this->song_artist = std::move(other.song_artist);
+  this->song_album = std::move(other.song_album);
+  this->song_filename = std::move(other.song_filename);
+  this->elapsed_time_point = std::move(other.elapsed_time_point);
+  this->elapsed_time = other.elapsed_time;
+  this->song_duration = other.song_duration;
+  this->album_art = std::move(other.album_art);
+  this->album_art_mime_type = std::move(other.album_art_mime_type);
+  this->album_art_offset = std::move(other.album_art_offset);
+  this->album_art_expected_size = other.album_art_expected_size;
 
   return *this;
 }
@@ -504,7 +517,10 @@ const std::string &MPDClient::get_song_filename() const {
   return song_filename;
 }
 double MPDClient::get_song_duration() const { return song_duration; }
-double MPDClient::get_elapsed_time() const { return elapsed_time; }
+std::tuple<double, std::chrono::steady_clock::time_point>
+MPDClient::get_elapsed_time() const {
+  return {elapsed_time, elapsed_time_point};
+}
 const std::optional<std::vector<char> > &MPDClient::get_album_art() const {
   return album_art;
 }
@@ -732,6 +748,7 @@ void MPDClient::parse_for_song_info(const std::string &str) {
       idx = end_idx + 1;
     } else if (str.size() - idx > 9 &&
                std::strncmp("elapsed: ", str.data() + idx, 9) == 0) {
+      elapsed_time_point = std::chrono::steady_clock::now();
       idx += 9;
       size_t end_idx = str.find("\n", idx);
       if (end_idx == std::string::npos) {

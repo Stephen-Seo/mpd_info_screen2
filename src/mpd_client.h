@@ -18,6 +18,7 @@
 #define SEODISPARATE_COM_MPD_INFO_SCREEN_2_MPD_CLIENT_H_
 
 #include <bitset>
+#include <chrono>
 #include <cstdint>
 #include <optional>
 #include <string>
@@ -53,7 +54,8 @@ class MPDClient {
   const std::string &get_song_album() const;
   const std::string &get_song_filename() const;
   double get_song_duration() const;
-  double get_elapsed_time() const;
+  std::tuple<double, std::chrono::steady_clock::time_point> get_elapsed_time()
+      const;
   const std::optional<std::vector<char> > &get_album_art() const;
   const std::string &get_album_art_mime_type() const;
 
@@ -111,6 +113,7 @@ class MPDClient {
   std::string song_artist;
   std::string song_album;
   std::string song_filename;
+  std::chrono::steady_clock::time_point elapsed_time_point;
   double elapsed_time;
   double song_duration;
   std::optional<std::vector<char> > album_art;
