@@ -428,7 +428,9 @@ void MPDClient::update() {
              (!flags.test(9) || !flags.test(10))) {
     // Fetch album art
     std::string song_filename_escaped =
-        helper_replace_in_string(song_filename, "\"", "\\\"");
+        helper_replace_in_string(song_filename, "\\", "\\\\");
+    song_filename_escaped =
+        helper_replace_in_string(song_filename_escaped, "\"", "\\\"");
     std::string cmd;
     if (!flags.test(9)) {
       cmd = std::format(
