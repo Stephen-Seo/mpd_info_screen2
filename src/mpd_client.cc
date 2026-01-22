@@ -157,6 +157,8 @@ void MPDClient::attempt_auth(std::string passwd) {
         // Success, clear "need auth" flag.
         flags.reset(5);
         read_success = true;
+        LOG_PRINT(level, LogLevel::WARNING,
+                  "Successfully authenticated with MPD.");
       } else {
         LOG_PRINT(level, LogLevel::ERROR, "ERROR: Failed to auth with MPD!");
         flags.set(0);
@@ -467,7 +469,7 @@ void MPDClient::update() {
         LOG_PRINT(level, LogLevel::WARNING,
                   "WARNING: song has no cover image!");
         if (flags.test(9) && flags.test(10)) {
-          flags.set(8);
+          flags.reset(8);
           flags.set(11);
           return;
         }
@@ -509,6 +511,8 @@ const std::optional<std::vector<char> > &MPDClient::get_album_art() const {
 const std::string &MPDClient::get_album_art_mime_type() const {
   return album_art_mime_type;
 }
+
+bool MPDClient::song_has_album_art() const { return !flags.test(11); }
 
 void MPDClient::request_data_update() {
   flags.reset(3);

@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
   }
 
   MPDClient cli(args.get_host_ip_addr(), args.get_host_port(),
-                LogLevel::VERBOSE);
+                args.get_log_level());
 
   if (!cli.is_ok()) {
     LOG_PRINT(args.get_log_level(), LogLevel::VERBOSE,

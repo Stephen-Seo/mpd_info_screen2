@@ -57,6 +57,8 @@ class MPDClient {
   const std::optional<std::vector<char> > &get_album_art() const;
   const std::string &get_album_art_mime_type() const;
 
+  bool song_has_album_art() const;
+
   void request_data_update();
   void request_refetch_album_art();
 
