@@ -424,22 +424,61 @@ void MPDClient::update() {
 
       std::this_thread::sleep_for(LOOP_SLEEP_TIME);
     } while (!successful_write_read);
-  } else if (flags.test(8) && !song_filename.empty()) {
+  } else if (flags.test(8) && !song_filename.empty() &&
+             (!flags.test(9) || !flags.test(10))) {
+    // Fetch album art
     std::string song_filename_escaped =
         helper_replace_in_string(song_filename, "\"", "\\\"");
-    auto [status, buf] = write_read(std::format(
-        "readpicture \"{}\" {}\n", song_filename_escaped,
-        album_art_offset.has_value() ? album_art_offset.value() : 0));
+    std::string cmd;
+    if (!flags.test(9)) {
+      cmd = std::format(
+          "readpicture \"{}\" {}\n", song_filename_escaped,
+          album_art_offset.has_value() ? album_art_offset.value() : 0);
+    } else if (!flags.test(10)) {
+      cmd = std::format(
+          "albumart \"{}\" {}\n", song_filename_escaped,
+          album_art_offset.has_value() ? album_art_offset.value() : 0);
+    } else {
+      flags.reset(8);
+      flags.set(11);
+      return;
+    }
+    auto [status, buf] = write_read(cmd);
     if (flags.test(0) ||
         (status != SE_SUCCESS && status != SE_EAGAIN_ON_READ)) {
       cleanup_close_tcp();
       flags.set(0);
       LOG_PRINT(level, LogLevel::ERROR,
-                "ERROR: Failed to fetch \"readpicture\" from MPD!");
+                "ERROR: Internal error while fetching album art from MPD!");
+    } else if (buf.at(0) == 'A' && buf.at(1) == 'C' && buf.at(2) == 'K') {
+      if (buf.at(5) == '4' && buf.at(6) == '@') {
+        // Permission/Auth required
+        flags.set(5);
+        LOG_PRINT(level, LogLevel::WARNING, "WARNING: MPD requires auth!");
+        return;
+      } else if (!flags.test(9)) {
+        flags.set(9);
+        LOG_PRINT(level, LogLevel::WARNING,
+                  "WARNING: song has no embedded album art!");
+      } else if (!flags.test(10)) {
+        flags.set(10);
+        LOG_PRINT(level, LogLevel::WARNING,
+                  "WARNING: song has no cover image!");
+        if (flags.test(9) && flags.test(10)) {
+          flags.set(8);
+          flags.set(11);
+          return;
+        }
+      } else {
+        flags.reset(8);
+        flags.set(11);
+        return;
+      }
     } else if (album_art.has_value() &&
                album_art.value().size() == album_art_expected_size) {
       flags.reset(8);
-      LOG_PRINT(level, LogLevel::DEBUG, "DEBUG: Fetched \"readpicture\" data.");
+      LOG_PRINT(level, LogLevel::DEBUG,
+                "DEBUG: Fetched \"readpicture/albumart\" data.");
 #ifndef NDEBUG
       LOG_PRINT(level, LogLevel::DEBUG,
                 "DEBUG: First bytes of \"readpicture\" data: {:x} {:x} {:x} "
@@ -480,6 +519,9 @@ void MPDClient::request_refetch_album_art() {
   album_art_expected_size = 0;
   album_art_mime_type.clear();
   album_art_offset = 0;
+  flags.reset(9);
+  flags.reset(10);
+  flags.reset(11);
 }
 
 std::tuple<MPDClient::StatusEnum, std::string> MPDClient::write_read(
@@ -488,7 +530,9 @@ std::tuple<MPDClient::StatusEnum, std::string> MPDClient::write_read(
     return {StatusEnum::SE_GENERIC_ERROR, {}};
   }
 
-  LOG_PRINT(level, LogLevel::VERBOSE, "VERBOSE: sending: {}", to_send);
+  LOG_PRINT(level, LogLevel::VERBOSE, "VERBOSE: sending: {:.{}}",
+            to_send.empty() ? "Nothing" : to_send,
+            to_send.empty() ? 7 : to_send.size() - 1);
 
   const auto write_timestamp = std::chrono::steady_clock::now();
   bool did_write_this_iteration = false;

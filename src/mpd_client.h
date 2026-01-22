@@ -95,6 +95,9 @@ class MPDClient {
   // 6 - successful "currentsong"
   // 7 - non-blocking set
   // 8 - need to fetch album art
+  // 9 - current song no "readpicture"
+  // 10 - current song no "albumart"
+  // 11 - failed to fetch album art
   std::bitset<64> flags;
   LogLevel level;
   std::optional<uint32_t> host_ip_value;
