@@ -34,4 +34,8 @@ extern constexpr bool helper_is_big_endian() {
 
 extern std::optional<uint32_t> helper_ipv4_str_to_value(std::string ipv4);
 
+extern std::string helper_replace_in_string(const std::string &in,
+                                            const std::string &target,
+                                            const std::string &replacement);
+
 #endif

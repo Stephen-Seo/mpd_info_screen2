@@ -21,8 +21,9 @@
 #include <iostream>
 #include <print>
 
-constexpr size_t READ_BUF_SIZE = 4096;
+constexpr size_t READ_BUF_SIZE = 1024 * 1024;
 constexpr size_t READ_BUF_SIZE_SMALL = 1024;
+constexpr size_t MPD_BINARY_LIMIT = READ_BUF_SIZE - 100;
 constexpr std::chrono::milliseconds LOOP_SLEEP_TIME =
     std::chrono::milliseconds(10);
 constexpr std::chrono::milliseconds UPDATE_INFO_INTERVAL =
@@ -41,5 +42,22 @@ constexpr std::chrono::seconds MPD_CLI_WRITE_TIMEOUT = MPD_CLI_READ_TIMEOUT;
 enum class LogLevel { SILENT, ERROR, WARNING, DEBUG, VERBOSE };
 
 extern bool log_level_can_log(LogLevel setting, LogLevel level);
+
+constexpr std::string log_level_to_str(LogLevel level) {
+  switch (level) {
+    case LogLevel::SILENT:
+      return "SILENT";
+    case LogLevel::ERROR:
+      return "ERROR";
+    case LogLevel::WARNING:
+      return "WARNING";
+    case LogLevel::DEBUG:
+      return "DEBUG";
+    case LogLevel::VERBOSE:
+      return "VERBOSE";
+    default:
+      return "UNKNOWN";
+  }
+}
 
 #endif

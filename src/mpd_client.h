@@ -54,8 +54,11 @@ class MPDClient {
   const std::string &get_song_filename() const;
   double get_song_duration() const;
   double get_elapsed_time() const;
+  const std::optional<std::vector<char> > &get_album_art() const;
+  const std::string &get_album_art_mime_type() const;
 
   void request_data_update();
+  void request_refetch_album_art();
 
  private:
   enum StatusEnum {
@@ -66,6 +69,23 @@ class MPDClient {
     SE_WRITE_TIMED_OUT
   };
 
+  constexpr static std::string status_to_str(StatusEnum val) {
+    switch (val) {
+      case SE_SUCCESS:
+        return "SE_SUCCESS";
+      case SE_EAGAIN_ON_READ:
+        return "SE_EAGAIN_ON_READ";
+      case SE_GENERIC_ERROR:
+        return "SE_GENERIC_ERROR";
+      case SE_READ_TIMED_OUT:
+        return "SE_READ_TIMED_OUT";
+      case SE_WRITE_TIMED_OUT:
+        return "SE_WRITE_TIMED_OUT";
+      default:
+        return "UNKNOWN";
+    }
+  }
+
   // 0 - invalid state
   // 1 - initial state
   // 2 - successful ping
@@ -74,6 +94,7 @@ class MPDClient {
   // 5 - permission/auth required
   // 6 - successful "currentsong"
   // 7 - non-blocking set
+  // 8 - need to fetch album art
   std::bitset<64> flags;
   LogLevel level;
   std::optional<uint32_t> host_ip_value;
@@ -87,12 +108,17 @@ class MPDClient {
   std::string song_filename;
   double elapsed_time;
   double song_duration;
+  std::optional<std::vector<char> > album_art;
+  std::string album_art_mime_type;
+  std::optional<size_t> album_art_offset;
+  size_t album_art_expected_size;
 
   std::tuple<StatusEnum, std::string> write_read(std::string to_send);
 
   void cleanup_close_tcp();
 
   void parse_for_song_info(const std::string &buf);
+  void parse_for_album_art(const std::string &buf);
 };
 
 #endif

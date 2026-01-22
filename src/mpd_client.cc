@@ -21,6 +21,7 @@
 #include "helpers.h"
 
 // Standard library includes
+#include <cerrno>
 #include <chrono>
 #include <cstring>
 #include <thread>
@@ -38,13 +39,24 @@ MPDClient::MPDClient(std::string host_ip, uint16_t host_port, LogLevel level)
       level(level),
       host_ip_value(helper_ipv4_str_to_value(host_ip)),
       host_port(host_port),
-      tcp_socket(-1) {
+      tcp_socket(-1),
+      song_title(),
+      song_artist(),
+      song_album(),
+      song_filename(),
+      elapsed_time(0.0),
+      song_duration(0.0),
+      album_art(),
+      album_art_mime_type(),
+      album_art_offset(0),
+      album_art_expected_size(0) {
   if (!host_ip_value.has_value()) {
     LOG_PRINT(level, LogLevel::ERROR, "ERROR: Failed to parse ipv4 \"{}\"!",
               host_ip);
     flags.set(0);
   } else {
     flags.set(1);
+    flags.set(8);
   }
 }
 
@@ -54,8 +66,18 @@ MPDClient::MPDClient(MPDClient &&other)
     : flags(std::move(other.flags)),
       level(std::move(other.level)),
       host_ip_value(std::move(other.host_ip_value)),
-      host_port(other.host_port),
-      tcp_socket(other.tcp_socket) {
+      host_port(std::move(other.host_port)),
+      tcp_socket(std::move(other.tcp_socket)),
+      song_title(std::move(other.song_title)),
+      song_artist(std::move(other.song_artist)),
+      song_album(std::move(other.song_album)),
+      song_filename(std::move(other.song_filename)),
+      elapsed_time(other.elapsed_time),
+      song_duration(other.song_duration),
+      album_art(std::move(other.album_art)),
+      album_art_mime_type(std::move(other.album_art_mime_type)),
+      album_art_offset(std::move(other.album_art_offset)),
+      album_art_expected_size(other.album_art_expected_size) {
   other.tcp_socket = -1;
 }
 
@@ -73,6 +95,14 @@ MPDClient &MPDClient::operator=(MPDClient &&other) {
 void MPDClient::reset_connection() {
   flags.reset(0);
   flags.set(1);
+  flags.reset(2);
+  flags.reset(3);
+  flags.reset(4);
+  flags.reset(5);
+  flags.reset(6);
+  flags.reset(7);
+  flags.set(8);
+  album_art = std::nullopt;
   cleanup_close_tcp();
 }
 
@@ -117,20 +147,33 @@ void MPDClient::attempt_auth(std::string passwd) {
 
   uint8_t buf[READ_BUF_SIZE_SMALL];
   std::memset(buf, 0, READ_BUF_SIZE_SMALL);
-  ssize_t read_ret = read(tcp_socket, buf, READ_BUF_SIZE_SMALL);
-  if (read_ret > 1) {
-    LOG_PRINT(level, LogLevel::VERBOSE, "{:.{}s}",
-              reinterpret_cast<const char *>(buf), read_ret);
-    if (buf[0] == 'O' && buf[1] == 'K') {
-      // Success, clear "need auth" flag.
-      flags.reset(5);
+  bool read_success = false;
+  do {
+    ssize_t read_ret = read(tcp_socket, buf, READ_BUF_SIZE_SMALL);
+    if (read_ret > 1) {
+      LOG_PRINT(level, LogLevel::VERBOSE, "{:.{}s}",
+                reinterpret_cast<const char *>(buf), read_ret);
+      if (buf[0] == 'O' && buf[1] == 'K') {
+        // Success, clear "need auth" flag.
+        flags.reset(5);
+        read_success = true;
+      } else {
+        LOG_PRINT(level, LogLevel::ERROR, "ERROR: Failed to auth with MPD!");
+        flags.set(0);
+        return;
+      }
+    } else {
+      if (errno == EAGAIN || errno == EWOULDBLOCK) {
+        // Non-blocking IO indicating not ready yet.
+        std::this_thread::sleep_for(LOOP_SLEEP_TIME);
+        continue;
+      }
+      flags.set(0);
+      LOG_PRINT(level, LogLevel::ERROR,
+                "ERROR: Failed to auth with MPD (check OK)!");
+      return;
     }
-  } else {
-    flags.set(0);
-    LOG_PRINT(level, LogLevel::ERROR,
-              "ERROR: Failed to auth with MPD (check OK)!");
-    return;
-  }
+  } while (!read_success);
 }
 
 void MPDClient::update() {
@@ -175,7 +218,7 @@ void MPDClient::update() {
       return;
     }
 
-    int fcntl_ret = fcntl(tcp_socket, F_SETFD, O_NONBLOCK);
+    int fcntl_ret = fcntl(tcp_socket, F_SETFL, O_NONBLOCK);
     if (fcntl_ret == -1) {
       cleanup_close_tcp();
       flags.set(0);
@@ -187,6 +230,8 @@ void MPDClient::update() {
 
     flags.set(4);
     auto [status, str] = write_read("");
+    LOG_PRINT(level, LogLevel::VERBOSE, "VERBOSE: Init write_read: {}",
+              status_to_str(status));
     if (flags.test(0)) {
       return;
     } else if (!str.empty()) {
@@ -210,7 +255,8 @@ void MPDClient::update() {
     // Set the max binary size:
     bool binary_size_set = false;
     do {
-      std::tie(status, str) = write_read("binarylimit 4000\n");
+      std::tie(status, str) =
+          write_read(std::format("binarylimit {}\n", MPD_BINARY_LIMIT));
       if (flags.test(0) || (status != StatusEnum::SE_SUCCESS &&
                             status != StatusEnum::SE_EAGAIN_ON_READ)) {
         cleanup_close_tcp();
@@ -378,6 +424,32 @@ void MPDClient::update() {
 
       std::this_thread::sleep_for(LOOP_SLEEP_TIME);
     } while (!successful_write_read);
+  } else if (flags.test(8) && !song_filename.empty()) {
+    std::string song_filename_escaped =
+        helper_replace_in_string(song_filename, "\"", "\\\"");
+    auto [status, buf] = write_read(std::format(
+        "readpicture \"{}\" {}\n", song_filename_escaped,
+        album_art_offset.has_value() ? album_art_offset.value() : 0));
+    if (flags.test(0) ||
+        (status != SE_SUCCESS && status != SE_EAGAIN_ON_READ)) {
+      cleanup_close_tcp();
+      flags.set(0);
+      LOG_PRINT(level, LogLevel::ERROR,
+                "ERROR: Failed to fetch \"readpicture\" from MPD!");
+    } else if (album_art.has_value() &&
+               album_art.value().size() == album_art_expected_size) {
+      flags.reset(8);
+      LOG_PRINT(level, LogLevel::DEBUG, "DEBUG: Fetched \"readpicture\" data.");
+#ifndef NDEBUG
+      LOG_PRINT(level, LogLevel::DEBUG,
+                "DEBUG: First bytes of \"readpicture\" data: {:x} {:x} {:x} "
+                "{:x} {:x} {:x} {:x} {:x}",
+                album_art.value().at(0), album_art.value().at(1),
+                album_art.value().at(2), album_art.value().at(3),
+                album_art.value().at(4), album_art.value().at(5),
+                album_art.value().at(6), album_art.value().at(7));
+#endif
+    }
   } else {
   }
 }
@@ -390,10 +462,24 @@ const std::string &MPDClient::get_song_filename() const {
 }
 double MPDClient::get_song_duration() const { return song_duration; }
 double MPDClient::get_elapsed_time() const { return elapsed_time; }
+const std::optional<std::vector<char> > &MPDClient::get_album_art() const {
+  return album_art;
+}
+const std::string &MPDClient::get_album_art_mime_type() const {
+  return album_art_mime_type;
+}
 
 void MPDClient::request_data_update() {
   flags.reset(3);
   flags.reset(6);
+}
+
+void MPDClient::request_refetch_album_art() {
+  flags.set(8);
+  album_art = std::nullopt;
+  album_art_expected_size = 0;
+  album_art_mime_type.clear();
+  album_art_offset = 0;
 }
 
 std::tuple<MPDClient::StatusEnum, std::string> MPDClient::write_read(
@@ -443,30 +529,53 @@ std::tuple<MPDClient::StatusEnum, std::string> MPDClient::write_read(
     } while (!successful_write);
   }
 
+  LOG_PRINT(level, LogLevel::VERBOSE,
+            "VERBOSE: write_read: read after write...");
+
   std::string str;
-  str.resize(READ_BUF_SIZE);
+  std::vector<char> buf;
+  buf.resize(READ_BUF_SIZE);
 
   const auto read_timestamp = std::chrono::steady_clock::now();
   bool successful_read = false;
   do {
-    ssize_t read_ret = read(tcp_socket, str.data(), str.size());
+    ssize_t read_ret = read(tcp_socket, buf.data(), buf.size());
     if (read_ret > 0) {
-      flags.reset(4);
-      successful_read = true;
-      str.resize(static_cast<size_t>(read_ret));
-      LOG_PRINT(level, LogLevel::VERBOSE, "{}", str);
-      return {StatusEnum::SE_SUCCESS, std::move(str)};
+      str.append(buf.data(), static_cast<size_t>(read_ret));
+      // Read to full until EAGAIN/EWOULDBLOCK.
+      LOG_PRINT(level, LogLevel::VERBOSE, "VERBOSE: Read {} bytes...",
+                read_ret);
+      continue;
     } else if (read_ret < 0) {
       if (errno == EAGAIN || errno == EWOULDBLOCK) {
-        // Non-blocking IO, try again soon.
-        const auto current_timestamp = std::chrono::steady_clock::now();
-        if (current_timestamp - read_timestamp > MPD_CLI_READ_TIMEOUT) {
-          LOG_PRINT(level, LogLevel::WARNING,
-                    "WARNING: MPDCli read timed out!");
-          return {StatusEnum::SE_READ_TIMED_OUT, {}};
+        if (str.empty()) {
+          // Non-blocking IO, try again soon.
+          const auto current_timestamp = std::chrono::steady_clock::now();
+          if (current_timestamp - read_timestamp > MPD_CLI_READ_TIMEOUT) {
+            LOG_PRINT(level, LogLevel::WARNING,
+                      "WARNING: MPDCli read timed out!");
+            return {StatusEnum::SE_READ_TIMED_OUT, {}};
+          }
+          std::this_thread::sleep_for(LOOP_SLEEP_TIME);
+          continue;
+        } else {
+          flags.reset(4);
+          if (size_t idx = str.find("\nbinary: "); idx != std::string::npos) {
+            ++idx;
+            size_t end_idx = str.find('\n', idx);
+            if (end_idx != std::string::npos) {
+              LOG_PRINT(level, LogLevel::VERBOSE, "{}",
+                        str.substr(idx, end_idx - idx));
+              // The only expected binary responses are for album art.
+              parse_for_album_art(str);
+            } else {
+              LOG_PRINT(level, LogLevel::VERBOSE, "binary: ...");
+            }
+          } else {
+            LOG_PRINT(level, LogLevel::VERBOSE, "{}", str);
+          }
+          return {StatusEnum::SE_SUCCESS, std::move(str)};
         }
-        std::this_thread::sleep_for(LOOP_SLEEP_TIME);
-        continue;
       }
       cleanup_close_tcp();
       flags.set(0);
@@ -505,6 +614,10 @@ void MPDClient::cleanup_close_tcp() {
 }
 
 void MPDClient::parse_for_song_info(const std::string &str) {
+  if (!is_ok()) {
+    return;
+  }
+
   size_t idx = 0;
 
   while (idx < str.size()) {
@@ -585,5 +698,97 @@ void MPDClient::parse_for_song_info(const std::string &str) {
       }
       idx = end_idx + 1;
     }
+  }
+}
+
+void MPDClient::parse_for_album_art(const std::string &buf) {
+  if (!is_ok() || !album_art_offset.has_value() || !flags.test(8)) {
+    return;
+  }
+
+  size_t idx = 0;
+
+  size_t binary_size_idx = buf.find("\nbinary: ");
+  if (binary_size_idx == std::string::npos) {
+    return;
+  }
+  ++binary_size_idx;
+
+  if (album_art_expected_size == 0) {
+    idx = buf.find("size: ");
+    if (idx == std::string::npos || idx >= binary_size_idx) {
+      LOG_PRINT(level, LogLevel::ERROR,
+                "ERROR: Failed to parse albumart size!");
+      return;
+    }
+    size_t newline_idx = buf.find('\n', idx);
+    if (newline_idx == std::string::npos || newline_idx >= binary_size_idx) {
+      LOG_PRINT(level, LogLevel::ERROR,
+                "ERROR: Failed to parse albumart size!");
+      return;
+    }
+    std::string size_str(buf.substr(idx + 6, newline_idx - idx - 6));
+    try {
+      album_art_expected_size = std::stoull(size_str);
+    } catch (const std::exception &e) {
+      LOG_PRINT(level, LogLevel::ERROR,
+                "ERROR: Failed to parse albumart size!");
+      return;
+    }
+  }
+
+  if (album_art_mime_type.empty()) {
+    idx = buf.find("type: ");
+    if (idx == std::string::npos || idx >= binary_size_idx) {
+      LOG_PRINT(level, LogLevel::ERROR,
+                "ERROR: Failed to parse albumart mime-type!");
+      return;
+    }
+    size_t newline_idx = buf.find('\n', idx);
+    if (newline_idx == std::string::npos || newline_idx >= binary_size_idx) {
+      LOG_PRINT(level, LogLevel::ERROR,
+                "ERROR: Failed to parse albumart mime-type!");
+      return;
+    }
+    album_art_mime_type = buf.substr(idx + 6, newline_idx - idx - 6);
+  }
+
+  if (!album_art.has_value()) {
+    album_art = std::vector<char>{};
+  }
+
+  size_t newline_idx = buf.find('\n', binary_size_idx);
+  if (newline_idx == std::string::npos) {
+    LOG_PRINT(level, LogLevel::ERROR,
+              "ERROR: Failed to parse albumart chunk size!");
+    return;
+  }
+  std::string chunk_str =
+      buf.substr(binary_size_idx + 8, newline_idx - binary_size_idx - 8);
+  size_t chunk_size;
+  try {
+    chunk_size = std::stoull(chunk_str);
+  } catch (const std::exception &e) {
+    LOG_PRINT(level, LogLevel::ERROR,
+              "ERROR: Failed to parse albumart chunk size!");
+    return;
+  }
+  if (chunk_size == 0) {
+    LOG_PRINT(
+        level, LogLevel::ERROR,
+        "ERROR: Failed to parse albumart chunk size! (chunk_size is zero)");
+    return;
+  }
+
+  size_t chunk_start_idx = newline_idx + 1;
+  album_art.value().insert(
+      album_art.value().end(),
+      buf.begin() + static_cast<ssize_t>(chunk_start_idx),
+      buf.begin() + static_cast<ssize_t>(chunk_start_idx + chunk_size));
+
+  if (!album_art_offset.has_value()) {
+    album_art_offset = chunk_size;
+  } else {
+    album_art_offset.value() += chunk_size;
   }
 }

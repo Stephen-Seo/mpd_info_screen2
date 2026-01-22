@@ -61,3 +61,18 @@ std::optional<uint32_t> helper_ipv4_str_to_value(std::string ipv4) {
 
   return result;
 }
+
+extern std::string helper_replace_in_string(const std::string &in,
+                                            const std::string &target,
+                                            const std::string &replacement) {
+  std::string ret = in;
+  size_t idx = 0;
+  while (idx != std::string::npos) {
+    idx = ret.find(target, idx);
+    if (idx != std::string::npos) {
+      ret.replace(idx, target.size(), replacement);
+      idx += replacement.size();
+    }
+  }
+  return ret;
+}

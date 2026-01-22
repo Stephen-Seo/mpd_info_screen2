@@ -68,6 +68,13 @@ int main(void) {
     CHECK_TRUE(cli.is_ok());
   }
 
+  // helper_replace_in_string
+  {
+    std::string ret =
+        helper_replace_in_string("one two three four five", "r", "arr");
+    CHECK_TRUE(ret == "one two tharree fouarr five");
+  }
+
   std::println("Checked: {}\nPassed: {}", checked.load(), passed.load());
 
   return checked.load() == passed.load() ? 0 : 1;
