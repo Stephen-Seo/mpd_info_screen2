@@ -116,6 +116,13 @@ void MPDClient::reset_connection() {
   flags.reset(7);
   flags.set(8);
   album_art = std::nullopt;
+  song_title.clear();
+  song_artist.clear();
+  song_album.clear();
+  song_filename.clear();
+  album_art_offset = std::nullopt;
+  album_art_expected_size = 0;
+  album_art_mime_type.clear();
   cleanup_close_tcp();
 }
 
@@ -458,6 +465,10 @@ void MPDClient::update() {
     } else {
       flags.reset(8);
       flags.set(11);
+      album_art = std::nullopt;
+      album_art_offset = std::nullopt;
+      album_art_expected_size = 0;
+      album_art_mime_type.clear();
       return;
     }
     auto [status, buf] = write_read(cmd);
@@ -484,11 +495,19 @@ void MPDClient::update() {
         if (flags.test(9) && flags.test(10)) {
           flags.reset(8);
           flags.set(11);
+          album_art = std::nullopt;
+          album_art_offset = std::nullopt;
+          album_art_expected_size = 0;
+          album_art_mime_type.clear();
           return;
         }
       } else {
         flags.reset(8);
         flags.set(11);
+        album_art = std::nullopt;
+        album_art_offset = std::nullopt;
+        album_art_expected_size = 0;
+        album_art_mime_type.clear();
         return;
       }
     } else if (album_art.has_value() &&
@@ -505,6 +524,13 @@ void MPDClient::update() {
                 album_art.value().at(4), album_art.value().at(5),
                 album_art.value().at(6), album_art.value().at(7));
 #endif
+    } else if (album_art.has_value() &&
+               album_art.value().size() > album_art_expected_size) {
+      LOG_PRINT(level, LogLevel::ERROR, "ERROR: Invalid album_art size!");
+      album_art = std::nullopt;
+      album_art_offset = std::nullopt;
+      album_art_expected_size = 0;
+      album_art_mime_type.clear();
     }
   } else {
   }
