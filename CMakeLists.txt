@@ -31,7 +31,8 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/third_party/lib/libraylib.
     COMMAND tar -xf ${CMAKE_CURRENT_SOURCE_DIR}/third_party/raylib-5.5.tar.gz -C ${CMAKE_CURRENT_SOURCE_DIR}/third_party
     COMMAND cmake -S ${CMAKE_CURRENT_SOURCE_DIR}/third_party/raylib-5.5 -B ${CMAKE_CURRENT_SOURCE_DIR}/third_party/raylib_BUILD -DCMAKE_BUILD_TYPE=Release
     COMMAND make -C ${CMAKE_CURRENT_SOURCE_DIR}/third_party/raylib_BUILD raylib
-    COMMAND install -D -m444 ${CMAKE_CURRENT_SOURCE_DIR}/third_party/raylib_BUILD/raylib/libraylib.a ${CMAKE_CURRENT_SOURCE_DIR}/third_party/lib/libraylib.a)
+    COMMAND install -D -m444 ${CMAKE_CURRENT_SOURCE_DIR}/third_party/raylib_BUILD/raylib/libraylib.a ${CMAKE_CURRENT_SOURCE_DIR}/third_party/lib/libraylib.a
+    VERBATIM)
 
 add_custom_target(LIBRAYLIB DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/third_party/lib/libraylib.a)
 
