@@ -51,3 +51,9 @@ PRIVATE -Wall -Wformat -Wformat=2 -Wconversion -Wimplicit-fallthrough  -Werror=f
 target_link_libraries(mpd_info_screen2 ${CMAKE_CURRENT_SOURCE_DIR}/third_party/lib/libraylib.a)
 target_link_libraries(unittests ${CMAKE_CURRENT_SOURCE_DIR}/third_party/lib/libraylib.a)
 
+set(mpd_info_screen2_clean_files
+    "${CMAKE_CURRENT_SOURCE_DIR}/third_party/lib"
+    "${CMAKE_CURRENT_SOURCE_DIR}/third_party/raylib-5.5"
+    "${CMAKE_CURRENT_SOURCE_DIR}/third_party/raylib_BUILD"
+)
+set_property(TARGET mpd_info_screen2 PROPERTY ADDITIONAL_CLEAN_FILES ${mpd_info_screen2_clean_files})
