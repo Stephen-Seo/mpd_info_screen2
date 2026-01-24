@@ -19,6 +19,14 @@ set(unittest_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/signal_handler.cc
 )
 
+set(mpd_info_screen2_HEADERS
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/args.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/constants.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/helpers.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/mpd_client.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/signal_handler.h
+)
+
 add_executable(mpd_info_screen2 ${mpd_info_screen2_SOURCES})
 target_compile_features(mpd_info_screen2 PUBLIC cxx_std_23)
 
@@ -61,3 +69,10 @@ set(mpd_info_screen2_clean_files
     "${CMAKE_CURRENT_SOURCE_DIR}/third_party/raylib_BUILD"
 )
 set_property(TARGET mpd_info_screen2 PROPERTY ADDITIONAL_CLEAN_FILES ${mpd_info_screen2_clean_files})
+
+if(EXISTS "/usr/bin/clang-format")
+    add_custom_target(CLANG_FORMAT COMMAND /usr/bin/clang-format -i --style=file ${mpd_info_screen2_SOURCES} ${unittests_SOURCES} ${mpd_info_screen2_HEADERS}
+        VERBATIM)
+    add_dependencies(mpd_info_screen2 CLANG_FORMAT)
+    add_dependencies(unittests CLANG_FORMAT)
+endif()
