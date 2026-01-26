@@ -19,6 +19,7 @@
 #include "constants.h"
 #include "helpers.h"
 #include "mpd_client.h"
+#include "mpd_display.h"
 #include "signal_handler.h"
 
 // Standard library includes
@@ -77,6 +78,8 @@ int main(int argc, char **argv) {
     }
   };
 
+  std::unique_ptr<MPDDisplay> disp = std::make_unique<MPDDisplay>();
+
   InitWindow(800, 600, "mpd_info_screen2");
   SetWindowState(FLAG_WINDOW_RESIZABLE);
 
@@ -114,16 +117,24 @@ int main(int argc, char **argv) {
     }
 #endif
 
+    if (IsWindowResized()) {
+      disp->request_reposition_texture();
+    }
+
     cli.update();
     if (cli.needs_auth()) {
       do_auth();
     }
+    disp->update(cli);
 
     // draw
     BeginDrawing();
     ClearBackground(CLEAR_BG_COLOR);
+    disp->draw(cli);
     EndDrawing();
   }
+
+  disp.reset();
 
   CloseWindow();
 

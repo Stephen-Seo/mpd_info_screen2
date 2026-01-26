@@ -48,6 +48,7 @@ MPDClient::MPDClient(std::string host_ip, uint16_t host_port, LogLevel level)
       elapsed_time(0.0),
       song_duration(0.0),
       album_art(),
+      dummy_album_art_ref(),
       album_art_mime_type(),
       album_art_offset(0),
       album_art_expected_size(0) {
@@ -77,6 +78,7 @@ MPDClient::MPDClient(MPDClient &&other)
       elapsed_time(other.elapsed_time),
       song_duration(other.song_duration),
       album_art(std::move(other.album_art)),
+      dummy_album_art_ref(),
       album_art_mime_type(std::move(other.album_art_mime_type)),
       album_art_offset(std::move(other.album_art_offset)),
       album_art_expected_size(other.album_art_expected_size) {
@@ -548,7 +550,12 @@ MPDClient::get_elapsed_time() const {
   return {elapsed_time, elapsed_time_point};
 }
 const std::optional<std::vector<char> > &MPDClient::get_album_art() const {
-  return album_art;
+  if (album_art.has_value()) {
+    if (album_art.value().size() == album_art_expected_size) {
+      return album_art;
+    }
+  }
+  return dummy_album_art_ref;
 }
 const std::string &MPDClient::get_album_art_mime_type() const {
   return album_art_mime_type;

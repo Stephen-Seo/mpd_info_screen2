@@ -117,6 +117,7 @@ class MPDClient {
   double elapsed_time;
   double song_duration;
   std::optional<std::vector<char> > album_art;
+  std::optional<std::vector<char> > dummy_album_art_ref;
   std::string album_art_mime_type;
   std::optional<size_t> album_art_offset;
   size_t album_art_expected_size;

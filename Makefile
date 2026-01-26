@@ -27,14 +27,16 @@ SOURCES := \
 	src/mpd_client.cc \
 	src/constants.cc \
 	src/helpers.cc \
-	src/signal_handler.cc
+	src/signal_handler.cc \
+	src/mpd_display.cc
 
 HEADERS := \
 	src/args.h \
 	src/mpd_client.h \
 	src/constants.h \
 	src/helpers.h \
-	src/signal_handler.h
+	src/signal_handler.h \
+	src/mpd_display.h
 
 OBJDIR := objdir
 OBJECTS := $(addprefix ${OBJDIR}/,$(subst .cc,.cc.o,${SOURCES}))
