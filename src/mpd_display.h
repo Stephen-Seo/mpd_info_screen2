@@ -71,6 +71,8 @@ class MPDDisplay {
   float texture_scale;
   float texture_x;
   float texture_y;
+  void calculate_remaining_time_and_percent(const MPDClient &);
+  void draw_remaining_time_and_percent(const MPDClient &);
 };
 
 #endif

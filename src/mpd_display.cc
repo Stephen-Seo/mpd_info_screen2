@@ -20,6 +20,10 @@
 #include "constants.h"
 #include "mpd_client.h"
 
+// standard library includes
+#include <chrono>
+#include <format>
+
 // third-party includes
 #include <raylib.h>
 
@@ -173,8 +177,13 @@ void MPDDisplay::draw(const MPDClient &cli) {
       return;
     }
   }
+
   if (texture) {
     DrawTextureEx(*texture, {texture_x, texture_y}, 0.0F, texture_scale, WHITE);
+  }
+
+  if (!args_flags.test(9)) {
+    draw_remaining_time_and_percent(cli);
   }
 }
 
@@ -199,3 +208,34 @@ std::optional<std::string> MPDDisplay::fetch_prompted_pass() {
 void MPDDisplay::set_failed_auth() { flags.set(5); }
 
 void MPDDisplay::clear_cached_pass() { cached_pass.clear(); }
+
+void MPDDisplay::draw_remaining_time_and_percent(const MPDClient &cli) {
+  auto now = std::chrono::steady_clock::now();
+  double duration = cli.get_song_duration();
+  auto [elapsed, time_point] = cli.get_elapsed_time();
+
+  auto time_diff = now - time_point;
+  double time_diff_seconds = static_cast<double>(time_diff.count()) *
+                             decltype(time_diff)::period::num /
+                             decltype(time_diff)::period::den;
+
+  double remaining = duration - elapsed - time_diff_seconds;
+
+  int64_t remaining_i = static_cast<int64_t>(remaining);
+
+  std::string rem_str;
+  if (remaining_i >= 60) {
+    rem_str = std::format("{}:{:02}", remaining_i / 60, remaining_i % 60);
+  } else {
+    rem_str = std::to_string(remaining_i);
+  }
+
+  // double width = GetScreenWidth();
+  double height = GetScreenHeight();
+
+  auto text_size = MeasureTextEx(GetFontDefault(), rem_str.c_str(),
+                                 TEXT_DEFAULT_SIZE, TEXT_DEFAULT_SIZE / 10.0F);
+
+  DrawText(rem_str.c_str(), 0, static_cast<int>(height - text_size.y),
+           TEXT_DEFAULT_SIZE, WHITE);
+}

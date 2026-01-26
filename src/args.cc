@@ -40,6 +40,8 @@ Args::Args(int argc, char **argv)
         return;
       }
       host_port = static_cast<uint16_t>(p);
+    } else if (std::strcmp("--disable-all-text", argv[0]) == 0) {
+      flags.set(9);
     } else if (std::strcmp("--disable-show-title", argv[0]) == 0) {
       flags.set(1);
     } else if (std::strcmp("--disable-show-artist", argv[0]) == 0) {
@@ -110,6 +112,7 @@ void Args::print_usage() {
   std::println("Usage:");
   std::println("  --host=<ip_addr> : ip address of mpd server");
   std::println("  --port=<port> : port of mpd server (default 6600)");
+  std::println("  --disable-all-text : disables showing all text");
   std::println("  --disable-show-title : disable showing song title");
   std::println("  --disable-show-artist : disable showing song artist");
   std::println("  --disable-show-album : disable showing song album");
