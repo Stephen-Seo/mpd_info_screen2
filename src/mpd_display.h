@@ -53,6 +53,8 @@ class MPDDisplay {
   void set_failed_auth();
   void clear_cached_pass();
 
+  bool needs_draw();
+
  private:
   LogLevel level;
   // 0 - need to refresh info
@@ -61,6 +63,7 @@ class MPDDisplay {
   // 3 - prompt for password
   // 4 - has password
   // 5 - failed auth
+  // 6 - dirty flag
   std::bitset<64> flags;
   // Check "args.h"
   std::bitset<64> args_flags;
@@ -68,9 +71,12 @@ class MPDDisplay {
   std::string cached_filename;
   std::string cached_pass;
   std::string display_pass;
+  std::string remaining_time;
   float texture_scale;
   float texture_x;
   float texture_y;
+  int remaining_y_offset;
+
   void calculate_remaining_time_and_percent(const MPDClient &);
   void draw_remaining_time_and_percent(const MPDClient &);
 };

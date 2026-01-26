@@ -27,7 +27,7 @@ constexpr size_t MPD_BINARY_LIMIT = READ_BUF_SIZE - 100;
 constexpr std::chrono::milliseconds LOOP_SLEEP_TIME =
     std::chrono::milliseconds(10);
 constexpr std::chrono::milliseconds UPDATE_INFO_INTERVAL =
-    std::chrono::milliseconds(3000);
+    std::chrono::milliseconds(5000);
 constexpr std::chrono::seconds DEBUG_PRINT_INFO_INTERVAL =
     std::chrono::seconds(5);
 constexpr std::chrono::seconds MPD_CLI_READ_TIMEOUT = std::chrono::seconds(2);

@@ -60,6 +60,7 @@ void MPDDisplay::update(const MPDClient &cli) {
   }
 
   if (flags.test(3)) {
+    // password prompt
     if (!args_flags.test(6)) {
       return;
     }
@@ -102,12 +103,14 @@ void MPDDisplay::update(const MPDClient &cli) {
     }
   }
 
+  // Check if song changed, invalidate caches if so.
   if (cached_filename.empty() || cached_filename != cli.get_song_filename()) {
     flags.set(1);
     cached_filename = cli.get_song_filename();
   }
 
   if (!texture || flags.test(1)) {
+    // Load next album art image.
     const auto &cli_image = cli.get_album_art();
     if (cli_image.has_value()) {
       std::string ext;
@@ -143,6 +146,7 @@ void MPDDisplay::update(const MPDClient &cli) {
   }
 
   if (flags.test(2) && !flags.test(1)) {
+    // Calculate album art position.
     const int swidth = GetScreenWidth();
     const int sheight = GetScreenHeight();
     const float fswidth = static_cast<const float>(swidth);
@@ -160,7 +164,10 @@ void MPDDisplay::update(const MPDClient &cli) {
     texture_y = (fsheight - ftexture_h * texture_scale) / 2.0F;
 
     flags.reset(2);
+    flags.set(6);
   }
+
+  calculate_remaining_time_and_percent(cli);
 }
 
 void MPDDisplay::draw(const MPDClient &cli) {
@@ -209,7 +216,16 @@ void MPDDisplay::set_failed_auth() { flags.set(5); }
 
 void MPDDisplay::clear_cached_pass() { cached_pass.clear(); }
 
-void MPDDisplay::draw_remaining_time_and_percent(const MPDClient &cli) {
+bool MPDDisplay::needs_draw() {
+  if (flags.test(6)) {
+    flags.reset(6);
+    return true;
+  }
+
+  return false;
+}
+
+void MPDDisplay::calculate_remaining_time_and_percent(const MPDClient &cli) {
   auto now = std::chrono::steady_clock::now();
   double duration = cli.get_song_duration();
   auto [elapsed, time_point] = cli.get_elapsed_time();
@@ -223,19 +239,33 @@ void MPDDisplay::draw_remaining_time_and_percent(const MPDClient &cli) {
 
   int64_t remaining_i = static_cast<int64_t>(remaining);
 
-  std::string rem_str;
+  std::string remaining_time;
   if (remaining_i >= 60) {
-    rem_str = std::format("{}:{:02}", remaining_i / 60, remaining_i % 60);
+    remaining_time =
+        std::format("{}:{:02}", remaining_i / 60, remaining_i % 60);
   } else {
-    rem_str = std::to_string(remaining_i);
+    remaining_time = std::to_string(remaining_i);
   }
+
+  if (remaining_time != this->remaining_time) {
+    flags.set(6);
+  }
+  this->remaining_time = std::move(remaining_time);
 
   // double width = GetScreenWidth();
   double height = GetScreenHeight();
 
-  auto text_size = MeasureTextEx(GetFontDefault(), rem_str.c_str(),
+  auto text_size = MeasureTextEx(GetFontDefault(), this->remaining_time.c_str(),
                                  TEXT_DEFAULT_SIZE, TEXT_DEFAULT_SIZE / 10.0F);
 
-  DrawText(rem_str.c_str(), 0, static_cast<int>(height - text_size.y),
-           TEXT_DEFAULT_SIZE, WHITE);
+  int remaining_y_offset = static_cast<int>(height - text_size.y);
+  if (remaining_y_offset != this->remaining_y_offset) {
+    flags.set(6);
+  }
+  this->remaining_y_offset = remaining_y_offset;
+}
+
+void MPDDisplay::draw_remaining_time_and_percent(const MPDClient &cli) {
+  DrawText(remaining_time.c_str(), 0, remaining_y_offset, TEXT_DEFAULT_SIZE,
+           WHITE);
 }
