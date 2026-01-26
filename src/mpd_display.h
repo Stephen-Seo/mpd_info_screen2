@@ -53,8 +53,6 @@ class MPDDisplay {
   void set_failed_auth();
   void clear_cached_pass();
 
-  bool needs_draw();
-
  private:
   LogLevel level;
   // 0 - need to refresh info
@@ -63,7 +61,6 @@ class MPDDisplay {
   // 3 - prompt for password
   // 4 - has password
   // 5 - failed auth
-  // 6 - dirty flag
   std::bitset<64> flags;
   // Check "args.h"
   std::bitset<64> args_flags;

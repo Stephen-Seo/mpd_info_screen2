@@ -101,6 +101,8 @@ void MPDDisplay::update(const MPDClient &cli) {
     for ([[maybe_unused]] char _unused : cached_pass) {
       display_pass.push_back('*');
     }
+
+    return;
   }
 
   // Check if song changed, invalidate caches if so.
@@ -216,15 +218,6 @@ void MPDDisplay::set_failed_auth() { flags.set(5); }
 
 void MPDDisplay::clear_cached_pass() { cached_pass.clear(); }
 
-bool MPDDisplay::needs_draw() {
-  if (flags.test(6)) {
-    flags.reset(6);
-    return true;
-  }
-
-  return false;
-}
-
 void MPDDisplay::calculate_remaining_time_and_percent(const MPDClient &cli) {
   auto now = std::chrono::steady_clock::now();
   double duration = cli.get_song_duration();
@@ -239,7 +232,6 @@ void MPDDisplay::calculate_remaining_time_and_percent(const MPDClient &cli) {
 
   int64_t remaining_i = static_cast<int64_t>(remaining);
 
-  std::string remaining_time;
   if (remaining_i >= 60) {
     remaining_time =
         std::format("{}:{:02}", remaining_i / 60, remaining_i % 60);
@@ -247,22 +239,13 @@ void MPDDisplay::calculate_remaining_time_and_percent(const MPDClient &cli) {
     remaining_time = std::to_string(remaining_i);
   }
 
-  if (remaining_time != this->remaining_time) {
-    flags.set(6);
-  }
-  this->remaining_time = std::move(remaining_time);
-
   // double width = GetScreenWidth();
   double height = GetScreenHeight();
 
   auto text_size = MeasureTextEx(GetFontDefault(), this->remaining_time.c_str(),
                                  TEXT_DEFAULT_SIZE, TEXT_DEFAULT_SIZE / 10.0F);
 
-  int remaining_y_offset = static_cast<int>(height - text_size.y);
-  if (remaining_y_offset != this->remaining_y_offset) {
-    flags.set(6);
-  }
-  this->remaining_y_offset = remaining_y_offset;
+  remaining_y_offset = static_cast<int>(height - text_size.y);
 }
 
 void MPDDisplay::draw_remaining_time_and_percent(const MPDClient &cli) {

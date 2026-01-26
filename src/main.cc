@@ -149,10 +149,8 @@ int main(int argc, char **argv) {
 
     // draw
     BeginDrawing();
-    if (disp->needs_draw()) {
-      ClearBackground(CLEAR_BG_COLOR);
-      disp->draw(cli);
-    }
+    ClearBackground(CLEAR_BG_COLOR);
+    disp->draw(cli);
     EndDrawing();
   }
 
