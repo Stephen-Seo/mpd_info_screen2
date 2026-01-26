@@ -75,7 +75,9 @@ int main(int argc, char **argv) {
           }
         }
       }
-      cli.attempt_auth(passwd);
+      if (!cli.attempt_auth(passwd)) {
+        disp->set_failed_auth();
+      }
     } else if (args.get_flags().test(6)) {
       auto fetched_pass = disp->fetch_prompted_pass();
       if (fetched_pass.has_value()) {

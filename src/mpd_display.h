@@ -50,6 +50,7 @@ class MPDDisplay {
 
   void request_password_prompt();
   std::optional<std::string> fetch_prompted_pass();
+  void set_failed_auth();
 
  private:
   LogLevel level;
@@ -58,6 +59,7 @@ class MPDDisplay {
   // 2 - need to refresh texture positioning
   // 3 - prompt for password
   // 4 - has password
+  // 5 - failed auth
   std::bitset<64> flags;
   // Check "args.h"
   std::bitset<64> args_flags;

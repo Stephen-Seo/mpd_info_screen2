@@ -160,7 +160,10 @@ void MPDDisplay::update(const MPDClient &cli) {
 }
 
 void MPDDisplay::draw(const MPDClient &cli) {
-  if (flags.test(3)) {
+  if (flags.test(5)) {
+    DrawText("Failed authenticating to MPD!", 0, 0, 12, WHITE);
+    return;
+  } else if (flags.test(3)) {
     if (args_flags.test(6)) {
       DrawText(display_pass.c_str(), 0, 0, 12, WHITE);
       return;
@@ -192,3 +195,5 @@ std::optional<std::string> MPDDisplay::fetch_prompted_pass() {
     return std::nullopt;
   }
 }
+
+void MPDDisplay::set_failed_auth() { flags.set(5); }
