@@ -45,7 +45,7 @@ class MPDClient {
   bool is_ok() const;
 
   bool needs_auth() const;
-  void attempt_auth(std::string passwd);
+  bool attempt_auth(std::string passwd);
 
   void update();
 

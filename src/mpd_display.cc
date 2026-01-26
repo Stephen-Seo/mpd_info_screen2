@@ -17,12 +17,14 @@
 #include "mpd_display.h"
 
 // local includes
+#include "constants.h"
 #include "mpd_client.h"
 
 // third-party includes
 #include <raylib.h>
 
-MPDDisplay::MPDDisplay() : flags(), texture() {
+MPDDisplay::MPDDisplay(const std::bitset<64> &args_flags, LogLevel level)
+    : level(level), flags(), args_flags(args_flags), texture() {
   flags.set(0);
   flags.set(1);
 }
@@ -34,10 +36,15 @@ MPDDisplay::~MPDDisplay() {
 }
 
 MPDDisplay::MPDDisplay(MPDDisplay &&other)
-    : flags(std::move(other.flags)), texture(std::move(other.texture)) {}
+    : level(other.level),
+      flags(std::move(other.flags)),
+      args_flags(std::move(other.args_flags)),
+      texture(std::move(other.texture)) {}
 
 MPDDisplay &MPDDisplay::operator=(MPDDisplay &&other) {
+  level = other.level;
   flags = std::move(other.flags);
+  args_flags = std::move(other.args_flags);
   texture = std::move(other.texture);
 
   return *this;
@@ -46,6 +53,49 @@ MPDDisplay &MPDDisplay::operator=(MPDDisplay &&other) {
 void MPDDisplay::update(const MPDClient &cli) {
   if (!cli.is_ok()) {
     return;
+  }
+
+  if (flags.test(3)) {
+    if (!args_flags.test(6)) {
+      return;
+    }
+
+    if (IsKeyPressed(KEY_BACKSPACE) && !cached_pass.empty()) {
+      if (cached_pass.back() & 0x80) {
+        while ((cached_pass.back() & 0xC0) == 0x80) {
+          cached_pass.pop_back();
+        }
+      }
+      cached_pass.pop_back();
+    } else if (IsKeyPressed(KEY_ENTER)) {
+      flags.set(4);
+      flags.reset(3);
+      return;
+    }
+
+    int ret = 1;
+    while (ret != 0) {
+      ret = GetCharPressed();
+      if (ret != 0) {
+        if (ret <= 0x7F) {
+          cached_pass.push_back(static_cast<char>(ret));
+        } else {
+          const char *utf8_parts = reinterpret_cast<char *>(&ret);
+          for (size_t idx = 0; idx < 4; ++idx) {
+            if (utf8_parts[idx] != 0) {
+              cached_pass.push_back(utf8_parts[idx]);
+            } else {
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    display_pass = std::string("password: ");
+    for ([[maybe_unused]] char _unused : cached_pass) {
+      display_pass.push_back('*');
+    }
   }
 
   if (cached_filename.empty() || cached_filename != cli.get_song_filename()) {
@@ -80,6 +130,7 @@ void MPDDisplay::update(const MPDClient &cli) {
           flags.set(2);
           flags.reset(1);
           UnloadImage(art_img);
+          SetTextureFilter(*texture, TEXTURE_FILTER_BILINEAR);
         } else {
           texture.reset();
         }
@@ -109,9 +160,35 @@ void MPDDisplay::update(const MPDClient &cli) {
 }
 
 void MPDDisplay::draw(const MPDClient &cli) {
+  if (flags.test(3)) {
+    if (args_flags.test(6)) {
+      DrawText(display_pass.c_str(), 0, 0, 12, WHITE);
+      return;
+    } else {
+      DrawText("Needs password, but --pprompt nor --pfile=<file> specified!", 0,
+               0, 12, WHITE);
+      return;
+    }
+  }
   if (texture) {
     DrawTextureEx(*texture, {texture_x, texture_y}, 0.0F, texture_scale, WHITE);
   }
 }
 
 void MPDDisplay::request_reposition_texture() { flags.set(2); }
+
+void MPDDisplay::request_password_prompt() {
+  if (!flags.test(3)) {
+    flags.set(3);
+    flags.reset(4);
+    cached_pass.clear();
+  }
+}
+
+std::optional<std::string> MPDDisplay::fetch_prompted_pass() {
+  if (flags.test(4) && !flags.test(3)) {
+    return cached_pass;
+  } else {
+    return std::nullopt;
+  }
+}

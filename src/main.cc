@@ -30,7 +30,7 @@
 // third-party includes
 #include <raylib.h>
 
-constexpr Color CLEAR_BG_COLOR = {50, 50, 50, 255};
+constexpr Color CLEAR_BG_COLOR = {20, 20, 20, 255};
 
 int main(int argc, char **argv) {
   Args args(argc, argv);
@@ -51,7 +51,10 @@ int main(int argc, char **argv) {
     LOG_PRINT(args.get_log_level(), LogLevel::VERBOSE, "VERBOSE: Client is OK");
   }
 
-  const auto do_auth = [&args, &cli]() {
+  std::unique_ptr<MPDDisplay> disp =
+      std::make_unique<MPDDisplay>(args.get_flags(), args.get_log_level());
+
+  const auto do_auth = [&args, &cli, &disp]() {
     if (args.get_password_file().has_value()) {
       LOG_PRINT(args.get_log_level(), LogLevel::VERBOSE,
                 "VERBOSE: Attempting login...");
@@ -73,12 +76,26 @@ int main(int argc, char **argv) {
         }
       }
       cli.attempt_auth(passwd);
-      LOG_PRINT(args.get_log_level(), LogLevel::VERBOSE,
-                "VERBOSE: Login attempted.");
+    } else if (args.get_flags().test(6)) {
+      auto fetched_pass = disp->fetch_prompted_pass();
+      if (fetched_pass.has_value()) {
+        if (!cli.attempt_auth(fetched_pass.value())) {
+          disp->request_password_prompt();
+        } else {
+          SetTargetFPS(5);
+        }
+        LOG_PRINT(args.get_log_level(), LogLevel::VERBOSE,
+                  "VERBOSE: Login attempted.");
+      } else {
+        if (GetFPS() <= 5) {
+          SetTargetFPS(60);
+        }
+        disp->request_password_prompt();
+      }
+    } else {
+      disp->request_password_prompt();
     }
   };
-
-  std::unique_ptr<MPDDisplay> disp = std::make_unique<MPDDisplay>();
 
   InitWindow(800, 600, "mpd_info_screen2");
   SetWindowState(FLAG_WINDOW_RESIZABLE);

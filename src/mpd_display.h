@@ -20,7 +20,11 @@
 // standard library includes
 #include <bitset>
 #include <memory>
+#include <optional>
 #include <string>
+
+// local includes
+#include "constants.h"
 
 // forward declarations
 class MPDClient;
@@ -28,7 +32,7 @@ struct Texture;
 
 class MPDDisplay {
  public:
-  MPDDisplay();
+  MPDDisplay(const std::bitset<64> &args_flags, LogLevel level);
   ~MPDDisplay();
 
   // no copy
@@ -44,13 +48,23 @@ class MPDDisplay {
 
   void request_reposition_texture();
 
+  void request_password_prompt();
+  std::optional<std::string> fetch_prompted_pass();
+
  private:
+  LogLevel level;
   // 0 - need to refresh info
   // 1 - need to refetch texture
   // 2 - need to refresh texture positioning
+  // 3 - prompt for password
+  // 4 - has password
   std::bitset<64> flags;
+  // Check "args.h"
+  std::bitset<64> args_flags;
   std::unique_ptr<Texture> texture;
   std::string cached_filename;
+  std::string cached_pass;
+  std::string display_pass;
   float texture_scale;
   float texture_x;
   float texture_y;

@@ -132,9 +132,9 @@ bool MPDClient::is_ok() const { return !flags.test(0); }
 
 bool MPDClient::needs_auth() const { return flags.test(5); }
 
-void MPDClient::attempt_auth(std::string passwd) {
+bool MPDClient::attempt_auth(std::string passwd) {
   if (!is_ok() || tcp_socket < 0) {
-    return;
+    return false;
   }
 
   std::vector<char> vec;
@@ -159,12 +159,12 @@ void MPDClient::attempt_auth(std::string passwd) {
   } else if (errno == EAGAIN) {
     // Re-attempt auth later.
     LOG_PRINT(level, LogLevel::VERBOSE, "VERBOSE: Re-attempt auth later.");
-    return;
+    return false;
   } else {
     flags.set(0);
     LOG_PRINT(level, LogLevel::ERROR,
               "ERROR: Failed to auth with MPD! errno {}", errno);
-    return;
+    return false;
   }
 
   uint8_t buf[READ_BUF_SIZE_SMALL];
@@ -181,10 +181,11 @@ void MPDClient::attempt_auth(std::string passwd) {
         read_success = true;
         LOG_PRINT(level, LogLevel::WARNING,
                   "Successfully authenticated with MPD.");
+        return true;
       } else {
+        // Failed to auth, don't change any flags.
         LOG_PRINT(level, LogLevel::ERROR, "ERROR: Failed to auth with MPD!");
-        flags.set(0);
-        return;
+        return false;
       }
     } else {
       if (errno == EAGAIN || errno == EWOULDBLOCK) {
@@ -195,9 +196,10 @@ void MPDClient::attempt_auth(std::string passwd) {
       flags.set(0);
       LOG_PRINT(level, LogLevel::ERROR,
                 "ERROR: Failed to auth with MPD (check OK)!");
-      return;
+      return false;
     }
   } while (!read_success);
+  return false;
 }
 
 void MPDClient::update() {
