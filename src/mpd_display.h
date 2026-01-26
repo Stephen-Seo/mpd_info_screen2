@@ -51,6 +51,7 @@ class MPDDisplay {
   void request_password_prompt();
   std::optional<std::string> fetch_prompted_pass();
   void set_failed_auth();
+  void clear_cached_pass();
 
  private:
   LogLevel level;

@@ -85,6 +85,7 @@ int main(int argc, char **argv) {
           disp->request_password_prompt();
         } else {
           SetTargetFPS(5);
+          disp->clear_cached_pass();
         }
         LOG_PRINT(args.get_log_level(), LogLevel::VERBOSE,
                   "VERBOSE: Login attempted.");

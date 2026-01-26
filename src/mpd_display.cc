@@ -197,3 +197,5 @@ std::optional<std::string> MPDDisplay::fetch_prompted_pass() {
 }
 
 void MPDDisplay::set_failed_auth() { flags.set(5); }
+
+void MPDDisplay::clear_cached_pass() { cached_pass.clear(); }
