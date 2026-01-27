@@ -33,19 +33,34 @@ FontWrapper::FontWrapper(std::string filename, std::string text) {
   int codepoints_count = 0;
   int *codepoints = LoadCodepoints(text.c_str(), &codepoints_count);
 
+  std::unordered_set<int> unique_codepoints;
+  for (int idx = 0; idx < codepoints_count; ++idx) {
+    unique_codepoints.insert(codepoints[idx]);
+  }
+
+  int *unique_codepoints_raw = new int[unique_codepoints.size() + 1];
+  size_t idx = 0;
+  for (auto iter = unique_codepoints.begin(); iter != unique_codepoints.end();
+       ++iter) {
+    unique_codepoints_raw[idx++] = *iter;
+  }
+  unique_codepoints_raw[idx] = 0;
+
 #ifndef NDEBUG
   std::println("text: {}", text);
   std::println("codepoints:");
-  for (int idx = 0; idx < codepoints_count; ++idx) {
-    std::print("{:02x} ", codepoints[idx]);
+  for (size_t idx = 0; idx < unique_codepoints.size(); ++idx) {
+    std::print("{:02x} ", unique_codepoints_raw[idx]);
   }
   std::println();
 #endif
 
-  Font f = LoadFontEx(filename.c_str(), TEXT_DEFAULT_SIZE, codepoints,
-                      codepoints_count);
+  Font f =
+      LoadFontEx(filename.c_str(), TEXT_DEFAULT_SIZE, unique_codepoints_raw,
+                 static_cast<int>(unique_codepoints.size()));
   UnloadCodepoints(codepoints);
-  if (f.baseSize != 0) {
+  delete[] unique_codepoints_raw;
+  if (f.baseSize != 0 && f.texture.id != GetFontDefault().texture.id) {
     SetTextureFilter(f.texture, TEXTURE_FILTER_BILINEAR);
     font = std::make_unique<Font>(f);
   }
@@ -163,6 +178,11 @@ void MPDDisplay::update(const MPDClient &cli, const Args &args) {
     flags.set(1);
     cached_filename = cli.get_song_filename();
     fonts.clear();
+
+    flags.reset(7);
+    flags.reset(8);
+    flags.reset(9);
+    flags.reset(10);
   }
 
   if (!texture || flags.test(1)) {
@@ -427,6 +447,8 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
                   {0, 0, 0, opacity});
     DrawTextEx(font, cli.get_song_title().c_str(), {0, title_offset},
                title_size, title_size / 10.0F, WHITE);
+    // TODO DEBUG
+    //DrawTexture(font.texture, 0, 0, WHITE);
   }
 
   if (!args.get_flags().test(2)) {
@@ -523,6 +545,20 @@ void MPDDisplay::load_draw_text_font(const std::string &text, TextType type) {
     FontWrapper font(filename, text);
     if (font.get() != nullptr) {
       fonts.insert(std::make_pair<int, FontWrapper>(type, std::move(font)));
+    }
+    switch (type) {
+      case TEXT_TITLE:
+        flags.set(7);
+        break;
+      case TEXT_ARTIST:
+        flags.set(8);
+        break;
+      case TEXT_ALBUM:
+        flags.set(9);
+        break;
+      case TEXT_FILENAME:
+        flags.set(10);
+        break;
     }
   }
 }

@@ -53,8 +53,6 @@ extern std::string helper_replace_in_string(const std::string &in,
 
 extern std::string helper_unicode_font_fetch(const std::string &str_to_render);
 
-extern std::vector<uint8_t> helper_unicode_extract_from_str(std::string &str);
-
 //==============================================================================
 // Template Definitions
 //==============================================================================
