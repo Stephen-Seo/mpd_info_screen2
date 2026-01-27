@@ -59,11 +59,11 @@ endif()
 target_compile_options(mpd_info_screen2 PRIVATE -I${CMAKE_CURRENT_SOURCE_DIR}/third_party/raylib-5.5/src
 PRIVATE -Wall -Wformat -Wformat=2 -Wconversion -Wimplicit-fallthrough  -Werror=format-security  -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3  -D_GLIBCXX_ASSERTIONS  -fstrict-flex-arrays=3  -fstack-clash-protection -fstack-protector-strong  -Wl,-z,nodlopen -Wl,-z,noexecstack  -Wl,-z,relro -Wl,-z,now  -Wl,--as-needed -Wl,--no-copy-dt-needed-entriesa -fPIE -pie $<IF:$<STREQUAL:"Release","${CMAKE_BUILD_TYPE}">,-O2 -DNDEBUG -fno-delete-null-pointer-checks -fno-strict-overflow -fno-strict-aliasing -ftrivial-auto-var-init=zero,-Werror -Og -g>
 )
-target_link_libraries(mpd_info_screen2 ${CMAKE_CURRENT_SOURCE_DIR}/third_party/lib/libraylib.a)
+target_link_libraries(mpd_info_screen2 ${CMAKE_CURRENT_SOURCE_DIR}/third_party/lib/libraylib.a fontconfig)
 target_compile_options(unittests PRIVATE -I${CMAKE_CURRENT_SOURCE_DIR}/third_party/raylib-5.5/src
 PRIVATE -Wall -Wformat -Wformat=2 -Wconversion -Wimplicit-fallthrough  -Werror=format-security  -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3  -D_GLIBCXX_ASSERTIONS  -fstrict-flex-arrays=3  -fstack-clash-protection -fstack-protector-strong  -Wl,-z,nodlopen -Wl,-z,noexecstack  -Wl,-z,relro -Wl,-z,now  -Wl,--as-needed -Wl,--no-copy-dt-needed-entriesa -fPIE -pie $<IF:$<STREQUAL:"Release","${CMAKE_BUILD_TYPE}">,-O2 -DNDEBUG -fno-delete-null-pointer-checks -fno-strict-overflow -fno-strict-aliasing -ftrivial-auto-var-init=zero,-Werror -Og -g>
 )
-target_link_libraries(unittests ${CMAKE_CURRENT_SOURCE_DIR}/third_party/lib/libraylib.a)
+target_link_libraries(unittests ${CMAKE_CURRENT_SOURCE_DIR}/third_party/lib/libraylib.a fontconfig)
 
 set(mpd_info_screen2_clean_files
     "${CMAKE_CURRENT_SOURCE_DIR}/third_party/lib"

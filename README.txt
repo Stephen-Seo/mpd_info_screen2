@@ -18,6 +18,10 @@ https://git.seodisparate.com/gitweb/?p=mpd_info_screen;a=summary
 
 Bash, make, git, curl, and cmake is required.
 
+"fontconfig" is an implicit dependency.
+
+"raylib" is built by the Makefile and CMakeLists.txt .
+
 Just run "make" in the root directory of this project to build the raylib
 dependency and this project.
 

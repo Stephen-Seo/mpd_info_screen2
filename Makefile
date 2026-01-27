@@ -1,12 +1,12 @@
 ifdef RELEASE
-	CXX_COMMON_FLAGS := -O2 -DNDEBUG -fno-delete-null-pointer-checks -fno-strict-overflow -fno-strict-aliasing -ftrivial-auto-var-init=zero
+	CXX_COMMON_FLAGS := -O2 -DNDEBUG -fno-delete-null-pointer-checks -fno-strict-overflow -fno-strict-aliasing -ftrivial-auto-var-init=zero -Ithird_party/include
 else
-	CXX_COMMON_FLAGS := -Werror -Og -g
+	CXX_COMMON_FLAGS := -Werror -Og -g -Ithird_party/include
 endif
 
 WORKING_DIR != pwd
 
-CXX_LINKER_FLAGS := -Ithird_party/include
+CXX_LINKER_FLAGS := -lfontconfig
 CXX_FLAGS := \
 	-std=c++23 \
 	-Wall -Wformat -Wformat=2 -Wconversion -Wimplicit-fallthrough \
@@ -47,7 +47,7 @@ mpd_info_screen2: ${OBJECTS} third_party/lib/libraylib.a
 	${CXX} -o mpd_info_screen2 ${CXX_LINKER_FLAGS} ${CXX_FLAGS} $^
 
 unittest: ${OBJDIR}/src/test.cc.o $(filter-out ${OBJDIR}/src/main.cc.o,${OBJECTS}) third_party/lib/libraylib.a
-	${CXX} -o unittest -g -Og $^
+	${CXX} -o unittest -g -Og $^ ${CXX_LINKER_FLAGS}
 
 ${OBJDIR}/%.cc.o: %.cc ${HEADERS} | format
 	@mkdir -p $(dir $@)

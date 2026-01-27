@@ -75,6 +75,34 @@ int main(void) {
     CHECK_TRUE(ret == "one two tharree fouarr five");
   }
 
+  // helper unicode extract
+  {
+    std::string emoji("😀🐠");
+    std::vector<uint8_t> ret = helper_unicode_extract_from_str(emoji);
+    CHECK_TRUE(ret.at(0) == 0xF0);
+    CHECK_TRUE(ret.at(1) == 0x9F);
+    CHECK_TRUE(ret.at(2) == 0x90);
+    CHECK_TRUE(ret.at(3) == 0xA0);
+    ret = helper_unicode_extract_from_str(emoji);
+    CHECK_TRUE(ret.at(0) == 0xF0);
+    CHECK_TRUE(ret.at(1) == 0x9F);
+    CHECK_TRUE(ret.at(2) == 0x98);
+    CHECK_TRUE(ret.at(3) == 0x80);
+
+    CHECK_TRUE(emoji.empty());
+  }
+
+  // helper get_font
+  {
+    std::string ascii("ok");
+    std::string filename = helper_unicode_font_fetch(ascii);
+    std::println("unicode_font_fetch: {}", filename);
+
+    std::string emoji("😀🐠");
+    filename = helper_unicode_font_fetch(emoji);
+    std::println("unicode_font_fetch: {}", filename);
+  }
+
   std::println("Checked: {}\nPassed: {}", checked.load(), passed.load());
 
   return checked.load() == passed.load() ? 0 : 1;

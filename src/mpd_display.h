@@ -22,6 +22,8 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 
 // local includes
 #include "constants.h"
@@ -32,7 +34,29 @@ class MPDClient;
 struct Texture;
 struct Font;
 
+class FontWrapper {
+ public:
+  FontWrapper(std::string filename, std::string text);
+  ~FontWrapper();
+
+  // disallow copy
+  FontWrapper(const FontWrapper &) = delete;
+  FontWrapper &operator=(const FontWrapper &) = delete;
+
+  // allow move
+  FontWrapper(FontWrapper &&) = default;
+  FontWrapper &operator=(FontWrapper &&) = default;
+
+  const Font *get() const;
+
+ private:
+  std::unique_ptr<Font> font;
+};
+
 class MPDDisplay {
+ private:
+  enum TextType { TEXT_TITLE = 0, TEXT_ARTIST, TEXT_ALBUM, TEXT_FILENAME };
+
  public:
   MPDDisplay(const std::bitset<64> &args_flags, LogLevel level);
   ~MPDDisplay();
@@ -57,13 +81,17 @@ class MPDDisplay {
 
  private:
   LogLevel level;
-  // 0 - need to refresh info
+  // 0 - UNUSED
   // 1 - need to refetch texture
   // 2 - need to refresh texture positioning
   // 3 - prompt for password
   // 4 - has password
   // 5 - failed auth
   // 6 - attempted load default font
+  // 7 - loaded/failed title font
+  // 8 - loaded/failed artist font
+  // 9 - loaded/failed album font
+  // 10 - loaded/failed filename font
   std::bitset<64> flags;
   std::unique_ptr<Texture> texture;
   std::shared_ptr<Font> raylib_default_font;
@@ -72,6 +100,7 @@ class MPDDisplay {
   std::string cached_pass;
   std::string display_pass;
   std::string remaining_time;
+  std::unordered_map<int, FontWrapper> fonts;
   float texture_scale;
   float texture_x;
   float texture_y;
@@ -95,10 +124,12 @@ class MPDDisplay {
   float filename_size;
   float filename_offset;
 
-  void calculate_remaining_time_and_percent(const MPDClient &, const Args &);
-  void draw_remaining_time_and_percent(const MPDClient &, const Args &);
+  void update_draw_texts(const MPDClient &, const Args &);
+  void draw_draw_texts(const MPDClient &, const Args &);
 
   std::shared_ptr<Font> get_default_font();
+
+  void load_draw_text_font(const std::string &text, TextType type);
 };
 
 #endif

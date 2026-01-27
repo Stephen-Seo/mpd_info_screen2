@@ -18,8 +18,12 @@
 #define SEODISPARATE_COM_MPD_INFO_SCREEN_2_HELPERS_H_
 
 #include <cstdint>
+#include <functional>
 #include <optional>
 #include <string>
+#include <tuple>
+#include <unordered_set>
+#include <vector>
 
 extern constexpr bool helper_is_big_endian() {
   union {
@@ -32,10 +36,38 @@ extern constexpr bool helper_is_big_endian() {
   return u.c_arr[0] == 0x12;
 }
 
+template <typename T>
+struct GenericCleanup {
+  GenericCleanup(T *, std::function<void(T *)>);
+  ~GenericCleanup();
+
+  std::function<void(T *)> cleanupFn;
+  T *ptr;
+};
+
 extern std::optional<uint32_t> helper_ipv4_str_to_value(std::string ipv4);
 
 extern std::string helper_replace_in_string(const std::string &in,
                                             const std::string &target,
                                             const std::string &replacement);
+
+extern std::string helper_unicode_font_fetch(const std::string &str_to_render);
+
+extern std::vector<uint8_t> helper_unicode_extract_from_str(std::string &str);
+
+//==============================================================================
+// Template Definitions
+//==============================================================================
+
+template <typename T>
+GenericCleanup<T>::GenericCleanup(T *ptr, std::function<void(T *)> cFn)
+    : cleanupFn(cFn), ptr(ptr) {}
+
+template <typename T>
+GenericCleanup<T>::~GenericCleanup() {
+  if (ptr) {
+    cleanupFn(ptr);
+  }
+}
 
 #endif
