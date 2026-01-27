@@ -221,6 +221,7 @@ void MPDDisplay::clear_cached_pass() { cached_pass.clear(); }
 void MPDDisplay::calculate_remaining_time_and_percent(const MPDClient &cli) {
   auto now = std::chrono::steady_clock::now();
   double duration = cli.get_song_duration();
+  int64_t duration_i = static_cast<int64_t>(duration);
   auto [elapsed, time_point] = cli.get_elapsed_time();
 
   auto time_diff = now - time_point;
@@ -231,12 +232,15 @@ void MPDDisplay::calculate_remaining_time_and_percent(const MPDClient &cli) {
   double remaining = duration - elapsed - time_diff_seconds;
 
   int64_t remaining_i = static_cast<int64_t>(remaining);
+  int64_t percentage =
+      duration_i > 0 ? 100 * (duration_i - remaining_i) / duration_i : 0;
 
   if (remaining_i >= 60) {
-    remaining_time =
-        std::format("{}:{:02}", remaining_i / 60, remaining_i % 60);
+    remaining_time = std::format("{}:{:02} {}%", remaining_i / 60,
+                                 remaining_i % 60, percentage);
   } else {
-    remaining_time = std::to_string(remaining_i);
+    remaining_time =
+        std::to_string(remaining_i) + " " + std::to_string(percentage) + "%";
   }
 
   // double width = GetScreenWidth();
