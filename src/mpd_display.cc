@@ -39,6 +39,10 @@ MPDDisplay::~MPDDisplay() {
   if (texture) {
     UnloadTexture(*texture);
   }
+
+  if (default_font) {
+    UnloadFont(*default_font);
+  }
 }
 
 MPDDisplay::MPDDisplay(MPDDisplay &&other)
@@ -57,6 +61,20 @@ MPDDisplay &MPDDisplay::operator=(MPDDisplay &&other) {
 void MPDDisplay::update(const MPDClient &cli, const Args &args) {
   if (!cli.is_ok()) {
     return;
+  }
+
+  if (!raylib_default_font) {
+    raylib_default_font = std::make_shared<Font>(GetFontDefault());
+  }
+
+  if (!flags.test(6) && !default_font &&
+      !args.get_default_font_filename().empty()) {
+    flags.set(6);
+    Font f = LoadFontEx(args.get_default_font_filename().c_str(),
+                        TEXT_DEFAULT_SIZE, nullptr, 0);
+    if (f.baseSize != 0) {
+      default_font = std::make_shared<Font>(f);
+    }
   }
 
   if (flags.test(3)) {
@@ -247,23 +265,24 @@ void MPDDisplay::calculate_remaining_time_and_percent(const MPDClient &cli,
   }
 
   const int width = GetScreenWidth();
-  int y_offset = GetScreenHeight();
+  float y_offset = static_cast<float>(GetScreenHeight());
+
+  std::shared_ptr<Font> default_font = get_default_font();
 
   if (!args.get_flags().test(4) && !cli.get_song_filename().empty()) {
     filename_size = TEXT_DEFAULT_SIZE;
     Vector2 text_size;
     do {
-      text_size =
-          MeasureTextEx(GetFontDefault(), cli.get_song_filename().c_str(),
-                        static_cast<float>(filename_size),
-                        static_cast<float>(filename_size) / 10.0F);
+      text_size = MeasureTextEx(*default_font, cli.get_song_filename().c_str(),
+                                static_cast<float>(filename_size),
+                                static_cast<float>(filename_size) / 10.0F);
       if (text_size.x > static_cast<float>(width)) {
         --filename_size;
       }
       filename_width = text_size.x;
       filename_height = text_size.y;
     } while (text_size.x > static_cast<float>(width));
-    y_offset -= static_cast<int>(std::ceilf(filename_height));
+    y_offset -= filename_height;
     filename_offset = y_offset;
   }
 
@@ -271,7 +290,7 @@ void MPDDisplay::calculate_remaining_time_and_percent(const MPDClient &cli,
     album_size = TEXT_DEFAULT_SIZE;
     Vector2 text_size;
     do {
-      text_size = MeasureTextEx(GetFontDefault(), cli.get_song_album().c_str(),
+      text_size = MeasureTextEx(*default_font, cli.get_song_album().c_str(),
                                 static_cast<float>(album_size),
                                 static_cast<float>(album_size) / 10.0F);
       if (text_size.x > static_cast<float>(width)) {
@@ -280,7 +299,7 @@ void MPDDisplay::calculate_remaining_time_and_percent(const MPDClient &cli,
       album_width = text_size.x;
       album_height = text_size.y;
     } while (text_size.x > static_cast<float>(width));
-    y_offset -= static_cast<int>(std::ceilf(album_height));
+    y_offset -= album_height;
     album_offset = y_offset;
   }
 
@@ -288,7 +307,7 @@ void MPDDisplay::calculate_remaining_time_and_percent(const MPDClient &cli,
     artist_size = TEXT_DEFAULT_SIZE;
     Vector2 text_size;
     do {
-      text_size = MeasureTextEx(GetFontDefault(), cli.get_song_artist().c_str(),
+      text_size = MeasureTextEx(*default_font, cli.get_song_artist().c_str(),
                                 static_cast<float>(artist_size),
                                 static_cast<float>(artist_size) / 10.0F);
       if (text_size.x > static_cast<float>(width)) {
@@ -297,7 +316,7 @@ void MPDDisplay::calculate_remaining_time_and_percent(const MPDClient &cli,
       artist_width = text_size.x;
       artist_height = text_size.y;
     } while (text_size.x > static_cast<float>(width));
-    y_offset -= static_cast<int>(std::ceilf(artist_height));
+    y_offset -= artist_height;
     artist_offset = y_offset;
   }
 
@@ -305,7 +324,7 @@ void MPDDisplay::calculate_remaining_time_and_percent(const MPDClient &cli,
     title_size = TEXT_DEFAULT_SIZE;
     Vector2 text_size;
     do {
-      text_size = MeasureTextEx(GetFontDefault(), cli.get_song_title().c_str(),
+      text_size = MeasureTextEx(*default_font, cli.get_song_title().c_str(),
                                 static_cast<float>(title_size),
                                 static_cast<float>(title_size) / 10.0F);
       if (text_size.x > static_cast<float>(width)) {
@@ -314,51 +333,70 @@ void MPDDisplay::calculate_remaining_time_and_percent(const MPDClient &cli,
       title_width = text_size.x;
       title_height = text_size.y;
     } while (text_size.x > static_cast<float>(width));
-    y_offset -= static_cast<int>(std::ceilf(title_height));
+    y_offset -= title_height;
     title_offset = y_offset;
   }
 
-  auto text_size = MeasureTextEx(GetFontDefault(), this->remaining_time.c_str(),
+  auto text_size = MeasureTextEx(*default_font, this->remaining_time.c_str(),
                                  TEXT_DEFAULT_SIZE, TEXT_DEFAULT_SIZE / 10.0F);
 
   remaining_width = text_size.x;
   remaining_height = text_size.y;
 
-  remaining_y_offset = y_offset - static_cast<int>(std::ceilf(text_size.y));
+  remaining_y_offset = y_offset - text_size.y;
 }
 
 void MPDDisplay::draw_remaining_time_and_percent(const MPDClient &cli,
                                                  const Args &args) {
   unsigned char opacity =
       static_cast<unsigned char>(args.get_text_bg_opacity() * 255);
-  DrawRectangle(0, remaining_y_offset, static_cast<int>(remaining_width),
+
+  std::shared_ptr<Font> default_font = get_default_font();
+
+  DrawRectangle(0, static_cast<int>(remaining_y_offset),
+                static_cast<int>(remaining_width),
                 static_cast<int>(remaining_height), {0, 0, 0, opacity});
-  DrawText(remaining_time.c_str(), 0, remaining_y_offset, TEXT_DEFAULT_SIZE,
-           WHITE);
+  DrawTextEx(*default_font, remaining_time.c_str(), {0, remaining_y_offset},
+             TEXT_DEFAULT_SIZE, TEXT_DEFAULT_SIZE / 10.0F, WHITE);
 
   if (!args.get_flags().test(1)) {
-    DrawRectangle(0, title_offset, static_cast<int>(title_width),
-                  static_cast<int>(title_height), {0, 0, 0, opacity});
-    DrawText(cli.get_song_title().c_str(), 0, title_offset, title_size, WHITE);
+    DrawRectangle(0, static_cast<int>(title_offset),
+                  static_cast<int>(title_width), static_cast<int>(title_height),
+                  {0, 0, 0, opacity});
+    DrawTextEx(*default_font, cli.get_song_title().c_str(), {0, title_offset},
+               title_size, title_size / 10.0F, WHITE);
   }
 
   if (!args.get_flags().test(2)) {
-    DrawRectangle(0, artist_offset, static_cast<int>(artist_width),
+    DrawRectangle(0, static_cast<int>(artist_offset),
+                  static_cast<int>(artist_width),
                   static_cast<int>(artist_height), {0, 0, 0, opacity});
-    DrawText(cli.get_song_artist().c_str(), 0, artist_offset, artist_size,
-             WHITE);
+    DrawTextEx(*default_font, cli.get_song_artist().c_str(), {0, artist_offset},
+               artist_size, artist_size / 10.0F, WHITE);
   }
 
   if (!args.get_flags().test(3)) {
-    DrawRectangle(0, album_offset, static_cast<int>(album_width),
-                  static_cast<int>(album_height), {0, 0, 0, opacity});
-    DrawText(cli.get_song_album().c_str(), 0, album_offset, album_size, WHITE);
+    DrawRectangle(0, static_cast<int>(album_offset),
+                  static_cast<int>(album_width), static_cast<int>(album_height),
+                  {0, 0, 0, opacity});
+    DrawTextEx(*default_font, cli.get_song_album().c_str(), {0, album_offset},
+               album_size, album_size / 10.0F, WHITE);
   }
 
   if (!args.get_flags().test(4)) {
-    DrawRectangle(0, filename_offset, static_cast<int>(filename_width),
+    DrawRectangle(0, static_cast<int>(filename_offset),
+                  static_cast<int>(filename_width),
                   static_cast<int>(filename_height), {0, 0, 0, opacity});
-    DrawText(cli.get_song_filename().c_str(), 0, filename_offset, filename_size,
-             WHITE);
+    DrawTextEx(*default_font, cli.get_song_filename().c_str(),
+               {0, filename_offset}, filename_size, filename_size / 10.0F,
+               WHITE);
   }
+}
+
+std::shared_ptr<Font> MPDDisplay::get_default_font() {
+  if (!default_font) {
+    return raylib_default_font;
+  }
+
+  return default_font;
 }

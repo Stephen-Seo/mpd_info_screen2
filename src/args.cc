@@ -23,6 +23,7 @@
 Args::Args(int argc, char **argv)
     : flags(),
       host_ip_addr(),
+      default_font_filename(),
       password_file(),
       text_bg_opacity(0.745),
       level(LogLevel::ERROR),
@@ -86,6 +87,8 @@ Args::Args(int argc, char **argv)
         flags.set(0);
         return;
       }
+    } else if (std::strncmp("--default-font-filename=", argv[0], 24) == 0) {
+      default_font_filename = std::string(argv[0] + 24);
     } else if (std::strcmp("-h", argv[0]) == 0 ||
                std::strcmp("--help", argv[0]) == 0) {
       flags.set(0);
@@ -128,6 +131,8 @@ void Args::print_usage() {
   std::println(
       "  --bg-opacity=<percentage> : set the text bg opacity by percentage "
       "(decimal point allowed)");
+  std::println(
+      "  --default-font-filename=<font_filename> : set the default font");
 }
 
 bool Args::is_error() const { return flags.test(0); }
@@ -135,6 +140,10 @@ bool Args::is_error() const { return flags.test(0); }
 const std::bitset<64> &Args::get_flags() const { return flags; }
 
 const std::string &Args::get_host_ip_addr() const { return host_ip_addr; }
+
+const std::string &Args::get_default_font_filename() const {
+  return default_font_filename;
+}
 
 const std::optional<std::string> &Args::get_password_file() const {
   return password_file;

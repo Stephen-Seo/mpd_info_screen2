@@ -38,6 +38,7 @@ class Args {
   double get_text_bg_opacity() const;
   LogLevel get_log_level() const;
   uint16_t get_host_port() const;
+  const std::string &get_default_font_filename() const;
 
  private:
   // 0 - error parsing args
@@ -52,6 +53,7 @@ class Args {
   // 9 - disable all text
   std::bitset<64> flags;
   std::string host_ip_addr;
+  std::string default_font_filename;
   std::optional<std::string> password_file;
   double text_bg_opacity;
   LogLevel level;

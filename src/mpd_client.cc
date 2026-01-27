@@ -723,8 +723,8 @@ void MPDClient::parse_for_song_info(const std::string &str) {
 
   while (idx < str.size()) {
     if (str.size() - idx > 6 &&
-        std::strncmp("Title: ", str.data() + idx, 6) == 0) {
-      idx += 6;
+        std::strncmp("Title: ", str.data() + idx, 7) == 0) {
+      idx += 7;
       size_t end_idx = str.find("\n", idx);
       if (end_idx == std::string::npos) {
         break;

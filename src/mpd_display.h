@@ -30,6 +30,7 @@
 class Args;
 class MPDClient;
 struct Texture;
+struct Font;
 
 class MPDDisplay {
  public:
@@ -62,8 +63,11 @@ class MPDDisplay {
   // 3 - prompt for password
   // 4 - has password
   // 5 - failed auth
+  // 6 - attempted load default font
   std::bitset<64> flags;
   std::unique_ptr<Texture> texture;
+  std::shared_ptr<Font> raylib_default_font;
+  std::shared_ptr<Font> default_font;
   std::string cached_filename;
   std::string cached_pass;
   std::string display_pass;
@@ -73,26 +77,28 @@ class MPDDisplay {
   float texture_y;
   float remaining_width;
   float remaining_height;
-  int remaining_y_offset;
-  int title_offset;
+  float remaining_y_offset;
+  float title_offset;
   float title_width;
   float title_height;
-  int title_size;
+  float title_size;
   float artist_width;
   float artist_height;
-  int artist_size;
-  int artist_offset;
+  float artist_size;
+  float artist_offset;
   float album_width;
   float album_height;
-  int album_size;
-  int album_offset;
+  float album_size;
+  float album_offset;
   float filename_width;
   float filename_height;
-  int filename_size;
-  int filename_offset;
+  float filename_size;
+  float filename_offset;
 
   void calculate_remaining_time_and_percent(const MPDClient &, const Args &);
   void draw_remaining_time_and_percent(const MPDClient &, const Args &);
+
+  std::shared_ptr<Font> get_default_font();
 };
 
 #endif
