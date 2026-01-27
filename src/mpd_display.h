@@ -27,6 +27,7 @@
 #include "constants.h"
 
 // forward declarations
+class Args;
 class MPDClient;
 struct Texture;
 
@@ -43,8 +44,8 @@ class MPDDisplay {
   MPDDisplay(MPDDisplay &&);
   MPDDisplay &operator=(MPDDisplay &&);
 
-  void update(const MPDClient &);
-  void draw(const MPDClient &);
+  void update(const MPDClient &, const Args &);
+  void draw(const MPDClient &, const Args &);
 
   void request_reposition_texture();
 
@@ -62,8 +63,6 @@ class MPDDisplay {
   // 4 - has password
   // 5 - failed auth
   std::bitset<64> flags;
-  // Check "args.h"
-  std::bitset<64> args_flags;
   std::unique_ptr<Texture> texture;
   std::string cached_filename;
   std::string cached_pass;
@@ -72,10 +71,12 @@ class MPDDisplay {
   float texture_scale;
   float texture_x;
   float texture_y;
+  float remaining_width;
+  float remaining_height;
   int remaining_y_offset;
 
   void calculate_remaining_time_and_percent(const MPDClient &);
-  void draw_remaining_time_and_percent(const MPDClient &);
+  void draw_remaining_time_and_percent(const MPDClient &, const Args &);
 };
 
 #endif

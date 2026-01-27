@@ -145,12 +145,12 @@ int main(int argc, char **argv) {
     if (cli.needs_auth()) {
       do_auth();
     }
-    disp->update(cli);
+    disp->update(cli, args);
 
     // draw
     BeginDrawing();
     ClearBackground(CLEAR_BG_COLOR);
-    disp->draw(cli);
+    disp->draw(cli, args);
     EndDrawing();
   }
 

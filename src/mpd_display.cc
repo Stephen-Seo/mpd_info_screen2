@@ -17,6 +17,7 @@
 #include "mpd_display.h"
 
 // local includes
+#include "args.h"
 #include "constants.h"
 #include "mpd_client.h"
 
@@ -28,7 +29,7 @@
 #include <raylib.h>
 
 MPDDisplay::MPDDisplay(const std::bitset<64> &args_flags, LogLevel level)
-    : level(level), flags(), args_flags(args_flags), texture() {
+    : level(level), flags(), texture() {
   flags.set(0);
   flags.set(1);
 }
@@ -42,26 +43,24 @@ MPDDisplay::~MPDDisplay() {
 MPDDisplay::MPDDisplay(MPDDisplay &&other)
     : level(other.level),
       flags(std::move(other.flags)),
-      args_flags(std::move(other.args_flags)),
       texture(std::move(other.texture)) {}
 
 MPDDisplay &MPDDisplay::operator=(MPDDisplay &&other) {
   level = other.level;
   flags = std::move(other.flags);
-  args_flags = std::move(other.args_flags);
   texture = std::move(other.texture);
 
   return *this;
 }
 
-void MPDDisplay::update(const MPDClient &cli) {
+void MPDDisplay::update(const MPDClient &cli, const Args &args) {
   if (!cli.is_ok()) {
     return;
   }
 
   if (flags.test(3)) {
     // password prompt
-    if (!args_flags.test(6)) {
+    if (!args.get_flags().test(6)) {
       return;
     }
 
@@ -172,12 +171,12 @@ void MPDDisplay::update(const MPDClient &cli) {
   calculate_remaining_time_and_percent(cli);
 }
 
-void MPDDisplay::draw(const MPDClient &cli) {
+void MPDDisplay::draw(const MPDClient &cli, const Args &args) {
   if (flags.test(5)) {
     DrawText("Failed authenticating to MPD!", 0, 0, 12, WHITE);
     return;
   } else if (flags.test(3)) {
-    if (args_flags.test(6)) {
+    if (args.get_flags().test(6)) {
       DrawText(display_pass.c_str(), 0, 0, 12, WHITE);
       return;
     } else {
@@ -191,8 +190,8 @@ void MPDDisplay::draw(const MPDClient &cli) {
     DrawTextureEx(*texture, {texture_x, texture_y}, 0.0F, texture_scale, WHITE);
   }
 
-  if (!args_flags.test(9)) {
-    draw_remaining_time_and_percent(cli);
+  if (!args.get_flags().test(9)) {
+    draw_remaining_time_and_percent(cli, args);
   }
 }
 
@@ -249,10 +248,21 @@ void MPDDisplay::calculate_remaining_time_and_percent(const MPDClient &cli) {
   auto text_size = MeasureTextEx(GetFontDefault(), this->remaining_time.c_str(),
                                  TEXT_DEFAULT_SIZE, TEXT_DEFAULT_SIZE / 10.0F);
 
+  remaining_width = text_size.x;
+  remaining_height = text_size.y;
+
   remaining_y_offset = static_cast<int>(height - text_size.y);
 }
 
-void MPDDisplay::draw_remaining_time_and_percent(const MPDClient &cli) {
+void MPDDisplay::draw_remaining_time_and_percent(const MPDClient &cli,
+                                                 const Args &args) {
+  // double width = GetScreenWidth();
+  const float height = static_cast<float>(GetScreenHeight());
+
+  DrawRectangle(
+      0, static_cast<int>(height - remaining_height),
+      static_cast<int>(remaining_width), static_cast<int>(remaining_height),
+      {0, 0, 0, static_cast<unsigned char>(args.get_text_bg_opacity() * 255)});
   DrawText(remaining_time.c_str(), 0, remaining_y_offset, TEXT_DEFAULT_SIZE,
            WHITE);
 }
