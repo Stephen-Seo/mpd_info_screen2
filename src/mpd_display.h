@@ -74,8 +74,24 @@ class MPDDisplay {
   float remaining_width;
   float remaining_height;
   int remaining_y_offset;
+  int title_offset;
+  float title_width;
+  float title_height;
+  int title_size;
+  float artist_width;
+  float artist_height;
+  int artist_size;
+  int artist_offset;
+  float album_width;
+  float album_height;
+  int album_size;
+  int album_offset;
+  float filename_width;
+  float filename_height;
+  int filename_size;
+  int filename_offset;
 
-  void calculate_remaining_time_and_percent(const MPDClient &);
+  void calculate_remaining_time_and_percent(const MPDClient &, const Args &);
   void draw_remaining_time_and_percent(const MPDClient &, const Args &);
 };
 

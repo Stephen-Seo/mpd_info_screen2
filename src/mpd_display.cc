@@ -23,6 +23,7 @@
 
 // standard library includes
 #include <chrono>
+#include <cmath>
 #include <format>
 
 // third-party includes
@@ -168,7 +169,9 @@ void MPDDisplay::update(const MPDClient &cli, const Args &args) {
     flags.set(6);
   }
 
-  calculate_remaining_time_and_percent(cli);
+  if (!args.get_flags().test(9)) {
+    calculate_remaining_time_and_percent(cli, args);
+  }
 }
 
 void MPDDisplay::draw(const MPDClient &cli, const Args &args) {
@@ -217,7 +220,8 @@ void MPDDisplay::set_failed_auth() { flags.set(5); }
 
 void MPDDisplay::clear_cached_pass() { cached_pass.clear(); }
 
-void MPDDisplay::calculate_remaining_time_and_percent(const MPDClient &cli) {
+void MPDDisplay::calculate_remaining_time_and_percent(const MPDClient &cli,
+                                                      const Args &args) {
   auto now = std::chrono::steady_clock::now();
   double duration = cli.get_song_duration();
   int64_t duration_i = static_cast<int64_t>(duration);
@@ -242,8 +246,77 @@ void MPDDisplay::calculate_remaining_time_and_percent(const MPDClient &cli) {
         std::to_string(remaining_i) + " " + std::to_string(percentage) + "%";
   }
 
-  // double width = GetScreenWidth();
-  double height = GetScreenHeight();
+  const int width = GetScreenWidth();
+  int y_offset = GetScreenHeight();
+
+  if (!args.get_flags().test(4) && !cli.get_song_filename().empty()) {
+    filename_size = TEXT_DEFAULT_SIZE;
+    Vector2 text_size;
+    do {
+      text_size =
+          MeasureTextEx(GetFontDefault(), cli.get_song_filename().c_str(),
+                        static_cast<float>(filename_size),
+                        static_cast<float>(filename_size) / 10.0F);
+      if (text_size.x > static_cast<float>(width)) {
+        --filename_size;
+      }
+      filename_width = text_size.x;
+      filename_height = text_size.y;
+    } while (text_size.x > static_cast<float>(width));
+    y_offset -= static_cast<int>(std::ceilf(filename_height));
+    filename_offset = y_offset;
+  }
+
+  if (!args.get_flags().test(3) && !cli.get_song_album().empty()) {
+    album_size = TEXT_DEFAULT_SIZE;
+    Vector2 text_size;
+    do {
+      text_size = MeasureTextEx(GetFontDefault(), cli.get_song_album().c_str(),
+                                static_cast<float>(album_size),
+                                static_cast<float>(album_size) / 10.0F);
+      if (text_size.x > static_cast<float>(width)) {
+        --album_size;
+      }
+      album_width = text_size.x;
+      album_height = text_size.y;
+    } while (text_size.x > static_cast<float>(width));
+    y_offset -= static_cast<int>(std::ceilf(album_height));
+    album_offset = y_offset;
+  }
+
+  if (!args.get_flags().test(2) && !cli.get_song_artist().empty()) {
+    artist_size = TEXT_DEFAULT_SIZE;
+    Vector2 text_size;
+    do {
+      text_size = MeasureTextEx(GetFontDefault(), cli.get_song_artist().c_str(),
+                                static_cast<float>(artist_size),
+                                static_cast<float>(artist_size) / 10.0F);
+      if (text_size.x > static_cast<float>(width)) {
+        --artist_size;
+      }
+      artist_width = text_size.x;
+      artist_height = text_size.y;
+    } while (text_size.x > static_cast<float>(width));
+    y_offset -= static_cast<int>(std::ceilf(artist_height));
+    artist_offset = y_offset;
+  }
+
+  if (!args.get_flags().test(1) && !cli.get_song_title().empty()) {
+    title_size = TEXT_DEFAULT_SIZE;
+    Vector2 text_size;
+    do {
+      text_size = MeasureTextEx(GetFontDefault(), cli.get_song_title().c_str(),
+                                static_cast<float>(title_size),
+                                static_cast<float>(title_size) / 10.0F);
+      if (text_size.x > static_cast<float>(width)) {
+        --title_size;
+      }
+      title_width = text_size.x;
+      title_height = text_size.y;
+    } while (text_size.x > static_cast<float>(width));
+    y_offset -= static_cast<int>(std::ceilf(title_height));
+    title_offset = y_offset;
+  }
 
   auto text_size = MeasureTextEx(GetFontDefault(), this->remaining_time.c_str(),
                                  TEXT_DEFAULT_SIZE, TEXT_DEFAULT_SIZE / 10.0F);
@@ -251,18 +324,41 @@ void MPDDisplay::calculate_remaining_time_and_percent(const MPDClient &cli) {
   remaining_width = text_size.x;
   remaining_height = text_size.y;
 
-  remaining_y_offset = static_cast<int>(height - text_size.y);
+  remaining_y_offset = y_offset - static_cast<int>(std::ceilf(text_size.y));
 }
 
 void MPDDisplay::draw_remaining_time_and_percent(const MPDClient &cli,
                                                  const Args &args) {
-  // double width = GetScreenWidth();
-  const float height = static_cast<float>(GetScreenHeight());
-
-  DrawRectangle(
-      0, static_cast<int>(height - remaining_height),
-      static_cast<int>(remaining_width), static_cast<int>(remaining_height),
-      {0, 0, 0, static_cast<unsigned char>(args.get_text_bg_opacity() * 255)});
+  unsigned char opacity =
+      static_cast<unsigned char>(args.get_text_bg_opacity() * 255);
+  DrawRectangle(0, remaining_y_offset, static_cast<int>(remaining_width),
+                static_cast<int>(remaining_height), {0, 0, 0, opacity});
   DrawText(remaining_time.c_str(), 0, remaining_y_offset, TEXT_DEFAULT_SIZE,
            WHITE);
+
+  if (!args.get_flags().test(1)) {
+    DrawRectangle(0, title_offset, static_cast<int>(title_width),
+                  static_cast<int>(title_height), {0, 0, 0, opacity});
+    DrawText(cli.get_song_title().c_str(), 0, title_offset, title_size, WHITE);
+  }
+
+  if (!args.get_flags().test(2)) {
+    DrawRectangle(0, artist_offset, static_cast<int>(artist_width),
+                  static_cast<int>(artist_height), {0, 0, 0, opacity});
+    DrawText(cli.get_song_artist().c_str(), 0, artist_offset, artist_size,
+             WHITE);
+  }
+
+  if (!args.get_flags().test(3)) {
+    DrawRectangle(0, album_offset, static_cast<int>(album_width),
+                  static_cast<int>(album_height), {0, 0, 0, opacity});
+    DrawText(cli.get_song_album().c_str(), 0, album_offset, album_size, WHITE);
+  }
+
+  if (!args.get_flags().test(4)) {
+    DrawRectangle(0, filename_offset, static_cast<int>(filename_width),
+                  static_cast<int>(filename_height), {0, 0, 0, opacity});
+    DrawText(cli.get_song_filename().c_str(), 0, filename_offset, filename_size,
+             WHITE);
+  }
 }
