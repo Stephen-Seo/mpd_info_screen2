@@ -190,7 +190,7 @@ void MPDDisplay::draw(const MPDClient &cli, const Args &args) {
     DrawTextureEx(*texture, {texture_x, texture_y}, 0.0F, texture_scale, WHITE);
   }
 
-  if (!args.get_flags().test(9)) {
+  if (!args.get_flags().test(9) && !IsKeyDown(KEY_H)) {
     draw_remaining_time_and_percent(cli, args);
   }
 }
