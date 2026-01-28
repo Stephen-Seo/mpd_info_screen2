@@ -448,7 +448,7 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
     DrawTextEx(font, cli.get_song_title().c_str(), {0, title_offset},
                title_size, title_size / 10.0F, WHITE);
     // TODO DEBUG
-    DrawTexture(font.texture, 0, 0, WHITE);
+    // DrawTexture(font.texture, 0, 0, WHITE);
   }
 
   if (!args.get_flags().test(2)) {
