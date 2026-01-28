@@ -42,6 +42,7 @@ FontWrapper::FontWrapper(std::string filename, std::string text) {
   std::vector<int> codepoints_v;
 
   if (unique_codepoints.find('a') == unique_codepoints.end()) {
+    // Force add 'a' and 'b' to codepoints to avoid unicode rendering bug.
     codepoints_v.push_back('a');
   }
 
@@ -51,6 +52,7 @@ FontWrapper::FontWrapper(std::string filename, std::string text) {
   }
 
   if (unique_codepoints.find('b') == unique_codepoints.end()) {
+    // Force add 'a' and 'b' to codepoints to avoid unicode rendering bug.
     codepoints_v.push_back('b');
   }
 
