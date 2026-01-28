@@ -19,6 +19,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <print>
+#include <unordered_set>
 
 Args::Args(int argc, char **argv)
     : flags(),
@@ -95,6 +96,11 @@ Args::Args(int argc, char **argv)
       flags.set(10);
     } else if (std::strcmp("--force-default-font-ascii", argv[0]) == 0) {
       flags.set(11);
+    } else if (std::strncmp("--blacklist-font-str=", argv[0], 21) == 0) {
+      std::string string(argv[0] + 21);
+      if (!string.empty()) {
+        font_blacklist_strings.insert(string);
+      }
     } else if (std::strcmp("-h", argv[0]) == 0 ||
                std::strcmp("--help", argv[0]) == 0) {
       flags.set(0);
@@ -146,6 +152,10 @@ void Args::print_usage() {
   std::println(
       "  --force-default-font-ascii : Only use the default font for ascii text "
       "(mutually exclusive with previous option)");
+  std::println(
+      "  --blacklist-font-str=<string> : blacklist fonts that have <string> in "
+      "its filename (use this option multiple times to add more strings to "
+      "check)");
 }
 
 bool Args::is_error() const { return flags.test(0); }
@@ -156,6 +166,11 @@ const std::string &Args::get_host_ip_addr() const { return host_ip_addr; }
 
 const std::string &Args::get_default_font_filename() const {
   return default_font_filename;
+}
+
+const std::unordered_set<std::string> &Args::get_font_blacklist_strings()
+    const {
+  return font_blacklist_strings;
 }
 
 const std::optional<std::string> &Args::get_password_file() const {

@@ -51,7 +51,9 @@ extern std::string helper_replace_in_string(const std::string &in,
                                             const std::string &target,
                                             const std::string &replacement);
 
-extern std::string helper_unicode_font_fetch(const std::string &str_to_render);
+extern std::string helper_unicode_font_fetch(
+    const std::string &str_to_render,
+    const std::unordered_set<std::string> &blacklist_strings);
 
 extern std::string helper_str_to_lower(const std::string &s);
 

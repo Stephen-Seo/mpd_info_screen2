@@ -78,11 +78,11 @@ int main(void) {
   // helper get_font
   {
     std::string ascii("ok");
-    std::string filename = helper_unicode_font_fetch(ascii);
+    std::string filename = helper_unicode_font_fetch(ascii, {});
     std::println("unicode_font_fetch: {}", filename);
 
     std::string emoji("😀🐠");
-    filename = helper_unicode_font_fetch(emoji);
+    filename = helper_unicode_font_fetch(emoji, {});
     std::println("unicode_font_fetch: {}", filename);
   }
 

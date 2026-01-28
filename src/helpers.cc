@@ -84,7 +84,9 @@ extern std::string helper_replace_in_string(const std::string &in,
   return ret;
 }
 
-extern std::string helper_unicode_font_fetch(const std::string &str_to_render) {
+extern std::string helper_unicode_font_fetch(
+    const std::string &str_to_render,
+    const std::unordered_set<std::string> &blacklist_strings) {
   FcConfig *config = FcInitLoadConfigAndFonts();
   GenericCleanup<FcConfig *> config_cleanup(&config, [](FcConfig **config) {
     if (*config) {
@@ -175,6 +177,18 @@ extern std::string helper_unicode_font_fetch(const std::string &str_to_render) {
       std::string inner_filename(reinterpret_cast<const char *>(file));
       if (auto idx = inner_filename.find(".ttf");
           idx != std::string::npos && idx + 4 == inner_filename.size()) {
+        bool blacklisted = false;
+        for (const std::string &blacklist_str : blacklist_strings) {
+          if (auto idx = inner_filename.find(blacklist_str);
+              idx != std::string::npos) {
+            // Blacklisted string in filename, don't use this font.
+            blacklisted = true;
+            break;
+          }
+        }
+        if (blacklisted) {
+          continue;
+        }
         return inner_filename;
       }
     }

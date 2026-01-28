@@ -597,7 +597,8 @@ void MPDDisplay::load_draw_text_font(const std::string &text, TextType type,
     } else if (helper_str_is_ascii(text) && args.get_flags().test(11)) {
       filename = args.get_default_font_filename();
     } else {
-      filename = helper_unicode_font_fetch(text);
+      filename =
+          helper_unicode_font_fetch(text, args.get_font_blacklist_strings());
     }
     if (filename.empty()) {
       switch (type) {
