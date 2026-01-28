@@ -1,8 +1,12 @@
 # Upcoming Changes
 
+# Version 1.2
+
 Implement `--blacklist-font-str=<string>`, which allows the user to prevent
 specific fonts from being loaded. This applies to the font's filename, and the
 check is case-sensitive.
+
+Fix regression where remaining-time display "glitches" every few seconds.
 
 # Version 1.1
 
