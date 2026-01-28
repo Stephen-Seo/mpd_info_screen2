@@ -2,9 +2,10 @@
     MPD_INFO_SCREEN 2
 --------------------------------------------------------------------------------
 
-THIS PROGRAM IS STILL A WORK IN PROGRESS!
+This program has reached feature parity with mpd_info_screen as of 2026-01-28.
 
-mpd_info_screen2 should eventually have feature parity with mpd_info_screen.
+mpd_info_screen2 should have some extra features in addition to those found in
+mpd_info_screen.
 
 The original mpd_info_screen can be found here:
 
