@@ -1,3 +1,9 @@
+# Upcoming Changes
+
+Implement `--blacklist-font-str=<string>`, which allows the user to prevent
+specific fonts from being loaded. This applies to the font's filename, and the
+check is case-sensitive.
+
 # Version 1.1
 
 Implement automatic scaling of text to window size.  
