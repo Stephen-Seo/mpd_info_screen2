@@ -79,6 +79,8 @@ class MPDDisplay {
   void set_failed_auth();
   void clear_cached_pass();
 
+  static float scaled_font_size();
+
  private:
   LogLevel level;
   // 0 - UNUSED

@@ -65,8 +65,9 @@ FontWrapper::FontWrapper(std::string filename, std::string text) {
   std::println();
 #endif
 
-  Font f = LoadFontEx(filename.c_str(), TEXT_DEFAULT_SIZE, codepoints_v.data(),
-                      static_cast<int>(codepoints_v.size()));
+  Font f = LoadFontEx(
+      filename.c_str(), static_cast<int>(MPDDisplay::scaled_font_size()),
+      codepoints_v.data(), static_cast<int>(codepoints_v.size()));
   UnloadCodepoints(codepoints);
   if (f.baseSize != 0 && f.texture.id != GetFontDefault().texture.id) {
     SetTextureFilter(f.texture, TEXTURE_FILTER_BILINEAR);
@@ -129,7 +130,7 @@ void MPDDisplay::update(const MPDClient &cli, const Args &args) {
       !args.get_default_font_filename().empty()) {
     flags.set(6);
     Font f = LoadFontEx(args.get_default_font_filename().c_str(),
-                        TEXT_DEFAULT_SIZE, nullptr, 0);
+                        static_cast<int>(scaled_font_size()), nullptr, 0);
     if (f.baseSize != 0) {
       default_font = std::make_shared<Font>(f);
     }
@@ -280,7 +281,15 @@ void MPDDisplay::draw(const MPDClient &cli, const Args &args) {
   }
 }
 
-void MPDDisplay::request_reposition_texture() { flags.set(2); }
+void MPDDisplay::request_reposition_texture() {
+  flags.set(2);
+
+  flags.reset(7);
+  flags.reset(8);
+  flags.reset(9);
+  flags.reset(10);
+  fonts.clear();
+}
 
 void MPDDisplay::request_password_prompt() {
   if (!flags.test(3)) {
@@ -301,6 +310,10 @@ std::optional<std::string> MPDDisplay::fetch_prompted_pass() {
 void MPDDisplay::set_failed_auth() { flags.set(5); }
 
 void MPDDisplay::clear_cached_pass() { cached_pass.clear(); }
+
+float MPDDisplay::scaled_font_size() {
+  return TEXT_DEFAULT_SIZE_F * static_cast<float>(GetScreenWidth()) / 800.0F;
+}
 
 void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
   auto now = std::chrono::steady_clock::now();
@@ -352,7 +365,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
     if (fiter != fonts.end()) {
       font = *fiter->second.get();
     }
-    filename_size = TEXT_DEFAULT_SIZE;
+    filename_size = scaled_font_size();
     Vector2 text_size;
     do {
       text_size = MeasureTextEx(font, cli.get_song_filename().c_str(),
@@ -375,7 +388,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
     if (fiter != fonts.end()) {
       font = *fiter->second.get();
     }
-    album_size = TEXT_DEFAULT_SIZE;
+    album_size = scaled_font_size();
     Vector2 text_size;
     do {
       text_size = MeasureTextEx(font, cli.get_song_album().c_str(),
@@ -398,7 +411,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
     if (fiter != fonts.end()) {
       font = *fiter->second.get();
     }
-    artist_size = TEXT_DEFAULT_SIZE;
+    artist_size = scaled_font_size();
     Vector2 text_size;
     do {
       text_size = MeasureTextEx(font, cli.get_song_artist().c_str(),
@@ -421,7 +434,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
     if (fiter != fonts.end()) {
       font = *fiter->second.get();
     }
-    title_size = TEXT_DEFAULT_SIZE;
+    title_size = scaled_font_size();
     Vector2 text_size;
     do {
       text_size = MeasureTextEx(font, cli.get_song_title().c_str(),
@@ -437,8 +450,9 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
     title_offset = y_offset;
   }
 
-  auto text_size = MeasureTextEx(*default_font, this->remaining_time.c_str(),
-                                 TEXT_DEFAULT_SIZE, TEXT_DEFAULT_SIZE / 10.0F);
+  auto text_size =
+      MeasureTextEx(*default_font, this->remaining_time.c_str(),
+                    scaled_font_size(), scaled_font_size() / 10.0F);
 
   remaining_width = text_size.x;
   remaining_height = text_size.y;
@@ -462,7 +476,7 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
                     static_cast<int>(remaining_width),
                     static_cast<int>(remaining_height), {0, 0, 0, opacity});
       DrawTextEx(*default_font, remaining_time.c_str(), {0, remaining_y_offset},
-                 TEXT_DEFAULT_SIZE, TEXT_DEFAULT_SIZE / 10.0F, WHITE);
+                 scaled_font_size(), scaled_font_size() / 10.0F, WHITE);
     }
     if (!args.get_flags().test(1)) {
       Font font = *default_font;
