@@ -1,3 +1,8 @@
+# Version 1.1
+
+Implement automatic scaling of text to window size.  
+(A larger window means larger text, as long as the text is not too large.)
+
 # Version 1.0
 
 Initial version with the following options:
