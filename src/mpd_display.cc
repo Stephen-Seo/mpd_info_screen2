@@ -375,6 +375,14 @@ void MPDDisplay::update_remaining_texts(const MPDClient &cli,
   } else {
     remaining_time.clear();
   }
+
+  std::shared_ptr<Font> default_font = get_default_font();
+  auto text_size =
+      MeasureTextEx(*default_font, this->remaining_time.c_str(),
+                    scaled_font_size(), scaled_font_size() / 10.0F);
+
+  remaining_width = text_size.x;
+  remaining_height = text_size.y;
 }
 
 void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
@@ -475,14 +483,8 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
     title_offset = y_offset;
   }
 
-  auto text_size =
-      MeasureTextEx(*default_font, this->remaining_time.c_str(),
-                    scaled_font_size(), scaled_font_size() / 10.0F);
-
-  remaining_width = text_size.x;
-  remaining_height = text_size.y;
-
-  remaining_y_offset = y_offset - static_cast<int>(std::ceilf(text_size.y));
+  remaining_y_offset =
+      y_offset - static_cast<int>(std::ceilf(remaining_height));
 }
 
 void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
