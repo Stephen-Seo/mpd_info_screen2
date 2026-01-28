@@ -38,6 +38,7 @@ Usage:
   --default-font-filename=<font_filename> : set the default font
   --force-default-font : Only use the default font (mutually exclusive with next option)
   --force-default-font-ascii : Only use the default font for ascii text (mutually exclusive with previous option)
+  --blacklist-font-str=<string> : blacklist fonts that have <string> in its filename (use this option multiple times to add more strings to check)
 
 --------------------------------------------------------------------------------
     Compiling
