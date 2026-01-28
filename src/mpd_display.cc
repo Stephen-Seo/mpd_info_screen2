@@ -325,9 +325,9 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
   std::shared_ptr<Font> default_font = get_default_font();
 
   if (!args.get_flags().test(4) && !cli.get_song_filename().empty()) {
-    load_draw_text_font(cli.get_song_filename(), TEXT_FILENAME);
-    auto fiter = fonts.find(TEXT_FILENAME);
     Font font = *default_font;
+    load_draw_text_font(cli.get_song_filename(), TEXT_FILENAME, args);
+    auto fiter = fonts.find(TEXT_FILENAME);
     if (fiter != fonts.end()) {
       font = *fiter->second.get();
     }
@@ -348,9 +348,9 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
   }
 
   if (!args.get_flags().test(3) && !cli.get_song_album().empty()) {
-    load_draw_text_font(cli.get_song_album(), TEXT_ALBUM);
-    auto fiter = fonts.find(TEXT_ALBUM);
     Font font = *default_font;
+    load_draw_text_font(cli.get_song_album(), TEXT_ALBUM, args);
+    auto fiter = fonts.find(TEXT_ALBUM);
     if (fiter != fonts.end()) {
       font = *fiter->second.get();
     }
@@ -371,9 +371,9 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
   }
 
   if (!args.get_flags().test(2) && !cli.get_song_artist().empty()) {
-    load_draw_text_font(cli.get_song_artist(), TEXT_ARTIST);
-    auto fiter = fonts.find(TEXT_ARTIST);
     Font font = *default_font;
+    load_draw_text_font(cli.get_song_artist(), TEXT_ARTIST, args);
+    auto fiter = fonts.find(TEXT_ARTIST);
     if (fiter != fonts.end()) {
       font = *fiter->second.get();
     }
@@ -394,9 +394,9 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
   }
 
   if (!args.get_flags().test(1) && !cli.get_song_title().empty()) {
-    load_draw_text_font(cli.get_song_title(), TEXT_TITLE);
-    auto fiter = fonts.find(TEXT_TITLE);
     Font font = *default_font;
+    load_draw_text_font(cli.get_song_title(), TEXT_TITLE, args);
+    auto fiter = fonts.find(TEXT_TITLE);
     if (fiter != fonts.end()) {
       font = *fiter->second.get();
     }
@@ -448,7 +448,7 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
     DrawTextEx(font, cli.get_song_title().c_str(), {0, title_offset},
                title_size, title_size / 10.0F, WHITE);
     // TODO DEBUG
-    //DrawTexture(font.texture, 0, 0, WHITE);
+    DrawTexture(font.texture, 0, 0, WHITE);
   }
 
   if (!args.get_flags().test(2)) {
@@ -496,7 +496,8 @@ std::shared_ptr<Font> MPDDisplay::get_default_font() {
   return default_font;
 }
 
-void MPDDisplay::load_draw_text_font(const std::string &text, TextType type) {
+void MPDDisplay::load_draw_text_font(const std::string &text, TextType type,
+                                     const Args &args) {
   if (text.empty()) {
     return;
   }
@@ -524,7 +525,12 @@ void MPDDisplay::load_draw_text_font(const std::string &text, TextType type) {
   }
 
   if (fonts.find(type) == fonts.end()) {
-    const std::string filename = helper_unicode_font_fetch(text);
+    std::string filename;
+    if (args.get_flags().test(10)) {
+      filename = args.get_default_font_filename();
+    } else {
+      filename = helper_unicode_font_fetch(text);
+    }
     if (filename.empty()) {
       switch (type) {
         case TEXT_TITLE:

@@ -51,6 +51,7 @@ class Args {
   // 7 - don't scale fill the album art
   // 8 - -h or --help received
   // 9 - disable all text
+  // 10 - only use default font
   std::bitset<64> flags;
   std::string host_ip_addr;
   std::string default_font_filename;

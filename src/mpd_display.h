@@ -129,7 +129,8 @@ class MPDDisplay {
 
   std::shared_ptr<Font> get_default_font();
 
-  void load_draw_text_font(const std::string &text, TextType type);
+  void load_draw_text_font(const std::string &text, TextType type,
+                           const Args &);
 };
 
 #endif

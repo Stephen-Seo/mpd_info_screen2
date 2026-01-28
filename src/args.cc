@@ -89,6 +89,8 @@ Args::Args(int argc, char **argv)
       }
     } else if (std::strncmp("--default-font-filename=", argv[0], 24) == 0) {
       default_font_filename = std::string(argv[0] + 24);
+    } else if (std::strcmp("--force-default-font", argv[0]) == 0) {
+      flags.set(10);
     } else if (std::strcmp("-h", argv[0]) == 0 ||
                std::strcmp("--help", argv[0]) == 0) {
       flags.set(0);
@@ -133,6 +135,7 @@ void Args::print_usage() {
       "(decimal point allowed)");
   std::println(
       "  --default-font-filename=<font_filename> : set the default font");
+  std::println("  --force-default-font : Only use the default font");
 }
 
 bool Args::is_error() const { return flags.test(0); }
