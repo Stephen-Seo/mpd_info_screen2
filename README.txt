@@ -13,6 +13,9 @@ https://crates.io/crates/mpd_info_screen
 https://github.com/Stephen-Seo/mpd_info_screen
 https://git.seodisparate.com/gitweb/?p=mpd_info_screen;a=summary
 
+Note that the original mpd_info_screen uses the Rust library "ggez" to handle
+the graphics. mpd_info_screen2 instead relies on "Raylib".
+
 --------------------------------------------------------------------------------
     Args
 --------------------------------------------------------------------------------
