@@ -34,6 +34,7 @@ constexpr std::chrono::seconds MPD_CLI_READ_TIMEOUT = std::chrono::seconds(2);
 constexpr std::chrono::seconds MPD_CLI_WRITE_TIMEOUT = MPD_CLI_READ_TIMEOUT;
 constexpr int DISPLAY_BG_OPACITY = 200;
 constexpr int TEXT_DEFAULT_SIZE = 48;
+constexpr int STATUS_TEXT_SIZE = 12;
 
 #define LOG_PRINT(setting, level, msg, ...)       \
   if (log_level_can_log(setting, level)) {        \

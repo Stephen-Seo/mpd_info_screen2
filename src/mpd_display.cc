@@ -432,65 +432,70 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
 }
 
 void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
-  unsigned char opacity =
-      static_cast<unsigned char>(args.get_text_bg_opacity() * 255);
+  if (cli.get_play_state() == "stop") {
+    DrawText("MPD is stopped", 0, 0, STATUS_TEXT_SIZE, WHITE);
+  } else if (cli.get_play_state() == "pause") {
+    DrawText("MPD is paused", 0, 0, STATUS_TEXT_SIZE, WHITE);
+  } else {
+    unsigned char opacity =
+        static_cast<unsigned char>(args.get_text_bg_opacity() * 255);
 
-  std::shared_ptr<Font> default_font = get_default_font();
+    std::shared_ptr<Font> default_font = get_default_font();
 
-  DrawRectangle(0, static_cast<int>(remaining_y_offset),
-                static_cast<int>(remaining_width),
-                static_cast<int>(remaining_height), {0, 0, 0, opacity});
-  DrawTextEx(*default_font, remaining_time.c_str(), {0, remaining_y_offset},
-             TEXT_DEFAULT_SIZE, TEXT_DEFAULT_SIZE / 10.0F, WHITE);
-
-  if (!args.get_flags().test(1)) {
-    Font font = *default_font;
-    if (auto fiter = fonts.find(TEXT_TITLE); fiter != fonts.end()) {
-      font = *fiter->second.get();
+    DrawRectangle(0, static_cast<int>(remaining_y_offset),
+                  static_cast<int>(remaining_width),
+                  static_cast<int>(remaining_height), {0, 0, 0, opacity});
+    DrawTextEx(*default_font, remaining_time.c_str(), {0, remaining_y_offset},
+               TEXT_DEFAULT_SIZE, TEXT_DEFAULT_SIZE / 10.0F, WHITE);
+    if (!args.get_flags().test(1)) {
+      Font font = *default_font;
+      if (auto fiter = fonts.find(TEXT_TITLE); fiter != fonts.end()) {
+        font = *fiter->second.get();
+      }
+      DrawRectangle(0, static_cast<int>(title_offset),
+                    static_cast<int>(title_width),
+                    static_cast<int>(title_height), {0, 0, 0, opacity});
+      DrawTextEx(font, cli.get_song_title().c_str(), {0, title_offset},
+                 title_size, title_size / 10.0F, WHITE);
+      // TODO DEBUG
+      // DrawTexture(font.texture, 0, 0, WHITE);
     }
-    DrawRectangle(0, static_cast<int>(title_offset),
-                  static_cast<int>(title_width), static_cast<int>(title_height),
-                  {0, 0, 0, opacity});
-    DrawTextEx(font, cli.get_song_title().c_str(), {0, title_offset},
-               title_size, title_size / 10.0F, WHITE);
-    // TODO DEBUG
-    // DrawTexture(font.texture, 0, 0, WHITE);
-  }
 
-  if (!args.get_flags().test(2)) {
-    Font font = *default_font;
-    if (auto fiter = fonts.find(TEXT_ARTIST); fiter != fonts.end()) {
-      font = *fiter->second.get();
+    if (!args.get_flags().test(2)) {
+      Font font = *default_font;
+      if (auto fiter = fonts.find(TEXT_ARTIST); fiter != fonts.end()) {
+        font = *fiter->second.get();
+      }
+      DrawRectangle(0, static_cast<int>(artist_offset),
+                    static_cast<int>(artist_width),
+                    static_cast<int>(artist_height), {0, 0, 0, opacity});
+      DrawTextEx(font, cli.get_song_artist().c_str(), {0, artist_offset},
+                 artist_size, artist_size / 10.0F, WHITE);
     }
-    DrawRectangle(0, static_cast<int>(artist_offset),
-                  static_cast<int>(artist_width),
-                  static_cast<int>(artist_height), {0, 0, 0, opacity});
-    DrawTextEx(font, cli.get_song_artist().c_str(), {0, artist_offset},
-               artist_size, artist_size / 10.0F, WHITE);
-  }
 
-  if (!args.get_flags().test(3)) {
-    Font font = *default_font;
-    if (auto fiter = fonts.find(TEXT_ALBUM); fiter != fonts.end()) {
-      font = *fiter->second.get();
+    if (!args.get_flags().test(3)) {
+      Font font = *default_font;
+      if (auto fiter = fonts.find(TEXT_ALBUM); fiter != fonts.end()) {
+        font = *fiter->second.get();
+      }
+      DrawRectangle(0, static_cast<int>(album_offset),
+                    static_cast<int>(album_width),
+                    static_cast<int>(album_height), {0, 0, 0, opacity});
+      DrawTextEx(font, cli.get_song_album().c_str(), {0, album_offset},
+                 album_size, album_size / 10.0F, WHITE);
     }
-    DrawRectangle(0, static_cast<int>(album_offset),
-                  static_cast<int>(album_width), static_cast<int>(album_height),
-                  {0, 0, 0, opacity});
-    DrawTextEx(font, cli.get_song_album().c_str(), {0, album_offset},
-               album_size, album_size / 10.0F, WHITE);
-  }
 
-  if (!args.get_flags().test(4)) {
-    Font font = *default_font;
-    if (auto fiter = fonts.find(TEXT_FILENAME); fiter != fonts.end()) {
-      font = *fiter->second.get();
+    if (!args.get_flags().test(4)) {
+      Font font = *default_font;
+      if (auto fiter = fonts.find(TEXT_FILENAME); fiter != fonts.end()) {
+        font = *fiter->second.get();
+      }
+      DrawRectangle(0, static_cast<int>(filename_offset),
+                    static_cast<int>(filename_width),
+                    static_cast<int>(filename_height), {0, 0, 0, opacity});
+      DrawTextEx(font, cli.get_song_filename().c_str(), {0, filename_offset},
+                 filename_size, filename_size / 10.0F, WHITE);
     }
-    DrawRectangle(0, static_cast<int>(filename_offset),
-                  static_cast<int>(filename_width),
-                  static_cast<int>(filename_height), {0, 0, 0, opacity});
-    DrawTextEx(font, cli.get_song_filename().c_str(), {0, filename_offset},
-               filename_size, filename_size / 10.0F, WHITE);
   }
 }
 

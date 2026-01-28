@@ -44,6 +44,7 @@ MPDClient::MPDClient(std::string host_ip, uint16_t host_port, LogLevel level)
       song_artist(),
       song_album(),
       song_filename(),
+      mpd_play_state("play"),
       elapsed_time_point(std::chrono::steady_clock::now()),
       elapsed_time(0.0),
       song_duration(0.0),
@@ -74,6 +75,7 @@ MPDClient::MPDClient(MPDClient &&other)
       song_artist(std::move(other.song_artist)),
       song_album(std::move(other.song_album)),
       song_filename(std::move(other.song_filename)),
+      mpd_play_state(std::move(other.mpd_play_state)),
       elapsed_time_point(std::move(other.elapsed_time_point)),
       elapsed_time(other.elapsed_time),
       song_duration(other.song_duration),
@@ -96,6 +98,7 @@ MPDClient &MPDClient::operator=(MPDClient &&other) {
   this->song_artist = std::move(other.song_artist);
   this->song_album = std::move(other.song_album);
   this->song_filename = std::move(other.song_filename);
+  this->mpd_play_state = std::move(other.mpd_play_state);
   this->elapsed_time_point = std::move(other.elapsed_time_point);
   this->elapsed_time = other.elapsed_time;
   this->song_duration = other.song_duration;
@@ -563,6 +566,8 @@ const std::string &MPDClient::get_album_art_mime_type() const {
   return album_art_mime_type;
 }
 
+const std::string &MPDClient::get_play_state() const { return mpd_play_state; }
+
 bool MPDClient::song_has_album_art() const { return !flags.test(11); }
 
 void MPDClient::request_data_update() {
@@ -798,6 +803,15 @@ void MPDClient::parse_for_song_info(const std::string &str) {
                   "WARNING: Failed to parse song elapsed! {}",
                   song_elapsed_str);
       }
+      idx = end_idx + 1;
+    } else if (str.size() - idx > 7 &&
+               std::strncmp("state: ", str.data() + idx, 7) == 0) {
+      idx += 7;
+      size_t end_idx = str.find("\n", idx);
+      if (end_idx == std::string::npos) {
+        break;
+      }
+      mpd_play_state = std::string(str.data() + idx, end_idx - idx);
       idx = end_idx + 1;
     } else {
       size_t end_idx = str.find("\n", idx);

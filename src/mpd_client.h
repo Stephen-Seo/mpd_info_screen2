@@ -59,6 +59,8 @@ class MPDClient {
   const std::optional<std::vector<char> > &get_album_art() const;
   const std::string &get_album_art_mime_type() const;
 
+  const std::string &get_play_state() const;
+
   bool song_has_album_art() const;
 
   void request_data_update();
@@ -113,6 +115,7 @@ class MPDClient {
   std::string song_artist;
   std::string song_album;
   std::string song_filename;
+  std::string mpd_play_state;
   std::chrono::steady_clock::time_point elapsed_time_point;
   double elapsed_time;
   double song_duration;
