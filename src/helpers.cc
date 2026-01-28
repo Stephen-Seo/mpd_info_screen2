@@ -139,68 +139,59 @@ extern std::string helper_unicode_font_fetch(const std::string &str_to_render) {
   value.type = FcTypeCharSet;
   value.u.c = fcCharSet;
 
-  FcConfigSetDefaultSubstitute(config, fcPattern);
   if (FcPatternAdd(fcPattern, FC_CHARSET, value, FcTrue) == FcFalse) {
     return {};
   }
 
-  if (FcConfigSubstitute(config, fcPattern, FcMatchPattern) != FcTrue) {
-    return {};
-  }
-
-  FcResult res;
-  FcPattern *retPattern = FcFontMatch(config, fcPattern, &res);
-
-  GenericCleanup<FcPattern *> ret_pattern_cleanup(&retPattern,
-                                                  [](FcPattern **p) {
-                                                    if (*p) {
-                                                      FcPatternDestroy(*p);
-                                                      *p = nullptr;
-                                                    }
-                                                  });
-
-  if (res != FcResultMatch || !retPattern) {
-    return {};
-  }
-
-  FcObjectSet *fcObjectSet = FcObjectSetCreate();
-
-  GenericCleanup<FcObjectSet *> objectset_cleanup(&fcObjectSet,
-                                                  [](FcObjectSet **set) {
-                                                    if (*set) {
-                                                      FcObjectSetDestroy(*set);
-                                                      *set = nullptr;
-                                                    }
-                                                  });
-
-  if (!fcObjectSet) {
-    return {};
-  }
-
-  if (FcObjectSetAdd(fcObjectSet, FC_FILE) == FcFalse) {
-    return {};
-  }
-
-  FcPattern *filteredPattern = FcPatternFilter(retPattern, fcObjectSet);
-
-  GenericCleanup<FcPattern *> filteredpattern_cleanup(
-      &filteredPattern, [](FcPattern **pat) {
-        if (*pat) {
-          FcPatternDestroy(*pat);
-          *pat = nullptr;
+  FcObjectSet *filename_objset = FcObjectSetBuild(FC_FILE, nullptr);
+  GenericCleanup<FcObjectSet *> filename_objs_cleanup(
+      &filename_objset, [](FcObjectSet **set) {
+        if (*set) {
+          FcObjectSetDestroy(*set);
+          *set = nullptr;
         }
       });
 
-  if (!filteredPattern) {
+  FcFontSet *fset = FcFontList(config, fcPattern, filename_objset);
+  GenericCleanup<FcFontSet *> fset_cleanup(&fset, [](FcFontSet **set) {
+    if (*set) {
+      FcFontSetDestroy(*set);
+      *set = nullptr;
+    }
+  });
+
+  if (!fset) {
+    return {};
+  } else if (fset->nfont == 0) {
     return {};
   }
 
-  FcValue ret_patget;
-  std::memset(&ret_patget, 0, sizeof(FcValue));
+  for (int idx = 0; idx < fset->nfont; ++idx) {
+    FcPattern *pat = fset->fonts[idx];
 
-  if (FcPatternGet(filteredPattern, FC_FILE, 0, &ret_patget) != FcResultMatch) {
-    return {{}, {}};
+    FcChar8 *file;
+
+    if (FcPatternGetString(pat, FC_FILE, 0, &file) == FcResultMatch) {
+      std::string inner_filename(reinterpret_cast<const char *>(file));
+      if (auto idx = inner_filename.find(".ttf");
+          idx != std::string::npos && idx + 4 == inner_filename.size()) {
+        return inner_filename;
+      }
+    }
   }
 
-  return std::string(reinterpret_cast<const char *>(ret_patget.u.s));
+  return {};
+}
+
+std::string helper_str_to_lower(const std::string &s) {
+  std::string ret;
+
+  for (char c : s) {
+    if (c >= 0x41 && c <= 0x5A) {
+      c += 0x20;
+    }
+    ret.push_back(c);
+  }
+
+  return ret;
 }
