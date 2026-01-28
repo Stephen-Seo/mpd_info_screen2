@@ -195,3 +195,12 @@ std::string helper_str_to_lower(const std::string &s) {
 
   return ret;
 }
+
+bool helper_str_is_ascii(const std::string &s) {
+  for (char c : s) {
+    if (c & 0x80) {
+      return false;
+    }
+  }
+  return true;
+}

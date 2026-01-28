@@ -52,6 +52,7 @@ class Args {
   // 8 - -h or --help received
   // 9 - disable all text
   // 10 - only use default font
+  // 11 - only use default font for ASCII
   std::bitset<64> flags;
   std::string host_ip_addr;
   std::string default_font_filename;
