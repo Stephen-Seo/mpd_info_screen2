@@ -83,7 +83,7 @@ class MPDDisplay {
 
  private:
   LogLevel level;
-  // 0 - UNUSED
+  // 0 - refresh font data
   // 1 - need to refetch texture
   // 2 - need to refresh texture positioning
   // 3 - prompt for password
@@ -103,28 +103,29 @@ class MPDDisplay {
   std::string display_pass;
   std::string remaining_time;
   std::unordered_map<int, FontWrapper> fonts;
+  std::chrono::steady_clock::time_point refresh_timepoint;
   float texture_scale;
   float texture_x;
   float texture_y;
   float remaining_width;
   float remaining_height;
-  float remaining_y_offset;
-  float title_offset;
+  int remaining_y_offset;
+  int title_offset;
   float title_width;
   float title_height;
   float title_size;
   float artist_width;
   float artist_height;
   float artist_size;
-  float artist_offset;
+  int artist_offset;
   float album_width;
   float album_height;
   float album_size;
-  float album_offset;
+  int album_offset;
   float filename_width;
   float filename_height;
   float filename_size;
-  float filename_offset;
+  int filename_offset;
 
   void update_draw_texts(const MPDClient &, const Args &);
   void draw_draw_texts(const MPDClient &, const Args &);

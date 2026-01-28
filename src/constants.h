@@ -33,9 +33,12 @@ constexpr std::chrono::seconds DEBUG_PRINT_INFO_INTERVAL =
 constexpr std::chrono::seconds MPD_CLI_READ_TIMEOUT = std::chrono::seconds(2);
 constexpr std::chrono::seconds MPD_CLI_WRITE_TIMEOUT = MPD_CLI_READ_TIMEOUT;
 constexpr int DISPLAY_BG_OPACITY = 200;
+constexpr int TEXT_LOAD_SIZE = 96;
 constexpr int TEXT_DEFAULT_SIZE = 48;
 constexpr float TEXT_DEFAULT_SIZE_F = TEXT_DEFAULT_SIZE;
 constexpr int STATUS_TEXT_SIZE = 12;
+constexpr std::chrono::milliseconds REFRESH_DURATION =
+    std::chrono::milliseconds(500);
 
 #define LOG_PRINT(setting, level, msg, ...)       \
   if (log_level_can_log(setting, level)) {        \

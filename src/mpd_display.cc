@@ -24,6 +24,7 @@
 
 // standard library includes
 #include <chrono>
+#include <cmath>
 #include <format>
 #include <vector>
 
@@ -65,9 +66,8 @@ FontWrapper::FontWrapper(std::string filename, std::string text) {
   std::println();
 #endif
 
-  Font f = LoadFontEx(
-      filename.c_str(), static_cast<int>(MPDDisplay::scaled_font_size()),
-      codepoints_v.data(), static_cast<int>(codepoints_v.size()));
+  Font f = LoadFontEx(filename.c_str(), TEXT_LOAD_SIZE, codepoints_v.data(),
+                      static_cast<int>(codepoints_v.size()));
   UnloadCodepoints(codepoints);
   if (f.baseSize != 0 && f.texture.id != GetFontDefault().texture.id) {
     SetTextureFilter(f.texture, TEXTURE_FILTER_BILINEAR);
@@ -90,7 +90,10 @@ const Font *FontWrapper::get() const {
 }
 
 MPDDisplay::MPDDisplay(const std::bitset<64> &args_flags, LogLevel level)
-    : level(level), flags(), texture() {
+    : level(level),
+      flags(),
+      texture(),
+      refresh_timepoint(std::chrono::steady_clock::now()) {
   flags.set(1);
 }
 
@@ -107,12 +110,14 @@ MPDDisplay::~MPDDisplay() {
 MPDDisplay::MPDDisplay(MPDDisplay &&other)
     : level(other.level),
       flags(std::move(other.flags)),
-      texture(std::move(other.texture)) {}
+      texture(std::move(other.texture)),
+      refresh_timepoint(std::move(other.refresh_timepoint)) {}
 
 MPDDisplay &MPDDisplay::operator=(MPDDisplay &&other) {
   level = other.level;
   flags = std::move(other.flags);
   texture = std::move(other.texture);
+  refresh_timepoint = std::move(other.refresh_timepoint);
 
   return *this;
 }
@@ -121,6 +126,8 @@ void MPDDisplay::update(const MPDClient &cli, const Args &args) {
   if (!cli.is_ok()) {
     return;
   }
+
+  const auto now_timepoint = std::chrono::steady_clock::now();
 
   if (!raylib_default_font) {
     raylib_default_font = std::make_shared<Font>(GetFontDefault());
@@ -252,8 +259,19 @@ void MPDDisplay::update(const MPDClient &cli, const Args &args) {
     flags.set(6);
   }
 
-  if (!args.get_flags().test(9)) {
-    update_draw_texts(cli, args);
+  if (!args.get_flags().test(9) &&
+      now_timepoint - refresh_timepoint > REFRESH_DURATION) {
+    refresh_timepoint = now_timepoint;
+    if (flags.test(0)) {
+      flags.reset(7);
+      flags.reset(8);
+      flags.reset(9);
+      flags.reset(10);
+      fonts.clear();
+      flags.reset(0);
+    } else {
+      update_draw_texts(cli, args);
+    }
   }
 }
 
@@ -284,11 +302,11 @@ void MPDDisplay::draw(const MPDClient &cli, const Args &args) {
 void MPDDisplay::request_reposition_texture() {
   flags.set(2);
 
-  flags.reset(7);
-  flags.reset(8);
-  flags.reset(9);
-  flags.reset(10);
-  fonts.clear();
+  flags.set(0);
+
+#ifndef NDEBUG
+  LOG_PRINT(level, LogLevel::DEBUG, "scaled_font_size: {}", scaled_font_size());
+#endif
 }
 
 void MPDDisplay::request_password_prompt() {
@@ -312,7 +330,8 @@ void MPDDisplay::set_failed_auth() { flags.set(5); }
 void MPDDisplay::clear_cached_pass() { cached_pass.clear(); }
 
 float MPDDisplay::scaled_font_size() {
-  return TEXT_DEFAULT_SIZE_F * static_cast<float>(GetScreenWidth()) / 800.0F;
+  return std::ceilf(TEXT_DEFAULT_SIZE_F * static_cast<float>(GetScreenWidth()) /
+                    800.0F);
 }
 
 void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
@@ -354,7 +373,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
   }
 
   const int width = GetScreenWidth();
-  float y_offset = static_cast<float>(GetScreenHeight());
+  int y_offset = GetScreenHeight();
 
   std::shared_ptr<Font> default_font = get_default_font();
 
@@ -377,7 +396,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
       filename_width = text_size.x;
       filename_height = text_size.y;
     } while (text_size.x > static_cast<float>(width));
-    y_offset -= filename_height;
+    y_offset -= static_cast<int>(std::ceilf(filename_height));
     filename_offset = y_offset;
   }
 
@@ -400,7 +419,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
       album_width = text_size.x;
       album_height = text_size.y;
     } while (text_size.x > static_cast<float>(width));
-    y_offset -= album_height;
+    y_offset -= static_cast<int>(std::ceilf(album_height));
     album_offset = y_offset;
   }
 
@@ -423,7 +442,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
       artist_width = text_size.x;
       artist_height = text_size.y;
     } while (text_size.x > static_cast<float>(width));
-    y_offset -= artist_height;
+    y_offset -= static_cast<int>(std::ceilf(artist_height));
     artist_offset = y_offset;
   }
 
@@ -446,7 +465,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
       title_width = text_size.x;
       title_height = text_size.y;
     } while (text_size.x > static_cast<float>(width));
-    y_offset -= title_height;
+    y_offset -= static_cast<int>(std::ceilf(title_height));
     title_offset = y_offset;
   }
 
@@ -457,7 +476,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
   remaining_width = text_size.x;
   remaining_height = text_size.y;
 
-  remaining_y_offset = y_offset - text_size.y;
+  remaining_y_offset = y_offset - static_cast<int>(std::ceilf(text_size.y));
 }
 
 void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
@@ -475,7 +494,8 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
       DrawRectangle(0, static_cast<int>(remaining_y_offset),
                     static_cast<int>(remaining_width),
                     static_cast<int>(remaining_height), {0, 0, 0, opacity});
-      DrawTextEx(*default_font, remaining_time.c_str(), {0, remaining_y_offset},
+      DrawTextEx(*default_font, remaining_time.c_str(),
+                 {0, static_cast<float>(remaining_y_offset)},
                  scaled_font_size(), scaled_font_size() / 10.0F, WHITE);
     }
     if (!args.get_flags().test(1)) {
@@ -486,8 +506,9 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
       DrawRectangle(0, static_cast<int>(title_offset),
                     static_cast<int>(title_width),
                     static_cast<int>(title_height), {0, 0, 0, opacity});
-      DrawTextEx(font, cli.get_song_title().c_str(), {0, title_offset},
-                 title_size, title_size / 10.0F, WHITE);
+      DrawTextEx(font, cli.get_song_title().c_str(),
+                 {0, static_cast<float>(title_offset)}, title_size,
+                 title_size / 10.0F, WHITE);
       // TODO DEBUG
       // DrawTexture(font.texture, 0, 0, WHITE);
     }
@@ -500,8 +521,9 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
       DrawRectangle(0, static_cast<int>(artist_offset),
                     static_cast<int>(artist_width),
                     static_cast<int>(artist_height), {0, 0, 0, opacity});
-      DrawTextEx(font, cli.get_song_artist().c_str(), {0, artist_offset},
-                 artist_size, artist_size / 10.0F, WHITE);
+      DrawTextEx(font, cli.get_song_artist().c_str(),
+                 {0, static_cast<float>(artist_offset)}, artist_size,
+                 artist_size / 10.0F, WHITE);
     }
 
     if (!args.get_flags().test(3)) {
@@ -512,8 +534,9 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
       DrawRectangle(0, static_cast<int>(album_offset),
                     static_cast<int>(album_width),
                     static_cast<int>(album_height), {0, 0, 0, opacity});
-      DrawTextEx(font, cli.get_song_album().c_str(), {0, album_offset},
-                 album_size, album_size / 10.0F, WHITE);
+      DrawTextEx(font, cli.get_song_album().c_str(),
+                 {0, static_cast<float>(album_offset)}, album_size,
+                 album_size / 10.0F, WHITE);
     }
 
     if (!args.get_flags().test(4)) {
@@ -524,8 +547,9 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
       DrawRectangle(0, static_cast<int>(filename_offset),
                     static_cast<int>(filename_width),
                     static_cast<int>(filename_height), {0, 0, 0, opacity});
-      DrawTextEx(font, cli.get_song_filename().c_str(), {0, filename_offset},
-                 filename_size, filename_size / 10.0F, WHITE);
+      DrawTextEx(font, cli.get_song_filename().c_str(),
+                 {0, static_cast<float>(filename_offset)}, filename_size,
+                 filename_size / 10.0F, WHITE);
     }
   }
 }
