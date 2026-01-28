@@ -127,6 +127,7 @@ class MPDDisplay {
   float filename_size;
   int filename_offset;
 
+  void update_remaining_texts(const MPDClient &, const Args &);
   void update_draw_texts(const MPDClient &, const Args &);
   void draw_draw_texts(const MPDClient &, const Args &);
 
