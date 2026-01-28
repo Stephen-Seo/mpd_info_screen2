@@ -21,6 +21,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <unordered_set>
 
 // local includes
 #include "constants.h"
@@ -39,6 +40,7 @@ class Args {
   LogLevel get_log_level() const;
   uint16_t get_host_port() const;
   const std::string &get_default_font_filename() const;
+  const std::unordered_set<std::string> &get_font_blacklist_strings() const;
 
  private:
   // 0 - error parsing args
@@ -55,6 +57,7 @@ class Args {
   // 11 - only use default font for ASCII
   // 12 - disable show remaining time
   std::bitset<64> flags;
+  std::unordered_set<std::string> font_blacklist_strings;
   std::string host_ip_addr;
   std::string default_font_filename;
   std::optional<std::string> password_file;

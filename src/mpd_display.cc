@@ -259,18 +259,20 @@ void MPDDisplay::update(const MPDClient &cli, const Args &args) {
     flags.set(6);
   }
 
-  if (!args.get_flags().test(9) &&
-      now_timepoint - refresh_timepoint > REFRESH_DURATION) {
-    refresh_timepoint = now_timepoint;
-    if (flags.test(0)) {
-      flags.reset(7);
-      flags.reset(8);
-      flags.reset(9);
-      flags.reset(10);
-      fonts.clear();
-      flags.reset(0);
-    } else {
-      update_draw_texts(cli, args);
+  if (!args.get_flags().test(9)) {
+    update_remaining_texts(cli, args);
+    if (now_timepoint - refresh_timepoint > REFRESH_DURATION) {
+      refresh_timepoint = now_timepoint;
+      if (flags.test(0)) {
+        flags.reset(7);
+        flags.reset(8);
+        flags.reset(9);
+        flags.reset(10);
+        fonts.clear();
+        flags.reset(0);
+      } else {
+        update_draw_texts(cli, args);
+      }
     }
   }
 }
@@ -334,18 +336,20 @@ float MPDDisplay::scaled_font_size() {
                     800.0F);
 }
 
-void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
+void MPDDisplay::update_remaining_texts(const MPDClient &cli,
+                                        const Args &args) {
   auto now = std::chrono::steady_clock::now();
   double duration = cli.get_song_duration();
   int64_t duration_i = static_cast<int64_t>(duration);
   auto [elapsed, time_point] = cli.get_elapsed_time();
 
   auto time_diff = now - time_point;
-  double time_diff_seconds = static_cast<double>(time_diff.count()) *
-                             decltype(time_diff)::period::num /
-                             decltype(time_diff)::period::den;
+  double time_diff_seconds =
+      static_cast<double>(time_diff.count()) *
+      static_cast<double>(decltype(time_diff)::period::num) /
+      static_cast<double>(decltype(time_diff)::period::den);
 
-  double remaining = duration - elapsed - time_diff_seconds;
+  double remaining = std::round(duration - elapsed - time_diff_seconds);
 
   int64_t remaining_i = static_cast<int64_t>(remaining);
   int64_t percentage =
@@ -371,7 +375,9 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
   } else {
     remaining_time.clear();
   }
+}
 
+void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
   const int width = GetScreenWidth();
   int y_offset = GetScreenHeight();
 
@@ -597,7 +603,8 @@ void MPDDisplay::load_draw_text_font(const std::string &text, TextType type,
     } else if (helper_str_is_ascii(text) && args.get_flags().test(11)) {
       filename = args.get_default_font_filename();
     } else {
-      filename = helper_unicode_font_fetch(text);
+      filename =
+          helper_unicode_font_fetch(text, args.get_font_blacklist_strings());
     }
     if (filename.empty()) {
       switch (type) {
