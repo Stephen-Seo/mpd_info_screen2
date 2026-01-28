@@ -319,12 +319,25 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
   int64_t percentage =
       duration_i > 0 ? 100 * (duration_i - remaining_i) / duration_i : 0;
 
-  if (remaining_i >= 60) {
-    remaining_time = std::format("{}:{:02} {}%", remaining_i / 60,
-                                 remaining_i % 60, percentage);
+  if (!args.get_flags().test(12) && !args.get_flags().test(5)) {
+    if (remaining_i >= 60) {
+      remaining_time = std::format("{}:{:02} {}%", remaining_i / 60,
+                                   remaining_i % 60, percentage);
+    } else {
+      remaining_time =
+          std::to_string(remaining_i) + " " + std::to_string(percentage) + "%";
+    }
+  } else if (args.get_flags().test(5) && !args.get_flags().test(12)) {
+    if (remaining_i >= 60) {
+      remaining_time =
+          std::format("{}:{:02}", remaining_i / 60, remaining_i % 60);
+    } else {
+      remaining_time = std::to_string(remaining_i);
+    }
+  } else if (args.get_flags().test(12) && !args.get_flags().test(5)) {
+    remaining_time = std::to_string(percentage) + "%";
   } else {
-    remaining_time =
-        std::to_string(remaining_i) + " " + std::to_string(percentage) + "%";
+    remaining_time.clear();
   }
 
   const int width = GetScreenWidth();
@@ -444,11 +457,13 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
 
     std::shared_ptr<Font> default_font = get_default_font();
 
-    DrawRectangle(0, static_cast<int>(remaining_y_offset),
-                  static_cast<int>(remaining_width),
-                  static_cast<int>(remaining_height), {0, 0, 0, opacity});
-    DrawTextEx(*default_font, remaining_time.c_str(), {0, remaining_y_offset},
-               TEXT_DEFAULT_SIZE, TEXT_DEFAULT_SIZE / 10.0F, WHITE);
+    if (!remaining_time.empty()) {
+      DrawRectangle(0, static_cast<int>(remaining_y_offset),
+                    static_cast<int>(remaining_width),
+                    static_cast<int>(remaining_height), {0, 0, 0, opacity});
+      DrawTextEx(*default_font, remaining_time.c_str(), {0, remaining_y_offset},
+                 TEXT_DEFAULT_SIZE, TEXT_DEFAULT_SIZE / 10.0F, WHITE);
+    }
     if (!args.get_flags().test(1)) {
       Font font = *default_font;
       if (auto fiter = fonts.find(TEXT_TITLE); fiter != fonts.end()) {

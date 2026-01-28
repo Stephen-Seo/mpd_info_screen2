@@ -51,6 +51,8 @@ Args::Args(int argc, char **argv)
       flags.set(3);
     } else if (std::strcmp("--disable-show-filename", argv[0]) == 0) {
       flags.set(4);
+    } else if (std::strcmp("--disable-show-remaining", argv[0]) == 0) {
+      flags.set(12);
     } else if (std::strcmp("--disable-show-percentage", argv[0]) == 0) {
       flags.set(5);
     } else if (std::strcmp("--pprompt", argv[0]) == 0) {
@@ -124,6 +126,7 @@ void Args::print_usage() {
   std::println("  --disable-show-artist : disable showing song artist");
   std::println("  --disable-show-album : disable showing song album");
   std::println("  --disable-show-filename : disable showing song filename");
+  std::println("  --disable-show-remaining : disables showing remaining time");
   std::println("  --disable-show-percentage : disable showing song percentage");
   std::println("  --pprompt : prompt for password on program start");
   std::println("  --pfile=<filename> : get password from specified file");

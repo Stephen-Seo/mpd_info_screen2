@@ -53,6 +53,7 @@ class Args {
   // 9 - disable all text
   // 10 - only use default font
   // 11 - only use default font for ASCII
+  // 12 - disable show remaining time
   std::bitset<64> flags;
   std::string host_ip_addr;
   std::string default_font_filename;
