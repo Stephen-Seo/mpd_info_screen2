@@ -25,6 +25,7 @@
 // standard library includes
 #include <chrono>
 #include <format>
+#include <vector>
 
 // third-party includes
 #include <raylib.h>
@@ -38,28 +39,33 @@ FontWrapper::FontWrapper(std::string filename, std::string text) {
     unique_codepoints.insert(codepoints[idx]);
   }
 
-  int *unique_codepoints_raw = new int[unique_codepoints.size() + 1];
-  size_t idx = 0;
+  std::vector<int> codepoints_v;
+
+  if (unique_codepoints.find('a') == unique_codepoints.end()) {
+    codepoints_v.push_back('a');
+  }
+
   for (auto iter = unique_codepoints.begin(); iter != unique_codepoints.end();
        ++iter) {
-    unique_codepoints_raw[idx++] = *iter;
+    codepoints_v.push_back(*iter);
   }
-  unique_codepoints_raw[idx] = 0;
+
+  if (unique_codepoints.find('b') == unique_codepoints.end()) {
+    codepoints_v.push_back('b');
+  }
 
 #ifndef NDEBUG
   std::println("text: {}", text);
   std::println("codepoints:");
-  for (size_t idx = 0; idx < unique_codepoints.size(); ++idx) {
-    std::print("{:02x} ", unique_codepoints_raw[idx]);
+  for (size_t idx = 0; idx < codepoints_v.size(); ++idx) {
+    std::print("{:02x} ", codepoints_v.at(idx));
   }
   std::println();
 #endif
 
-  Font f =
-      LoadFontEx(filename.c_str(), TEXT_DEFAULT_SIZE, unique_codepoints_raw,
-                 static_cast<int>(unique_codepoints.size()));
+  Font f = LoadFontEx(filename.c_str(), TEXT_DEFAULT_SIZE, codepoints_v.data(),
+                      static_cast<int>(codepoints_v.size()));
   UnloadCodepoints(codepoints);
-  delete[] unique_codepoints_raw;
   if (f.baseSize != 0 && f.texture.id != GetFontDefault().texture.id) {
     SetTextureFilter(f.texture, TEXTURE_FILTER_BILINEAR);
     font = std::make_unique<Font>(f);
