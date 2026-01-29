@@ -1,5 +1,13 @@
 # Upcoming Changes
 
+# Version 1.3
+
+Fix regression where remaining-time text's background does not update with the
+remaining-time text.
+
+Patched Raylib to disable any form of "busy wait", which should significantly
+increase the efficiency of the program (less CPU cycles used).
+
 # Version 1.2
 
 Implement `--blacklist-font-str=<string>`, which allows the user to prevent
