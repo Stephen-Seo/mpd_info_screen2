@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.5
+
 Add a Makefile and CMake option to build `mpd_info_screen2` with the system's
 GLFW instead of building the GLFW bundled with Raylib.
 
