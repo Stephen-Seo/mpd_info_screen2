@@ -56,3 +56,9 @@ dependency and this project.
 
 It may be faster to use "make -j 4"
 (assuming you have 4 threads in this example)
+
+When using the Makefile, define the environment variable `USE_EXTERNAL_GLFW`,
+and it will build with the system's GLFW when compiling Raylib.
+
+When using CMake, define `-DUSE_EXTERNAL_GLFW=ON`, and it will use the system's
+GLFW when compiling Raylib.
