@@ -87,15 +87,7 @@ extern std::string helper_replace_in_string(const std::string &in,
 extern std::string helper_unicode_font_fetch(
     const std::string &str_to_render,
     const std::unordered_set<std::string> &blacklist_strings) {
-  FcConfig *config = FcInitLoadConfigAndFonts();
-  GenericCleanup<FcConfig *> config_cleanup(&config, [](FcConfig **config) {
-    if (*config) {
-      FcConfigDestroy(*config);
-      *config = nullptr;
-    }
-  });
-
-  if (!config) {
+  if (FcInit() != FcTrue) {
     return {};
   }
 
@@ -154,7 +146,7 @@ extern std::string helper_unicode_font_fetch(
         }
       });
 
-  FcFontSet *fset = FcFontList(config, fcPattern, filename_objset);
+  FcFontSet *fset = FcFontList(nullptr, fcPattern, filename_objset);
   GenericCleanup<FcFontSet *> fset_cleanup(&fset, [](FcFontSet **set) {
     if (*set) {
       FcFontSetDestroy(*set);

@@ -1,5 +1,14 @@
 # Upcoming Changes
 
+# Version 1.4
+
+Add `--remaining-force-default-raylib-font`, which forces the remaining time
+text to always use the default Raylib font.
+
+Refactoring to make `mpd_info_screen2` more efficient; Don't reload
+FontConfig's configuration every load (`FcInitLoadConfigAndFonts()`), and
+instead run `FcInit()` and use the default configuration loaded from it.
+
 # Version 1.3
 
 Fix regression where remaining-time text's background does not update with the
