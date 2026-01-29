@@ -4,9 +4,17 @@ else
 	CXX_COMMON_FLAGS := -Werror -Og -g -Ithird_party/include
 endif
 
+ifdef USE_EXTERNAL_GLFW
+	USE_EXTERNAL_GLFW_LINKER_FLAGS := -lglfw
+	USE_EXTERNAL_GLFW_CMAKE_FLAGS := -DUSE_EXTERNAL_GLFW=ON
+else
+	USE_EXTERNAL_GLFW_LINKER_FLAGS :=
+	USE_EXTERNAL_GLFW_CMAKE_FLAGS :=
+endif
+
 WORKING_DIR != pwd
 
-CXX_LINKER_FLAGS := -lfontconfig
+CXX_LINKER_FLAGS := -lfontconfig ${USE_EXTERNAL_GLFW_LINKER_FLAGS}
 CXX_FLAGS := \
 	-std=c++23 \
 	-Wall -Wformat -Wformat=2 -Wconversion -Wimplicit-fallthrough \
@@ -58,7 +66,7 @@ third_party/lib/libraylib.a: third_party/raylib-5.5.tar.gz
 	@mkdir -p third_party/include
 	tar -xf third_party/raylib-5.5.tar.gz -C third_party
 	patch -p1 < third_party/disable-busy-wait-loop.patch
-	cmake -S third_party/raylib-5.5 -B third_party/raylib_BUILD -DCMAKE_BUILD_TYPE=Release
+	cmake -S third_party/raylib-5.5 -B third_party/raylib_BUILD -DCMAKE_BUILD_TYPE=Release ${USE_EXTERNAL_GLFW_CMAKE_FLAGS}
 	${MAKE} -C third_party/raylib_BUILD raylib
 	cp third_party/raylib_BUILD/raylib/libraylib.a third_party/lib/libraylib.a
 	rm -rf third_party/raylib_BUILD
