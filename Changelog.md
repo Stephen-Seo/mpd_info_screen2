@@ -1,5 +1,8 @@
 # Upcoming Changes
 
+Add `--remaining-force-default-raylib-font`, which forces the remaining time
+text to always use the default Raylib font.
+
 # Version 1.3
 
 Fix regression where remaining-time text's background does not update with the
