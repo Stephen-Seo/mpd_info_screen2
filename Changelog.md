@@ -1,5 +1,14 @@
 # Upcoming Changes
 
+Add a Makefile and CMake option to build `mpd_info_screen2` with the system's
+GLFW instead of building the GLFW bundled with Raylib.
+
+When using the Makefile, define the environment variable `USE_EXTERNAL_GLFW`,
+and it will build with the system's GLFW when compiling Raylib.
+
+When using CMake, define `-DUSE_EXTERNAL_GLFW=ON`, and it will use the system's
+GLFW when compiling Raylib.
+
 # Version 1.4
 
 Add `--remaining-force-default-raylib-font`, which forces the remaining time
