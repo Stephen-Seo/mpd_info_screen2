@@ -377,9 +377,10 @@ void MPDDisplay::update_remaining_texts(const MPDClient &cli,
   }
 
   std::shared_ptr<Font> default_font = get_default_font();
-  auto text_size =
-      MeasureTextEx(*default_font, this->remaining_time.c_str(),
-                    scaled_font_size(), scaled_font_size() / 10.0F);
+  auto text_size = MeasureTextEx(
+      args.get_flags().test(13) ? GetFontDefault() : *default_font,
+      this->remaining_time.c_str(), scaled_font_size(),
+      scaled_font_size() / 10.0F);
 
   remaining_width = text_size.x;
   remaining_height = text_size.y;
@@ -502,7 +503,8 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
       DrawRectangle(0, static_cast<int>(remaining_y_offset),
                     static_cast<int>(remaining_width),
                     static_cast<int>(remaining_height), {0, 0, 0, opacity});
-      DrawTextEx(*default_font, remaining_time.c_str(),
+      DrawTextEx(args.get_flags().test(13) ? GetFontDefault() : *default_font,
+                 remaining_time.c_str(),
                  {0, static_cast<float>(remaining_y_offset)},
                  scaled_font_size(), scaled_font_size() / 10.0F, WHITE);
     }

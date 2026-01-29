@@ -101,6 +101,9 @@ Args::Args(int argc, char **argv)
       if (!string.empty()) {
         font_blacklist_strings.insert(string);
       }
+    } else if (std::strcmp("--remaining-force-default-raylib-font", argv[0]) ==
+               0) {
+      flags.set(13);
     } else if (std::strcmp("-h", argv[0]) == 0 ||
                std::strcmp("--help", argv[0]) == 0) {
       flags.set(0);
@@ -156,6 +159,9 @@ void Args::print_usage() {
       "  --blacklist-font-str=<string> : blacklist fonts that have <string> in "
       "its filename (use this option multiple times to add more strings to "
       "check)");
+  std::println(
+      "  --remaining-force-default-raylib-font : force the remaining time text "
+      "to always use Raylib's default font");
 }
 
 bool Args::is_error() const { return flags.test(0); }
