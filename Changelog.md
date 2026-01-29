@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.4
+
 Add `--remaining-force-default-raylib-font`, which forces the remaining time
 text to always use the default Raylib font.
 
