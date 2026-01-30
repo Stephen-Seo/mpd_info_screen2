@@ -7,14 +7,14 @@ on:
 jobs:
   build-and-run-unit-tests:
     runs-on: ubuntu-latest
-      steps:
-        - name: Get Dependencies
-          run: sudo apt-get -y install cmake g++ git libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libopengl-dev libgl-dev libfontconfig-dev
-        - name: Clone Repo
-          run: git clone https://github.com/Stephen-Seo/mpd_info_screen2.git
-        - name: Checkout Current Branch
-          run: cd mpd_info_screen2 && git checkout "${GITHUB_REF_NAME}"
-        - name: Build unittest
-          run: cd mpd_info_screen2 && make unittest
-        - name: Run unittest
-          run: ./mpd_info_screen2/unittest
+    steps:
+      - name: Get Dependencies
+        run: sudo apt-get -y install cmake g++ git libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libopengl-dev libgl-dev libfontconfig-dev
+      - name: Clone Repo
+        run: git clone https://github.com/Stephen-Seo/mpd_info_screen2.git
+      - name: Checkout Current Branch
+        run: cd mpd_info_screen2 && git checkout "${GITHUB_REF_NAME}"
+      - name: Build unittest
+        run: cd mpd_info_screen2 && make unittest
+      - name: Run unittest
+        run: ./mpd_info_screen2/unittest
