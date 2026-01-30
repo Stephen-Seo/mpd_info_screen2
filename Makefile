@@ -71,7 +71,7 @@ third_party/lib/libraylib.a: third_party/raylib-5.5.tar.gz
 	${MAKE} -C third_party/raylib_BUILD raylib
 	cp third_party/raylib_BUILD/raylib/libraylib.a third_party/lib/libraylib.a
 	rm -rf third_party/raylib_BUILD
-	pushd third_party/raylib-5.5/src && find . -regex '.*\.h$$' -exec install -D -m644 '{}' "${WORKING_DIR}/third_party/include/{}" ';' && popd
+	cd third_party/raylib-5.5/src && find . -regex '.*\.h$$' -exec install -D -m644 '{}' "${WORKING_DIR}/third_party/include/{}" ';'
 	rm -rf third_party/raylib-5.5
 
 third_party/raylib-5.5.tar.gz:
