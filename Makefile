@@ -44,7 +44,8 @@ HEADERS := \
 	src/constants.h \
 	src/helpers.h \
 	src/signal_handler.h \
-	src/mpd_display.h
+	src/mpd_display.h \
+	src/print_helper.h
 
 OBJDIR := objdir
 OBJECTS := $(addprefix ${OBJDIR}/,$(subst .cc,.cc.o,${SOURCES}))
@@ -57,7 +58,7 @@ mpd_info_screen2: ${OBJECTS} third_party/lib/libraylib.a
 unittest: ${OBJDIR}/src/test.cc.o $(filter-out ${OBJDIR}/src/main.cc.o,${OBJECTS}) third_party/lib/libraylib.a
 	${CXX} -o unittest -g -Og $^ ${CXX_LINKER_FLAGS}
 
-${OBJDIR}/%.cc.o: %.cc ${HEADERS} | format
+${OBJDIR}/%.cc.o: %.cc ${HEADERS} third_party/lib/libraylib.a | format
 	@mkdir -p $(dir $@)
 	${CXX} -o $@ -c ${CXX_FLAGS} $<
 

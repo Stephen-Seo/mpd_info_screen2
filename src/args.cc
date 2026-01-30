@@ -18,8 +18,9 @@
 
 #include <cstdlib>
 #include <cstring>
-#include <print>
 #include <unordered_set>
+
+#include "print_helper.h"
 
 Args::Args(int argc, char **argv)
     : flags(),
@@ -37,7 +38,7 @@ Args::Args(int argc, char **argv)
     } else if (std::strncmp("--port=", argv[0], 7) == 0) {
       unsigned long long p = std::strtoul(argv[0] + 7, nullptr, 10);
       if (p > 0xFFFF) {
-        std::println(stderr, "ERROR: Port number {} too large!", p);
+        PrintHelper::println(stderr, "ERROR: Port number {} too large!", p);
         flags.set(0);
         return;
       }
@@ -78,15 +79,16 @@ Args::Args(int argc, char **argv)
       } else if (level == "verbose") {
         this->level = LogLevel::VERBOSE;
       } else {
-        std::println(stderr, "ERROR: Invalid log level \"{}\"!", argv[0] + 12);
+        PrintHelper::println(stderr, "ERROR: Invalid log level \"{}\"!",
+                             argv[0] + 12);
         flags.set(0);
         return;
       }
     } else if (std::strncmp("--bg-opacity=", argv[0], 13) == 0) {
       text_bg_opacity = std::strtod(argv[0] + 13, nullptr);
       if (text_bg_opacity < 0.0 || text_bg_opacity > 1.0) {
-        std::println(stderr,
-                     "ERROR: --bg-opacity must be between 0.0 and 1.0!");
+        PrintHelper::println(
+            stderr, "ERROR: --bg-opacity must be between 0.0 and 1.0!");
         flags.set(0);
         return;
       }
@@ -110,7 +112,7 @@ Args::Args(int argc, char **argv)
       flags.set(8);
       return;
     } else {
-      std::println(stderr, "ERROR: Invalid arg: {}", argv[0]);
+      PrintHelper::println(stderr, "ERROR: Invalid arg: {}", argv[0]);
       flags.set(0);
       return;
     }
@@ -120,46 +122,50 @@ Args::Args(int argc, char **argv)
   }
 
   if (host_ip_addr.empty()) {
-    std::println(stderr, "ERROR: --host=<ip_addr> not specified!");
+    PrintHelper::println(stderr, "ERROR: --host=<ip_addr> not specified!");
     flags.set(0);
     return;
   }
 }
 
 void Args::print_usage() {
-  std::println("Usage:");
-  std::println("  --host=<ip_addr> : ip address of mpd server");
-  std::println("  --port=<port> : port of mpd server (default 6600)");
-  std::println("  --disable-all-text : disables showing all text");
-  std::println("  --disable-show-title : disable showing song title");
-  std::println("  --disable-show-artist : disable showing song artist");
-  std::println("  --disable-show-album : disable showing song album");
-  std::println("  --disable-show-filename : disable showing song filename");
-  std::println("  --disable-show-remaining : disables showing remaining time");
-  std::println("  --disable-show-percentage : disable showing song percentage");
-  std::println("  --pprompt : prompt for password on program start");
-  std::println("  --pfile=<filename> : get password from specified file");
-  std::println(
+  PrintHelper::println("Usage:");
+  PrintHelper::println("  --host=<ip_addr> : ip address of mpd server");
+  PrintHelper::println("  --port=<port> : port of mpd server (default 6600)");
+  PrintHelper::println("  --disable-all-text : disables showing all text");
+  PrintHelper::println("  --disable-show-title : disable showing song title");
+  PrintHelper::println("  --disable-show-artist : disable showing song artist");
+  PrintHelper::println("  --disable-show-album : disable showing song album");
+  PrintHelper::println(
+      "  --disable-show-filename : disable showing song filename");
+  PrintHelper::println(
+      "  --disable-show-remaining : disables showing remaining time");
+  PrintHelper::println(
+      "  --disable-show-percentage : disable showing song percentage");
+  PrintHelper::println("  --pprompt : prompt for password on program start");
+  PrintHelper::println(
+      "  --pfile=<filename> : get password from specified file");
+  PrintHelper::println(
       "  --no-scale-fill : don't scale fill the album art to the window");
-  std::println(
+  PrintHelper::println(
       "  --log-level=<level> : set the log level (ERROR, WARNING, DEBUG, "
       "VERBOSE)");
-  std::println(
+  PrintHelper::println(
       "  --bg-opacity=<percentage> : set the text bg opacity by percentage "
       "(decimal point allowed)");
-  std::println(
+  PrintHelper::println(
       "  --default-font-filename=<font_filename> : set the default font");
-  std::println(
+  PrintHelper::println(
       "  --force-default-font : Only use the default font (mutually exclusive "
       "with next option)");
-  std::println(
+  PrintHelper::println(
       "  --force-default-font-ascii : Only use the default font for ascii text "
       "(mutually exclusive with previous option)");
-  std::println(
+  PrintHelper::println(
       "  --blacklist-font-str=<string> : blacklist fonts that have <string> in "
       "its filename (use this option multiple times to add more strings to "
       "check)");
-  std::println(
+  PrintHelper::println(
       "  --remaining-force-default-raylib-font : force the remaining time text "
       "to always use Raylib's default font");
 }

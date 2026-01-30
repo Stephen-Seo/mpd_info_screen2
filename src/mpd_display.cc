@@ -21,6 +21,7 @@
 #include "constants.h"
 #include "helpers.h"
 #include "mpd_client.h"
+#include "print_helper.h"
 
 // standard library includes
 #include <chrono>
@@ -58,12 +59,12 @@ FontWrapper::FontWrapper(std::string filename, std::string text) {
   }
 
 #ifndef NDEBUG
-  std::println("text: {}", text);
-  std::println("codepoints:");
+  PrintHelper::println("text: {}", text);
+  PrintHelper::println("codepoints:");
   for (size_t idx = 0; idx < codepoints_v.size(); ++idx) {
-    std::print("{:02x} ", codepoints_v.at(idx));
+    PrintHelper::print("{:02x} ", codepoints_v.at(idx));
   }
-  std::println();
+  PrintHelper::println();
 #endif
 
   Font f = LoadFontEx(filename.c_str(), TEXT_LOAD_SIZE, codepoints_v.data(),

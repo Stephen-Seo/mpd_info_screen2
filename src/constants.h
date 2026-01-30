@@ -19,7 +19,8 @@
 
 #include <chrono>
 #include <iostream>
-#include <print>
+
+#include "print_helper.h"
 
 constexpr size_t READ_BUF_SIZE = 1024 * 1024;
 constexpr size_t READ_BUF_SIZE_SMALL = 1024;
@@ -40,10 +41,10 @@ constexpr int STATUS_TEXT_SIZE = 12;
 constexpr std::chrono::milliseconds REFRESH_DURATION =
     std::chrono::milliseconds(500);
 
-#define LOG_PRINT(setting, level, msg, ...)       \
-  if (log_level_can_log(setting, level)) {        \
-    std::println(msg __VA_OPT__(, ) __VA_ARGS__); \
-    std::cout.flush();                            \
+#define LOG_PRINT(setting, level, msg, ...)               \
+  if (log_level_can_log(setting, level)) {                \
+    PrintHelper::println(msg __VA_OPT__(, ) __VA_ARGS__); \
+    std::cout.flush();                                    \
   }
 
 enum class LogLevel { SILENT, ERROR, WARNING, DEBUG, VERBOSE };

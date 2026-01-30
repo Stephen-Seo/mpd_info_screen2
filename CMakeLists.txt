@@ -27,6 +27,7 @@ set(mpd_info_screen2_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/mpd_client.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/signal_handler.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/mpd_display.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/print_helper.h
 )
 
 add_executable(mpd_info_screen2 ${mpd_info_screen2_SOURCES})

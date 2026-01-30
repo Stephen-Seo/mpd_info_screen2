@@ -15,32 +15,34 @@
 // PERFORMANCE OF THIS SOFTWARE.
 
 #include <atomic>
-#include <print>
 
 #include "helpers.h"
 #include "mpd_client.h"
+#include "print_helper.h"
 
 static std::atomic_uint64_t checked;
 static std::atomic_uint64_t passed;
 
-#define CHECK_TRUE(x)                                                    \
-  do {                                                                   \
-    ++checked;                                                           \
-    if (x) {                                                             \
-      ++passed;                                                          \
-    } else {                                                             \
-      std::println("ERROR: Line {}: \"{}\" is not true!", __LINE__, #x); \
-    }                                                                    \
+#define CHECK_TRUE(x)                                                       \
+  do {                                                                      \
+    ++checked;                                                              \
+    if (x) {                                                                \
+      ++passed;                                                             \
+    } else {                                                                \
+      PrintHelper::println("ERROR: Line {}: \"{}\" is not true!", __LINE__, \
+                           #x);                                             \
+    }                                                                       \
   } while (false);
 
-#define CHECK_FALSE(x)                                                    \
-  do {                                                                    \
-    ++checked;                                                            \
-    if (!(x)) {                                                           \
-      ++passed;                                                           \
-    } else {                                                              \
-      std::println("ERROR: Line {}: \"{}\" is not false!", __LINE__, #x); \
-    }                                                                     \
+#define CHECK_FALSE(x)                                                       \
+  do {                                                                       \
+    ++checked;                                                               \
+    if (!(x)) {                                                              \
+      ++passed;                                                              \
+    } else {                                                                 \
+      PrintHelper::println("ERROR: Line {}: \"{}\" is not false!", __LINE__, \
+                           #x);                                              \
+    }                                                                        \
   } while (false);
 
 int main(void) {
@@ -79,14 +81,15 @@ int main(void) {
   {
     std::string ascii("ok");
     std::string filename = helper_unicode_font_fetch(ascii, {});
-    std::println("unicode_font_fetch: {}", filename);
+    PrintHelper::println("unicode_font_fetch: {}", filename);
 
     std::string emoji("😀🐠");
     filename = helper_unicode_font_fetch(emoji, {});
-    std::println("unicode_font_fetch: {}", filename);
+    PrintHelper::println("unicode_font_fetch: {}", filename);
   }
 
-  std::println("Checked: {}\nPassed: {}", checked.load(), passed.load());
+  PrintHelper::println("Checked: {}\nPassed: {}", checked.load(),
+                       passed.load());
 
   return checked.load() == passed.load() ? 0 : 1;
 }
