@@ -99,6 +99,10 @@ class MPDDisplay {
   std::shared_ptr<Font> raylib_default_font;
   std::shared_ptr<Font> default_font;
   std::string cached_filename;
+  std::string draw_cached_filename;
+  std::string draw_cached_title;
+  std::string draw_cached_album;
+  std::string draw_cached_artist;
   std::string cached_pass;
   std::string display_pass;
   std::string remaining_time;

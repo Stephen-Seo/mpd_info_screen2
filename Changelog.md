@@ -1,5 +1,14 @@
 # Upcoming Changes
 
+# Version 1.5.1
+
+Fix "glitching" text display on song change.
+
+Current behavior is to keep displaying the info text, and only changing them
+when the current song has changed, hopefully with a "seamless transition". This
+should be done in a way to prevent any graphical issues when the current song
+changes.
+
 # Version 1.5
 
 Add a Makefile and CMake option to build `mpd_info_screen2` with the system's

@@ -193,7 +193,6 @@ void MPDDisplay::update(const MPDClient &cli, const Args &args) {
   if (cached_filename.empty() || cached_filename != cli.get_song_filename()) {
     flags.set(1);
     cached_filename = cli.get_song_filename();
-    fonts.clear();
 
     flags.reset(7);
     flags.reset(8);
@@ -268,7 +267,6 @@ void MPDDisplay::update(const MPDClient &cli, const Args &args) {
         flags.reset(8);
         flags.reset(9);
         flags.reset(10);
-        fonts.clear();
         flags.reset(0);
       } else {
         update_draw_texts(cli, args);
@@ -395,93 +393,101 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
   if (!args.get_flags().test(4) && !cli.get_song_filename().empty()) {
     Font font = *default_font;
     load_draw_text_font(cli.get_song_filename(), TEXT_FILENAME, args);
-    auto fiter = fonts.find(TEXT_FILENAME);
-    if (fiter != fonts.end()) {
-      font = *fiter->second.get();
-    }
-    filename_size = scaled_font_size();
-    Vector2 text_size;
-    do {
-      text_size = MeasureTextEx(font, cli.get_song_filename().c_str(),
-                                static_cast<float>(filename_size),
-                                static_cast<float>(filename_size) / 10.0F);
-      if (text_size.x > static_cast<float>(width)) {
-        --filename_size;
+    if (!draw_cached_filename.empty()) {
+      auto fiter = fonts.find(TEXT_FILENAME);
+      if (fiter != fonts.end()) {
+        font = *fiter->second.get();
       }
-      filename_width = text_size.x;
-      filename_height = text_size.y;
-    } while (text_size.x > static_cast<float>(width));
-    y_offset -= static_cast<int>(std::ceilf(filename_height));
-    filename_offset = y_offset;
+      filename_size = scaled_font_size();
+      Vector2 text_size;
+      do {
+        text_size = MeasureTextEx(font, cli.get_song_filename().c_str(),
+                                  static_cast<float>(filename_size),
+                                  static_cast<float>(filename_size) / 10.0F);
+        if (text_size.x > static_cast<float>(width)) {
+          --filename_size;
+        }
+        filename_width = text_size.x;
+        filename_height = text_size.y;
+      } while (text_size.x > static_cast<float>(width) && filename_size > 1.0F);
+      y_offset -= static_cast<int>(std::ceilf(filename_height));
+      filename_offset = y_offset;
+    }
   }
 
   if (!args.get_flags().test(3) && !cli.get_song_album().empty()) {
     Font font = *default_font;
     load_draw_text_font(cli.get_song_album(), TEXT_ALBUM, args);
-    auto fiter = fonts.find(TEXT_ALBUM);
-    if (fiter != fonts.end()) {
-      font = *fiter->second.get();
-    }
-    album_size = scaled_font_size();
-    Vector2 text_size;
-    do {
-      text_size = MeasureTextEx(font, cli.get_song_album().c_str(),
-                                static_cast<float>(album_size),
-                                static_cast<float>(album_size) / 10.0F);
-      if (text_size.x > static_cast<float>(width)) {
-        --album_size;
+    if (!draw_cached_album.empty()) {
+      auto fiter = fonts.find(TEXT_ALBUM);
+      if (fiter != fonts.end()) {
+        font = *fiter->second.get();
       }
-      album_width = text_size.x;
-      album_height = text_size.y;
-    } while (text_size.x > static_cast<float>(width));
-    y_offset -= static_cast<int>(std::ceilf(album_height));
-    album_offset = y_offset;
+      album_size = scaled_font_size();
+      Vector2 text_size;
+      do {
+        text_size = MeasureTextEx(font, cli.get_song_album().c_str(),
+                                  static_cast<float>(album_size),
+                                  static_cast<float>(album_size) / 10.0F);
+        if (text_size.x > static_cast<float>(width)) {
+          --album_size;
+        }
+        album_width = text_size.x;
+        album_height = text_size.y;
+      } while (text_size.x > static_cast<float>(width) && album_size > 1.0F);
+      y_offset -= static_cast<int>(std::ceilf(album_height));
+      album_offset = y_offset;
+    }
   }
 
   if (!args.get_flags().test(2) && !cli.get_song_artist().empty()) {
     Font font = *default_font;
     load_draw_text_font(cli.get_song_artist(), TEXT_ARTIST, args);
-    auto fiter = fonts.find(TEXT_ARTIST);
-    if (fiter != fonts.end()) {
-      font = *fiter->second.get();
-    }
-    artist_size = scaled_font_size();
-    Vector2 text_size;
-    do {
-      text_size = MeasureTextEx(font, cli.get_song_artist().c_str(),
-                                static_cast<float>(artist_size),
-                                static_cast<float>(artist_size) / 10.0F);
-      if (text_size.x > static_cast<float>(width)) {
-        --artist_size;
+    if (!draw_cached_artist.empty()) {
+      auto fiter = fonts.find(TEXT_ARTIST);
+      if (fiter != fonts.end()) {
+        font = *fiter->second.get();
       }
-      artist_width = text_size.x;
-      artist_height = text_size.y;
-    } while (text_size.x > static_cast<float>(width));
-    y_offset -= static_cast<int>(std::ceilf(artist_height));
-    artist_offset = y_offset;
+      artist_size = scaled_font_size();
+      Vector2 text_size;
+      do {
+        text_size = MeasureTextEx(font, cli.get_song_artist().c_str(),
+                                  static_cast<float>(artist_size),
+                                  static_cast<float>(artist_size) / 10.0F);
+        if (text_size.x > static_cast<float>(width)) {
+          --artist_size;
+        }
+        artist_width = text_size.x;
+        artist_height = text_size.y;
+      } while (text_size.x > static_cast<float>(width) && artist_size > 1.0F);
+      y_offset -= static_cast<int>(std::ceilf(artist_height));
+      artist_offset = y_offset;
+    }
   }
 
   if (!args.get_flags().test(1) && !cli.get_song_title().empty()) {
     Font font = *default_font;
     load_draw_text_font(cli.get_song_title(), TEXT_TITLE, args);
-    auto fiter = fonts.find(TEXT_TITLE);
-    if (fiter != fonts.end()) {
-      font = *fiter->second.get();
-    }
-    title_size = scaled_font_size();
-    Vector2 text_size;
-    do {
-      text_size = MeasureTextEx(font, cli.get_song_title().c_str(),
-                                static_cast<float>(title_size),
-                                static_cast<float>(title_size) / 10.0F);
-      if (text_size.x > static_cast<float>(width)) {
-        --title_size;
+    if (!draw_cached_title.empty()) {
+      auto fiter = fonts.find(TEXT_TITLE);
+      if (fiter != fonts.end()) {
+        font = *fiter->second.get();
       }
-      title_width = text_size.x;
-      title_height = text_size.y;
-    } while (text_size.x > static_cast<float>(width));
-    y_offset -= static_cast<int>(std::ceilf(title_height));
-    title_offset = y_offset;
+      title_size = scaled_font_size();
+      Vector2 text_size;
+      do {
+        text_size = MeasureTextEx(font, cli.get_song_title().c_str(),
+                                  static_cast<float>(title_size),
+                                  static_cast<float>(title_size) / 10.0F);
+        if (text_size.x > static_cast<float>(width)) {
+          --title_size;
+        }
+        title_width = text_size.x;
+        title_height = text_size.y;
+      } while (text_size.x > static_cast<float>(width) && title_size > 1.0F);
+      y_offset -= static_cast<int>(std::ceilf(title_height));
+      title_offset = y_offset;
+    }
   }
 
   remaining_y_offset =
@@ -508,7 +514,7 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
                  {0, static_cast<float>(remaining_y_offset)},
                  scaled_font_size(), scaled_font_size() / 10.0F, WHITE);
     }
-    if (!args.get_flags().test(1)) {
+    if (!args.get_flags().test(1) && !draw_cached_title.empty()) {
       Font font = *default_font;
       if (auto fiter = fonts.find(TEXT_TITLE); fiter != fonts.end()) {
         font = *fiter->second.get();
@@ -516,14 +522,14 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
       DrawRectangle(0, static_cast<int>(title_offset),
                     static_cast<int>(title_width),
                     static_cast<int>(title_height), {0, 0, 0, opacity});
-      DrawTextEx(font, cli.get_song_title().c_str(),
+      DrawTextEx(font, draw_cached_title.c_str(),
                  {0, static_cast<float>(title_offset)}, title_size,
                  title_size / 10.0F, WHITE);
       // TODO DEBUG
       // DrawTexture(font.texture, 0, 0, WHITE);
     }
 
-    if (!args.get_flags().test(2)) {
+    if (!args.get_flags().test(2) && !draw_cached_artist.empty()) {
       Font font = *default_font;
       if (auto fiter = fonts.find(TEXT_ARTIST); fiter != fonts.end()) {
         font = *fiter->second.get();
@@ -531,12 +537,12 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
       DrawRectangle(0, static_cast<int>(artist_offset),
                     static_cast<int>(artist_width),
                     static_cast<int>(artist_height), {0, 0, 0, opacity});
-      DrawTextEx(font, cli.get_song_artist().c_str(),
+      DrawTextEx(font, draw_cached_artist.c_str(),
                  {0, static_cast<float>(artist_offset)}, artist_size,
                  artist_size / 10.0F, WHITE);
     }
 
-    if (!args.get_flags().test(3)) {
+    if (!args.get_flags().test(3) && !draw_cached_album.empty()) {
       Font font = *default_font;
       if (auto fiter = fonts.find(TEXT_ALBUM); fiter != fonts.end()) {
         font = *fiter->second.get();
@@ -544,12 +550,12 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
       DrawRectangle(0, static_cast<int>(album_offset),
                     static_cast<int>(album_width),
                     static_cast<int>(album_height), {0, 0, 0, opacity});
-      DrawTextEx(font, cli.get_song_album().c_str(),
+      DrawTextEx(font, draw_cached_album.c_str(),
                  {0, static_cast<float>(album_offset)}, album_size,
                  album_size / 10.0F, WHITE);
     }
 
-    if (!args.get_flags().test(4)) {
+    if (!args.get_flags().test(4) && !draw_cached_filename.empty()) {
       Font font = *default_font;
       if (auto fiter = fonts.find(TEXT_FILENAME); fiter != fonts.end()) {
         font = *fiter->second.get();
@@ -557,7 +563,7 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
       DrawRectangle(0, static_cast<int>(filename_offset),
                     static_cast<int>(filename_width),
                     static_cast<int>(filename_height), {0, 0, 0, opacity});
-      DrawTextEx(font, cli.get_song_filename().c_str(),
+      DrawTextEx(font, draw_cached_filename.c_str(),
                  {0, static_cast<float>(filename_offset)}, filename_size,
                  filename_size / 10.0F, WHITE);
     }
@@ -600,37 +606,16 @@ void MPDDisplay::load_draw_text_font(const std::string &text, TextType type,
       break;
   }
 
-  if (fonts.find(type) == fonts.end()) {
-    std::string filename;
-    if (args.get_flags().test(10)) {
-      filename = args.get_default_font_filename();
-    } else if (helper_str_is_ascii(text) && args.get_flags().test(11)) {
-      filename = args.get_default_font_filename();
-    } else {
-      filename =
-          helper_unicode_font_fetch(text, args.get_font_blacklist_strings());
-    }
-    if (filename.empty()) {
-      switch (type) {
-        case TEXT_TITLE:
-          flags.set(7);
-          break;
-        case TEXT_ARTIST:
-          flags.set(8);
-          break;
-        case TEXT_ALBUM:
-          flags.set(9);
-          break;
-        case TEXT_FILENAME:
-          flags.set(10);
-          break;
-      }
-      return;
-    }
-    FontWrapper font(filename, text);
-    if (font.get() != nullptr) {
-      fonts.insert(std::make_pair<int, FontWrapper>(type, std::move(font)));
-    }
+  std::string filename;
+  if (args.get_flags().test(10)) {
+    filename = args.get_default_font_filename();
+  } else if (helper_str_is_ascii(text) && args.get_flags().test(11)) {
+    filename = args.get_default_font_filename();
+  } else {
+    filename =
+        helper_unicode_font_fetch(text, args.get_font_blacklist_strings());
+  }
+  if (filename.empty()) {
     switch (type) {
       case TEXT_TITLE:
         flags.set(7);
@@ -645,5 +630,29 @@ void MPDDisplay::load_draw_text_font(const std::string &text, TextType type,
         flags.set(10);
         break;
     }
+    return;
+  }
+  FontWrapper font(filename, text);
+  if (font.get() != nullptr) {
+    fonts.erase(type);
+    fonts.insert(std::make_pair<int, FontWrapper>(type, std::move(font)));
+  }
+  switch (type) {
+    case TEXT_TITLE:
+      flags.set(7);
+      draw_cached_title = text;
+      break;
+    case TEXT_ARTIST:
+      flags.set(8);
+      draw_cached_artist = text;
+      break;
+    case TEXT_ALBUM:
+      flags.set(9);
+      draw_cached_album = text;
+      break;
+    case TEXT_FILENAME:
+      flags.set(10);
+      draw_cached_filename = text;
+      break;
   }
 }
