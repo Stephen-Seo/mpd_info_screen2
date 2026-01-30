@@ -410,7 +410,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
       }
       filename_width = text_size.x;
       filename_height = text_size.y;
-    } while (text_size.x > static_cast<float>(width));
+    } while (text_size.x > static_cast<float>(width) && filename_size > 1.0F);
     y_offset -= static_cast<int>(std::ceilf(filename_height));
     filename_offset = y_offset;
   }
@@ -433,7 +433,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
       }
       album_width = text_size.x;
       album_height = text_size.y;
-    } while (text_size.x > static_cast<float>(width));
+    } while (text_size.x > static_cast<float>(width) && album_size > 1.0F);
     y_offset -= static_cast<int>(std::ceilf(album_height));
     album_offset = y_offset;
   }
@@ -456,7 +456,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
       }
       artist_width = text_size.x;
       artist_height = text_size.y;
-    } while (text_size.x > static_cast<float>(width));
+    } while (text_size.x > static_cast<float>(width) && artist_size > 1.0F);
     y_offset -= static_cast<int>(std::ceilf(artist_height));
     artist_offset = y_offset;
   }
@@ -479,7 +479,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
       }
       title_width = text_size.x;
       title_height = text_size.y;
-    } while (text_size.x > static_cast<float>(width));
+    } while (text_size.x > static_cast<float>(width) && title_size > 1.0F);
     y_offset -= static_cast<int>(std::ceilf(title_height));
     title_offset = y_offset;
   }
