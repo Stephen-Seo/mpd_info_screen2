@@ -508,7 +508,7 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
                  {0, static_cast<float>(remaining_y_offset)},
                  scaled_font_size(), scaled_font_size() / 10.0F, WHITE);
     }
-    if (!args.get_flags().test(1)) {
+    if (!args.get_flags().test(1) && flags.test(7)) {
       Font font = *default_font;
       if (auto fiter = fonts.find(TEXT_TITLE); fiter != fonts.end()) {
         font = *fiter->second.get();
@@ -523,7 +523,7 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
       // DrawTexture(font.texture, 0, 0, WHITE);
     }
 
-    if (!args.get_flags().test(2)) {
+    if (!args.get_flags().test(2) && flags.test(8)) {
       Font font = *default_font;
       if (auto fiter = fonts.find(TEXT_ARTIST); fiter != fonts.end()) {
         font = *fiter->second.get();
@@ -536,7 +536,7 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
                  artist_size / 10.0F, WHITE);
     }
 
-    if (!args.get_flags().test(3)) {
+    if (!args.get_flags().test(3) && flags.test(9)) {
       Font font = *default_font;
       if (auto fiter = fonts.find(TEXT_ALBUM); fiter != fonts.end()) {
         font = *fiter->second.get();
@@ -549,7 +549,7 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
                  album_size / 10.0F, WHITE);
     }
 
-    if (!args.get_flags().test(4)) {
+    if (!args.get_flags().test(4) && flags.test(10)) {
       Font font = *default_font;
       if (auto fiter = fonts.find(TEXT_FILENAME); fiter != fonts.end()) {
         font = *fiter->second.get();
