@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.5.2
+
 Switch from using `#include <print>` directly to `PrintHelper` for platforms
 that have a version of a C++ compiler that doesn't support C++23.  
 It is expected to have support for C++20.
