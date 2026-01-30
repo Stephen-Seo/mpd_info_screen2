@@ -522,7 +522,7 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
       DrawRectangle(0, static_cast<int>(title_offset),
                     static_cast<int>(title_width),
                     static_cast<int>(title_height), {0, 0, 0, opacity});
-      DrawTextEx(font, cli.get_song_title().c_str(),
+      DrawTextEx(font, draw_cached_title.c_str(),
                  {0, static_cast<float>(title_offset)}, title_size,
                  title_size / 10.0F, WHITE);
       // TODO DEBUG
@@ -537,7 +537,7 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
       DrawRectangle(0, static_cast<int>(artist_offset),
                     static_cast<int>(artist_width),
                     static_cast<int>(artist_height), {0, 0, 0, opacity});
-      DrawTextEx(font, cli.get_song_artist().c_str(),
+      DrawTextEx(font, draw_cached_artist.c_str(),
                  {0, static_cast<float>(artist_offset)}, artist_size,
                  artist_size / 10.0F, WHITE);
     }
@@ -550,7 +550,7 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
       DrawRectangle(0, static_cast<int>(album_offset),
                     static_cast<int>(album_width),
                     static_cast<int>(album_height), {0, 0, 0, opacity});
-      DrawTextEx(font, cli.get_song_album().c_str(),
+      DrawTextEx(font, draw_cached_album.c_str(),
                  {0, static_cast<float>(album_offset)}, album_size,
                  album_size / 10.0F, WHITE);
     }
@@ -563,7 +563,7 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
       DrawRectangle(0, static_cast<int>(filename_offset),
                     static_cast<int>(filename_width),
                     static_cast<int>(filename_height), {0, 0, 0, opacity});
-      DrawTextEx(font, cli.get_song_filename().c_str(),
+      DrawTextEx(font, draw_cached_filename.c_str(),
                  {0, static_cast<float>(filename_offset)}, filename_size,
                  filename_size / 10.0F, WHITE);
     }
