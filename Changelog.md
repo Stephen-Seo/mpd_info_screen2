@@ -3,6 +3,9 @@
 Fix "glitching" fonts on song change:  
 Only display info text after song has changed and info texts have been loaded.
 
+More robust handling of when to draw info texts (only draw if the strings are
+not empty).
+
 # Version 1.5
 
 Add a Makefile and CMake option to build `mpd_info_screen2` with the system's
