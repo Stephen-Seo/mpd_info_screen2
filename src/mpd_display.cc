@@ -331,8 +331,8 @@ void MPDDisplay::set_failed_auth() { flags.set(5); }
 void MPDDisplay::clear_cached_pass() { cached_pass.clear(); }
 
 float MPDDisplay::scaled_font_size() {
-  return std::ceilf(TEXT_DEFAULT_SIZE_F * static_cast<float>(GetScreenWidth()) /
-                    800.0F);
+  return std::ceil(TEXT_DEFAULT_SIZE_F * static_cast<float>(GetScreenWidth()) /
+                   800.0F);
 }
 
 void MPDDisplay::update_remaining_texts(const MPDClient &cli,
@@ -411,7 +411,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
         filename_width = text_size.x;
         filename_height = text_size.y;
       } while (text_size.x > static_cast<float>(width) && filename_size > 1.0F);
-      y_offset -= static_cast<int>(std::ceilf(filename_height));
+      y_offset -= static_cast<int>(std::ceil(filename_height));
       filename_offset = y_offset;
     }
   }
@@ -436,7 +436,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
         album_width = text_size.x;
         album_height = text_size.y;
       } while (text_size.x > static_cast<float>(width) && album_size > 1.0F);
-      y_offset -= static_cast<int>(std::ceilf(album_height));
+      y_offset -= static_cast<int>(std::ceil(album_height));
       album_offset = y_offset;
     }
   }
@@ -461,7 +461,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
         artist_width = text_size.x;
         artist_height = text_size.y;
       } while (text_size.x > static_cast<float>(width) && artist_size > 1.0F);
-      y_offset -= static_cast<int>(std::ceilf(artist_height));
+      y_offset -= static_cast<int>(std::ceil(artist_height));
       artist_offset = y_offset;
     }
   }
@@ -486,13 +486,12 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
         title_width = text_size.x;
         title_height = text_size.y;
       } while (text_size.x > static_cast<float>(width) && title_size > 1.0F);
-      y_offset -= static_cast<int>(std::ceilf(title_height));
+      y_offset -= static_cast<int>(std::ceil(title_height));
       title_offset = y_offset;
     }
   }
 
-  remaining_y_offset =
-      y_offset - static_cast<int>(std::ceilf(remaining_height));
+  remaining_y_offset = y_offset - static_cast<int>(std::ceil(remaining_height));
 }
 
 void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
