@@ -1,5 +1,15 @@
 # Upcoming Changes
 
+# Version 1.5.2
+
+Switch from using `#include <print>` directly to `PrintHelper` for platforms
+that have a version of a C++ compiler that doesn't support C++23.  
+It is expected to have support for C++20.
+
+Fixes to Makefile to support builds on other systems.
+
+Add a Github workflow that automatically runs the `unittest` on git-push.
+
 # Version 1.5.1
 
 Fix "glitching" text display on song change.
