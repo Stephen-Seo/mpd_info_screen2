@@ -1,10 +1,13 @@
 # Upcoming Changes
 
-Fix "glitching" fonts on song change:  
-Only display info text after song has changed and info texts have been loaded.
+# Version 1.5.1
 
-More robust handling of when to draw info texts (only draw if the strings are
-not empty).
+Fix "glitching" text display on song change.
+
+Current behavior is to keep displaying the info text, and only changing them
+when the current song has changed, hopefully with a "seamless transition". This
+should be done in a way to prevent any graphical issues when the current song
+changes.
 
 # Version 1.5
 
