@@ -9,6 +9,9 @@ when the current song has changed, hopefully with a "seamless transition". This
 should be done in a way to prevent any graphical issues when the current song
 changes.
 
+Fix potential crash/undefined-behavior by ensuring the rendered text's font size
+never goes negative (or zero).
+
 # Version 1.5
 
 Add a Makefile and CMake option to build `mpd_info_screen2` with the system's
