@@ -1,5 +1,10 @@
 # Upcoming Changes
 
+# Version 1.5.3
+
+Attempt to fix text rendering bug where some characters in the display text
+don't display properly.
+
 # Version 1.5.2
 
 Switch from using `#include <print>` directly to `PrintHelper` for platforms
