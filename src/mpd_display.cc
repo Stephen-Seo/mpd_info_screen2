@@ -411,7 +411,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
       filename_size = scaled_font_size();
       Vector2 text_size;
       do {
-        text_size = MeasureTextEx(font, cli.get_song_filename().c_str(),
+        text_size = MeasureTextEx(font, draw_cached_filename.c_str(),
                                   static_cast<float>(filename_size),
                                   static_cast<float>(filename_size) / 10.0F);
         if (text_size.x > static_cast<float>(width)) {
@@ -436,7 +436,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
       album_size = scaled_font_size();
       Vector2 text_size;
       do {
-        text_size = MeasureTextEx(font, cli.get_song_album().c_str(),
+        text_size = MeasureTextEx(font, draw_cached_album.c_str(),
                                   static_cast<float>(album_size),
                                   static_cast<float>(album_size) / 10.0F);
         if (text_size.x > static_cast<float>(width)) {
@@ -461,7 +461,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
       artist_size = scaled_font_size();
       Vector2 text_size;
       do {
-        text_size = MeasureTextEx(font, cli.get_song_artist().c_str(),
+        text_size = MeasureTextEx(font, draw_cached_artist.c_str(),
                                   static_cast<float>(artist_size),
                                   static_cast<float>(artist_size) / 10.0F);
         if (text_size.x > static_cast<float>(width)) {
@@ -486,7 +486,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
       title_size = scaled_font_size();
       Vector2 text_size;
       do {
-        text_size = MeasureTextEx(font, cli.get_song_title().c_str(),
+        text_size = MeasureTextEx(font, draw_cached_title.c_str(),
                                   static_cast<float>(title_size),
                                   static_cast<float>(title_size) / 10.0F);
         if (text_size.x > static_cast<float>(width)) {
