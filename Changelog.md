@@ -16,6 +16,8 @@ Actually implement `--no-scale-fill`.
 
 Add `--version`.
 
+Create "man page" for `mpd_info_screen2`.
+
 # Version 1.5.4
 
 The changes in this version mostly increase the efficiency of
