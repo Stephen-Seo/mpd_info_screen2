@@ -1,0 +1,13 @@
+Enable "SUPPORT_FONT_ATLAS_SIZE_CONSERVATIVE".
+
+--- a/third_party/raylib-5.5/src/rtext.c
++++ b/third_party/raylib-5.5/src/rtext.c
+@@ -763,7 +763,7 @@
+         totalWidth += glyphs[i].image.width + 2*padding;
+     }
+ 
+-//#define SUPPORT_FONT_ATLAS_SIZE_CONSERVATIVE
++#define SUPPORT_FONT_ATLAS_SIZE_CONSERVATIVE
+ #if defined(SUPPORT_FONT_ATLAS_SIZE_CONSERVATIVE)
+     int rowCount = 0;
+     int imageSize = 64;  // Define minimum starting value to avoid unnecessary calculation steps for very small images

@@ -37,32 +37,41 @@ FontWrapper::FontWrapper(std::string filename, std::string text) {
   int *codepoints = LoadCodepoints(text.c_str(), &codepoints_count);
 
   std::unordered_set<int> unique_codepoints;
-  for (int idx = 0; idx < codepoints_count; ++idx) {
-    unique_codepoints.insert(codepoints[idx]);
-  }
-
   std::vector<int> codepoints_v;
 
-  if (unique_codepoints.find('a') == unique_codepoints.end()) {
-    // Force add 'a' and 'b' to codepoints to avoid unicode rendering bug.
-    codepoints_v.push_back('a');
+  for (int idx = 0; idx < codepoints_count; ++idx) {
+    if (auto iter = unique_codepoints.find(codepoints[idx]);
+        iter == unique_codepoints.end()) {
+      codepoints_v.push_back(codepoints[idx]);
+      unique_codepoints.insert(codepoints[idx]);
+    }
   }
 
-  for (auto iter = unique_codepoints.begin(); iter != unique_codepoints.end();
-       ++iter) {
-    codepoints_v.push_back(*iter);
-  }
-
-  if (unique_codepoints.find('b') == unique_codepoints.end()) {
-    // Force add 'a' and 'b' to codepoints to avoid unicode rendering bug.
-    codepoints_v.push_back('b');
-  }
+  // TODO Check if this is necessary
+  // for (char c = 0x21; c < 0x7E; ++c) {
+  //  if (unique_codepoints.find(c) == unique_codepoints.end()) {
+  //    codepoints_v.insert(codepoints_v.begin(), c);
+  //    unique_codepoints.insert(c);
+  //    break;
+  //  }
+  //}
+  // for (char c = 0x21; c < 0x7E; ++c) {
+  //  if (unique_codepoints.find(c) == unique_codepoints.end()) {
+  //    codepoints_v.insert(codepoints_v.end(), c);
+  //    unique_codepoints.insert(c);
+  //    break;
+  //  }
+  //}
 
 #ifndef NDEBUG
   PrintHelper::println("text: {}", text);
   PrintHelper::println("codepoints:");
   for (size_t idx = 0; idx < codepoints_v.size(); ++idx) {
-    PrintHelper::print("{:02x} ", codepoints_v.at(idx));
+    PrintHelper::print("\"{}/{:02x}\" ",
+                       codepoints_v.at(idx) < 0x7F
+                           ? static_cast<char>(codepoints_v.at(idx))
+                           : '?',
+                       codepoints_v.at(idx));
   }
   PrintHelper::println();
 #endif
