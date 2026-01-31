@@ -1,5 +1,15 @@
 # Upcoming Changes
 
+Added `FORCE_DEBUG_FLAG` for Makefile and CMakeLists.txt:
+
+Define `FORCE_DEBUG_FLAG` before using the Makefile to force the compiler to
+use the `-g` flag.
+
+Use `-DFORCE_DEBUG_FLAG=On` when using CMake to force the compiler to use the
+`-g` flag.
+
+Note that the `-g` flag adds debugging symbols to the output binary.
+
 # Version 1.5.4
 
 The changes in this version mostly increase the efficiency of
