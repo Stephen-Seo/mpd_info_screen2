@@ -67,7 +67,9 @@ FontWrapper::FontWrapper(std::string filename, std::string text) {
   PrintHelper::println("codepoints:");
   for (size_t idx = 0; idx < codepoints_v.size(); ++idx) {
     PrintHelper::print("\"{}/{:02x}\" ",
-                       static_cast<char>(codepoints_v.at(idx)),
+                       codepoints_v.at(idx) < 0x7F
+                           ? static_cast<char>(codepoints_v.at(idx))
+                           : '?',
                        codepoints_v.at(idx));
   }
   PrintHelper::println();
