@@ -208,6 +208,13 @@ void MPDDisplay::update(const MPDClient &cli, const Args &args) {
     flags.reset(8);
     flags.reset(9);
     flags.reset(10);
+
+    flags.reset(11);
+    flags.reset(12);
+    flags.reset(13);
+    flags.reset(14);
+
+    flags.set(15);
   }
 
   if (!texture || flags.test(1)) {
@@ -278,6 +285,13 @@ void MPDDisplay::update(const MPDClient &cli, const Args &args) {
         flags.reset(9);
         flags.reset(10);
         flags.reset(0);
+
+        flags.reset(11);
+        flags.reset(12);
+        flags.reset(13);
+        flags.reset(14);
+
+        flags.set(15);
       } else {
         update_draw_texts(cli, args);
       }
@@ -403,7 +417,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
   if (!args.get_flags().test(4) && !cli.get_song_filename().empty()) {
     Font font = *default_font;
     load_draw_text_font(cli.get_song_filename(), TEXT_FILENAME, args);
-    if (!draw_cached_filename.empty()) {
+    if (!draw_cached_filename.empty() && !flags.test(14)) {
       auto fiter = fonts.find(TEXT_FILENAME);
       if (fiter != fonts.end()) {
         font = *fiter->second.get();
@@ -422,13 +436,14 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
       } while (text_size.x > static_cast<float>(width) && filename_size > 1.0F);
       y_offset -= static_cast<int>(std::ceil(filename_height));
       filename_offset = y_offset;
+      flags.set(14);
     }
   }
 
   if (!args.get_flags().test(3) && !cli.get_song_album().empty()) {
     Font font = *default_font;
     load_draw_text_font(cli.get_song_album(), TEXT_ALBUM, args);
-    if (!draw_cached_album.empty()) {
+    if (!draw_cached_album.empty() && !flags.test(13)) {
       auto fiter = fonts.find(TEXT_ALBUM);
       if (fiter != fonts.end()) {
         font = *fiter->second.get();
@@ -447,13 +462,14 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
       } while (text_size.x > static_cast<float>(width) && album_size > 1.0F);
       y_offset -= static_cast<int>(std::ceil(album_height));
       album_offset = y_offset;
+      flags.set(13);
     }
   }
 
   if (!args.get_flags().test(2) && !cli.get_song_artist().empty()) {
     Font font = *default_font;
     load_draw_text_font(cli.get_song_artist(), TEXT_ARTIST, args);
-    if (!draw_cached_artist.empty()) {
+    if (!draw_cached_artist.empty() && !flags.test(12)) {
       auto fiter = fonts.find(TEXT_ARTIST);
       if (fiter != fonts.end()) {
         font = *fiter->second.get();
@@ -472,13 +488,14 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
       } while (text_size.x > static_cast<float>(width) && artist_size > 1.0F);
       y_offset -= static_cast<int>(std::ceil(artist_height));
       artist_offset = y_offset;
+      flags.set(12);
     }
   }
 
   if (!args.get_flags().test(1) && !cli.get_song_title().empty()) {
     Font font = *default_font;
     load_draw_text_font(cli.get_song_title(), TEXT_TITLE, args);
-    if (!draw_cached_title.empty()) {
+    if (!draw_cached_title.empty() && !flags.test(11)) {
       auto fiter = fonts.find(TEXT_TITLE);
       if (fiter != fonts.end()) {
         font = *fiter->second.get();
@@ -497,10 +514,15 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
       } while (text_size.x > static_cast<float>(width) && title_size > 1.0F);
       y_offset -= static_cast<int>(std::ceil(title_height));
       title_offset = y_offset;
+      flags.set(11);
     }
   }
 
-  remaining_y_offset = y_offset - static_cast<int>(std::ceil(remaining_height));
+  if (flags.test(15)) {
+    remaining_y_offset =
+        y_offset - static_cast<int>(std::ceil(remaining_height));
+    flags.reset(15);
+  }
 }
 
 void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
