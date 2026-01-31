@@ -4,6 +4,10 @@ else
 	CXX_COMMON_FLAGS := -Werror -Og -g -Ithird_party/include
 endif
 
+ifdef FORCE_DEBUG_FLAG
+	CXX_COMMON_FLAGS += -g
+endif
+
 ifdef USE_EXTERNAL_GLFW
 	USE_EXTERNAL_GLFW_LINKER_FLAGS := -lglfw
 	USE_EXTERNAL_GLFW_CMAKE_FLAGS := -DUSE_EXTERNAL_GLFW=ON
