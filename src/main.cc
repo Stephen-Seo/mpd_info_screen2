@@ -44,6 +44,7 @@ int main(int argc, char **argv) {
     } else if (args.get_flags().test(14)) {
       PrintHelper::println("Version {} of mpd_info_screen2.",
                            MPD_INFO_SCREEN_2_VERSION);
+      return 0;
     }
     return 1;
   }
