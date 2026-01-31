@@ -49,7 +49,8 @@ HEADERS := \
 	src/helpers.h \
 	src/signal_handler.h \
 	src/mpd_display.h \
-	src/print_helper.h
+	src/print_helper.h \
+	src/version.h
 
 OBJDIR := objdir
 OBJECTS := $(addprefix ${OBJDIR}/,$(subst .cc,.cc.o,${SOURCES}))

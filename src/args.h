@@ -57,6 +57,7 @@ class Args {
   // 11 - only use default font for ASCII
   // 12 - disable show remaining time
   // 13 - force remaining time to use default Raylib font
+  // 14 - version specified
   std::bitset<64> flags;
   std::unordered_set<std::string> font_blacklist_strings;
   std::string host_ip_addr;
