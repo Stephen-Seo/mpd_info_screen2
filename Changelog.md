@@ -1,5 +1,15 @@
 # Upcoming Changes
 
+# Version 1.5.4
+
+The changes in this version mostly increase the efficiency of
+`mpd_info_screen2`:
+
+Avoid re-usage of MeasureTextEx (provided by Raylib) where possible to increase
+efficiency.
+
+Use cached texts instead of MPDClient's current texts when using MeasureTextEx.
+
 # Version 1.5.3
 
 Attempt to fix text rendering bug where some characters in the display text

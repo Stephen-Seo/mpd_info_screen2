@@ -94,6 +94,11 @@ class MPDDisplay {
   // 8 - loaded/failed artist font
   // 9 - loaded/failed album font
   // 10 - loaded/failed filename font
+  // 11 - title MeasureTextEx loaded
+  // 12 - artist MeasureTextEx loaded
+  // 13 - album MeasureTextEx loaded
+  // 14 - filename MeasureTextEx loaded
+  // 15 - MeasureTextEx re-measure requested
   std::bitset<64> flags;
   std::unique_ptr<Texture> texture;
   std::shared_ptr<Font> raylib_default_font;
