@@ -1,0 +1,96 @@
+.TH mpd_info_screen2 1
+.SH NAME
+mpd_info_screen2 \- Views graphical info on MPD, the successor to mpd_info_screen, in C++
+.SH SYNOPSIS
+.B simplearchiver
+[\fB\-h | \-\-help\fR]
+[ options ]
+
+.SH DESCRIPTION
+.B mpd_info_screen2
+shows info on MPD about the currently playing song. By
+default, the remaining time, remaining percentage, title, artist, album, and
+filename are displayed along with the album art.
+
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Prints the "help text" which lists all options.
+.TP
+.BR --host=<ip_addr>
+The ip-address of the MPD server to connect to.
+.TP
+.BR --port=<port>
+The port of the MPD server to connect to.
+.TP
+.BR --disable-all-text
+Disables showing all text. Only the album art is shown in this case.
+.TP
+.BR --disable-show-title
+Disables showing the title text.
+.TP
+.BR --disable-show-artist
+Disables showing the artist text.
+.TP
+.BR --disable-show-album
+Disables showing the album text.
+.TP
+.BR --disable-show-filename
+Disables showing the filename text.
+.TP
+.BR --disable-show-remaining
+Disables showing the track's remaining time.
+.TP
+.BR --disable-show-percentage
+Disables showing the track's elapsed time percentage.
+.TP
+.BR --pprompt
+If MPD requires a password to authenticate with, \fBmpd_info_screen2\fR will
+prompt for a password if this option is specified. It is expected for the user
+to enter the password to authenticate with MPD, and to press Enter after the
+password has been input. Invalid passwords should result in
+\fBmpd_info_screen2\fR to prompt for a password again.
+.TP
+.BR --pfile=<filename>
+If MPD requires a password to authenticate with, \fBmpd_info_screen2\fR will
+read the file specified by \fB\-\-pfile=<filename>\fR to get the password and
+will use it to authenticate with MPD.
+.TP
+.BR --no-scale-fill
+When drawing the album art, \fBmpd_info_screen2\fR will not scale the album art
+to the window if this is specified.
+.TP
+.BR --log-level=<level>
+Sets the verbosity/log-level of outputs from \fBmpd_info_screen2\fR. The
+possible options are: ERROR, WARNING, DEBUG, VERBOSE. Note that the log-level
+name check is case-insensitive.
+.TP
+.BR --bg-opacity=<percentage>
+Sets the opacity/transparency of the text backgrounds. Must be between 0.0 and
+1.0.
+.TP
+.BR --default-font-filename=<font_filename>
+Sets the default font by filename for texts.
+.TP
+.BR --force-default-font
+Forces all text displayed to only be the default font.
+.TP
+.BR --force-default-font-ascii
+Forces all ascii text displayed to only use the default font.
+.TP
+.BR --blacklist-font-str=<string>
+When fetching known fonts to use for an info text line, don't use fonts whose
+filename contains one of the string(s) specified by
+\fB\-\-blackolist\-font\-str=<string>\fR. Note that this option can be
+specified multiple times to add more strings to check against.
+.TP
+.BR --remaining-force-default-raylib-font
+Forces the remaining time text and the percentage text to use the default
+Raylib font.
+.TP
+.BR --version
+Prints the current version of \fBmpd_info_screen2\fR.
+.SH NOTES
+.TP
+.BR "Supported Font Filetypes"
+Note that ".ttc" files are not supported (by Raylib) and will not be used.
