@@ -67,6 +67,7 @@ third_party/lib/libraylib.a: third_party/raylib-5.5.tar.gz
 	@mkdir -p third_party/include
 	tar -xf third_party/raylib-5.5.tar.gz -C third_party
 	patch -p1 < third_party/disable-busy-wait-loop.patch
+	patch -p1 < third_party/font-atlas-size-conservative.patch
 	cmake -S third_party/raylib-5.5 -B third_party/raylib_BUILD -DCMAKE_BUILD_TYPE=Release ${USE_EXTERNAL_GLFW_CMAKE_FLAGS}
 	${MAKE} -C third_party/raylib_BUILD raylib
 	cp third_party/raylib_BUILD/raylib/libraylib.a third_party/lib/libraylib.a

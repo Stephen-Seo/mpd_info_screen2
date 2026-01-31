@@ -47,20 +47,21 @@ FontWrapper::FontWrapper(std::string filename, std::string text) {
     }
   }
 
-  for (char c = 0x21; c < 0x7E; ++c) {
-    if (unique_codepoints.find(c) == unique_codepoints.end()) {
-      codepoints_v.insert(codepoints_v.begin(), c);
-      unique_codepoints.insert(c);
-      break;
-    }
-  }
-  for (char c = 0x21; c < 0x7E; ++c) {
-    if (unique_codepoints.find(c) == unique_codepoints.end()) {
-      codepoints_v.insert(codepoints_v.end(), c);
-      unique_codepoints.insert(c);
-      break;
-    }
-  }
+  // TODO Check if this is necessary
+  // for (char c = 0x21; c < 0x7E; ++c) {
+  //  if (unique_codepoints.find(c) == unique_codepoints.end()) {
+  //    codepoints_v.insert(codepoints_v.begin(), c);
+  //    unique_codepoints.insert(c);
+  //    break;
+  //  }
+  //}
+  // for (char c = 0x21; c < 0x7E; ++c) {
+  //  if (unique_codepoints.find(c) == unique_codepoints.end()) {
+  //    codepoints_v.insert(codepoints_v.end(), c);
+  //    unique_codepoints.insert(c);
+  //    break;
+  //  }
+  //}
 
 #ifndef NDEBUG
   PrintHelper::println("text: {}", text);
