@@ -1,5 +1,9 @@
 # Upcoming Changes
 
+Avoid re-usage of MeasureTextEx (provided by Raylib) to increase efficiency.
+
+Use cached texts instead of MPDClient's current texts when using MeasureTextEx.
+
 # Version 1.5.3
 
 Attempt to fix text rendering bug where some characters in the display text
