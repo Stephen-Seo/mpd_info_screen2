@@ -37,32 +37,23 @@ FontWrapper::FontWrapper(std::string filename, std::string text) {
   int *codepoints = LoadCodepoints(text.c_str(), &codepoints_count);
 
   std::unordered_set<int> unique_codepoints;
-  for (int idx = 0; idx < codepoints_count; ++idx) {
-    unique_codepoints.insert(codepoints[idx]);
-  }
-
   std::vector<int> codepoints_v;
 
-  if (unique_codepoints.find('a') == unique_codepoints.end()) {
-    // Force add 'a' and 'b' to codepoints to avoid unicode rendering bug.
-    codepoints_v.push_back('a');
-  }
-
-  for (auto iter = unique_codepoints.begin(); iter != unique_codepoints.end();
-       ++iter) {
-    codepoints_v.push_back(*iter);
-  }
-
-  if (unique_codepoints.find('b') == unique_codepoints.end()) {
-    // Force add 'a' and 'b' to codepoints to avoid unicode rendering bug.
-    codepoints_v.push_back('b');
+  for (int idx = 0; idx < codepoints_count; ++idx) {
+    if (auto iter = unique_codepoints.find(codepoints[idx]);
+        iter == unique_codepoints.end()) {
+      codepoints_v.push_back(codepoints[idx]);
+      unique_codepoints.insert(codepoints[idx]);
+    }
   }
 
 #ifndef NDEBUG
   PrintHelper::println("text: {}", text);
   PrintHelper::println("codepoints:");
   for (size_t idx = 0; idx < codepoints_v.size(); ++idx) {
-    PrintHelper::print("{:02x} ", codepoints_v.at(idx));
+    PrintHelper::print("\"{}/{:02x}\" ",
+                       static_cast<char>(codepoints_v.at(idx)),
+                       codepoints_v.at(idx));
   }
   PrintHelper::println();
 #endif
