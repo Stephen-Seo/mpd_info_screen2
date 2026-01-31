@@ -20,7 +20,9 @@
 #include "helpers.h"
 #include "mpd_client.h"
 #include "mpd_display.h"
+#include "print_helper.h"
 #include "signal_handler.h"
+#include "version.h"
 
 // Standard library includes
 #include <atomic>
@@ -36,8 +38,14 @@ int main(int argc, char **argv) {
   Args args(argc, argv);
 
   if (args.is_error()) {
-    args.print_usage();
-    return args.get_flags().test(8) ? 0 : 1;
+    if (args.get_flags().test(8)) {
+      args.print_usage();
+      return 0;
+    } else if (args.get_flags().test(14)) {
+      PrintHelper::println("Version {} of mpd_info_screen2.",
+                           MPD_INFO_SCREEN_2_VERSION);
+    }
+    return 1;
   }
 
   MPDClient cli(args.get_host_ip_addr(), args.get_host_port(),

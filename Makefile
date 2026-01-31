@@ -4,6 +4,10 @@ else
 	CXX_COMMON_FLAGS := -Werror -Og -g -Ithird_party/include
 endif
 
+ifdef FORCE_DEBUG_FLAG
+	CXX_COMMON_FLAGS += -g
+endif
+
 ifdef USE_EXTERNAL_GLFW
 	USE_EXTERNAL_GLFW_LINKER_FLAGS := -lglfw
 	USE_EXTERNAL_GLFW_CMAKE_FLAGS := -DUSE_EXTERNAL_GLFW=ON
@@ -45,7 +49,8 @@ HEADERS := \
 	src/helpers.h \
 	src/signal_handler.h \
 	src/mpd_display.h \
-	src/print_helper.h
+	src/print_helper.h \
+	src/version.h
 
 OBJDIR := objdir
 OBJECTS := $(addprefix ${OBJDIR}/,$(subst .cc,.cc.o,${SOURCES}))

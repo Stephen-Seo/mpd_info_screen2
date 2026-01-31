@@ -106,6 +106,10 @@ Args::Args(int argc, char **argv)
     } else if (std::strcmp("--remaining-force-default-raylib-font", argv[0]) ==
                0) {
       flags.set(13);
+    } else if (std::strcmp("--version", argv[0]) == 0) {
+      flags.set(0);
+      flags.set(14);
+      return;
     } else if (std::strcmp("-h", argv[0]) == 0 ||
                std::strcmp("--help", argv[0]) == 0) {
       flags.set(0);
