@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.6
+
 Added `FORCE_DEBUG_FLAG` for Makefile and CMakeLists.txt:
 
 Define `FORCE_DEBUG_FLAG` before using the Makefile to force the compiler to
@@ -9,6 +11,10 @@ Use `-DFORCE_DEBUG_FLAG=On` when using CMake to force the compiler to use the
 `-g` flag.
 
 Note that the `-g` flag adds debugging symbols to the output binary.
+
+Actually implement `--no-scale-fill`.
+
+Add `--version`.
 
 # Version 1.5.4
 
