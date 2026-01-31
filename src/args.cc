@@ -134,6 +134,8 @@ Args::Args(int argc, char **argv)
 
 void Args::print_usage() {
   PrintHelper::println("Usage:");
+  PrintHelper::println("  -h | --help : show this usage text");
+  PrintHelper::println("  --version : show the version of this program");
   PrintHelper::println("  --host=<ip_addr> : ip address of mpd server");
   PrintHelper::println("  --port=<port> : port of mpd server (default 6600)");
   PrintHelper::println("  --disable-all-text : disables showing all text");

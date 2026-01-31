@@ -21,6 +21,8 @@ the graphics. mpd_info_screen2 instead relies on "Raylib".
 --------------------------------------------------------------------------------
 
 Usage:
+  -h | --help : show this usage text
+  --version : show the version of this program
   --host=<ip_addr> : ip address of mpd server
   --port=<port> : port of mpd server (default 6600)
   --disable-all-text : disables showing all text
