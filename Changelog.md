@@ -1,5 +1,9 @@
 # Upcoming Changes
 
+# Version 1.6.1
+
+Fix `mpd_info_screen2` not returning success when using `--version`.
+
 # Version 1.6
 
 Added `FORCE_DEBUG_FLAG` for Makefile and CMakeLists.txt:
