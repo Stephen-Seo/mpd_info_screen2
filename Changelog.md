@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+Use `git describe --long --tags` to set the "version string".
+
 # Version 1.6.2
 
 Minor refactorings:
