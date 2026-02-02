@@ -1,7 +1,9 @@
+MPD_INFO_SCREEN2_GIT_VER != git describe --long --tags
+
 ifdef RELEASE
-	CXX_COMMON_FLAGS := -O2 -DNDEBUG -fno-delete-null-pointer-checks -fno-strict-overflow -fno-strict-aliasing -ftrivial-auto-var-init=zero -Ithird_party/include
+	CXX_COMMON_FLAGS := -O2 -DNDEBUG -fno-delete-null-pointer-checks -fno-strict-overflow -fno-strict-aliasing -ftrivial-auto-var-init=zero -Ithird_party/include -DMPD_INFO_SCREEN_2_VERSION=\"${MPD_INFO_SCREEN2_GIT_VER}\"
 else
-	CXX_COMMON_FLAGS := -Werror -Og -g -Ithird_party/include
+	CXX_COMMON_FLAGS := -Werror -Og -g -Ithird_party/include -DMPD_INFO_SCREEN_2_VERSION=\"${MPD_INFO_SCREEN2_GIT_VER}\"
 endif
 
 ifdef FORCE_DEBUG_FLAG

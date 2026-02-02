@@ -98,3 +98,6 @@ if(EXISTS "/usr/bin/clang-format")
     add_dependencies(mpd_info_screen2 CLANG_FORMAT)
     add_dependencies(unittests CLANG_FORMAT)
 endif()
+
+execute_process(COMMAND git describe --long --tags OUTPUT_VARIABLE MPD_INFO_SCREEN2_VER OUTPUT_STRIP_TRAILING_WHITESPACE)
+target_compile_options(mpd_info_screen2 PRIVATE "-DMPD_INFO_SCREEN_2_VERSION=\"${MPD_INFO_SCREEN2_VER}\"")
