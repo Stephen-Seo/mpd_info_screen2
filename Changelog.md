@@ -1,5 +1,14 @@
 # Upcoming Changes
 
+# Version 1.6.2
+
+Minor refactorings:
+
+ - More robust setting faster FPS when `--pprompt` is prompted.
+ - Change some literals in the code to constants (usually in src/constants.h).
+ - Remove some unnecessary commented out code in `src/mpd_display.cc`
+ - Remove some debug prints related to font/text loading.
+
 # Version 1.6.1
 
 Fix `mpd_info_screen2` not returning success when using `--version`.
