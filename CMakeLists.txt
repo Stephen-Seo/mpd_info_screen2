@@ -108,5 +108,5 @@ else()
         COMMAND git describe --long --tags | xargs -I verstring echo -e "#define MPD_INFO_SCREEN_2_VERSION \"verstring\"" > MPD_INFO_SCREEN2_VER_STR.h
         VERBATIM)
     add_dependencies(mpd_info_screen2 MPD_INFO_SCREEN2_VER_STR)
-    target_compile_options(mpd_info_screen2 PRIVATE -include MPD_INFO_SCREEN2_VER_STR.h)
+    set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/main.cc PROPERTIES COMPILE_OPTIONS "-include;${CMAKE_CURRENT_BINARY_DIR}/MPD_INFO_SCREEN2_VER_STR.h")
 endif()
