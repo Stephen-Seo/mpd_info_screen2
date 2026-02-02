@@ -2,6 +2,8 @@
 
 Use `git describe --long --tags` to set the "version string".
 
+Refactor `src/print_helper.h`: remove unnecessary functions.
+
 # Version 1.6.2
 
 Minor refactorings:
