@@ -23,7 +23,6 @@
 #include "print_helper.h"
 
 constexpr int TARGET_FPS = 5;
-constexpr int TARGET_FPS_RANGE = 5;
 constexpr int PPROMPT_FPS = 60;
 constexpr size_t READ_BUF_SIZE = 1024 * 1024;
 constexpr size_t READ_BUF_SIZE_SMALL = 1024;

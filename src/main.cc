@@ -63,7 +63,9 @@ int main(int argc, char **argv) {
   std::unique_ptr<MPDDisplay> disp =
       std::make_unique<MPDDisplay>(args.get_flags(), args.get_log_level());
 
-  const auto do_auth = [&args, &cli, &disp]() {
+  int set_fps = TARGET_FPS;
+
+  const auto do_auth = [&args, &cli, &disp, &set_fps]() {
     if (args.get_password_file().has_value()) {
       LOG_PRINT(args.get_log_level(), LogLevel::VERBOSE,
                 "VERBOSE: Attempting login...");
@@ -93,14 +95,18 @@ int main(int argc, char **argv) {
         if (!cli.attempt_auth(fetched_pass.value())) {
           disp->request_password_prompt();
         } else {
-          SetTargetFPS(TARGET_FPS);
+          if (set_fps != TARGET_FPS) {
+            SetTargetFPS(TARGET_FPS);
+            set_fps = TARGET_FPS;
+          }
           disp->clear_cached_pass();
         }
         LOG_PRINT(args.get_log_level(), LogLevel::VERBOSE,
                   "VERBOSE: Login attempted.");
       } else {
-        if (GetFPS() <= TARGET_FPS + TARGET_FPS_RANGE) {
+        if (set_fps != PPROMPT_FPS) {
           SetTargetFPS(PPROMPT_FPS);
+          set_fps = PPROMPT_FPS;
         }
         disp->request_password_prompt();
       }
@@ -113,6 +119,7 @@ int main(int argc, char **argv) {
   SetWindowState(FLAG_WINDOW_RESIZABLE);
 
   SetTargetFPS(TARGET_FPS);
+  set_fps = TARGET_FPS;
 
   register_signals();
 
