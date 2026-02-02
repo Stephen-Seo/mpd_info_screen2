@@ -66,6 +66,11 @@ std::optional<uint32_t> helper_ipv4_str_to_value(std::string ipv4) {
   //  result = htonl(result);
   //}
 
+  // TODO Verify this works
+  if (helper_is_big_endian()) {
+    result = helper_uint32_byte_swap(result);
+  }
+
   return result;
 }
 
@@ -209,4 +214,16 @@ bool helper_str_is_ascii(const std::string &s) {
     }
   }
   return true;
+}
+
+uint32_t helper_uint32_byte_swap(uint32_t value) {
+  uint32_t ret;
+  uint8_t *ret_ptr = reinterpret_cast<uint8_t *>(&ret);
+  const uint8_t *val_ptr = reinterpret_cast<const uint8_t *>(&value);
+
+  for (int idx = 0; idx < 4; ++idx) {
+    ret_ptr[3 - idx] = val_ptr[idx];
+  }
+
+  return ret;
 }

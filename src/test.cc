@@ -88,6 +88,14 @@ int main(void) {
     PrintHelper::println("unicode_font_fetch: {}", filename);
   }
 
+  // helper uint32 byte swap
+  {
+    uint32_t value = 0x12345678;
+    uint32_t swapped = helper_uint32_byte_swap(value);
+
+    CHECK_TRUE(swapped == 0x78563412);
+  }
+
   PrintHelper::println("Checked: {}\nPassed: {}", checked.load(),
                        passed.load());
 
