@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.7
+
 Use `git describe --long --tags` to set the "version string".
 
 Refactor `src/print_helper.h`: remove unnecessary functions.
