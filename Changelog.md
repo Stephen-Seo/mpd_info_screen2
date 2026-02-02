@@ -6,6 +6,8 @@ Refactor `src/print_helper.h`: remove unnecessary functions.
 
 Attempt to fix ipv4 address parsing for big-endian systems.
 
+Removed some unnecessary commented out code.
+
 # Version 1.6.2
 
 Minor refactorings:
