@@ -93,14 +93,14 @@ int main(int argc, char **argv) {
         if (!cli.attempt_auth(fetched_pass.value())) {
           disp->request_password_prompt();
         } else {
-          SetTargetFPS(5);
+          SetTargetFPS(TARGET_FPS);
           disp->clear_cached_pass();
         }
         LOG_PRINT(args.get_log_level(), LogLevel::VERBOSE,
                   "VERBOSE: Login attempted.");
       } else {
-        if (GetFPS() <= 5) {
-          SetTargetFPS(60);
+        if (GetFPS() <= TARGET_FPS + TARGET_FPS_RANGE) {
+          SetTargetFPS(PPROMPT_FPS);
         }
         disp->request_password_prompt();
       }
@@ -112,7 +112,7 @@ int main(int argc, char **argv) {
   InitWindow(800, 600, "mpd_info_screen2");
   SetWindowState(FLAG_WINDOW_RESIZABLE);
 
-  SetTargetFPS(5);
+  SetTargetFPS(TARGET_FPS);
 
   register_signals();
 
