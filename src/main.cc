@@ -32,7 +32,8 @@
 // third-party includes
 #include <raylib.h>
 
-constexpr Color CLEAR_BG_COLOR = {20, 20, 20, 255};
+constexpr Color CLEAR_BG_COLOR = {CLEAR_BG_COLOR_RGB, CLEAR_BG_COLOR_RGB,
+                                  CLEAR_BG_COLOR_RGB, 255};
 
 int main(int argc, char **argv) {
   Args args(argc, argv);
