@@ -99,5 +99,14 @@ if(EXISTS "/usr/bin/clang-format")
     add_dependencies(unittests CLANG_FORMAT)
 endif()
 
-execute_process(COMMAND git describe --long --tags OUTPUT_VARIABLE MPD_INFO_SCREEN2_VER OUTPUT_STRIP_TRAILING_WHITESPACE)
-target_compile_options(mpd_info_screen2 PRIVATE "-DMPD_INFO_SCREEN_2_VERSION=\"${MPD_INFO_SCREEN2_VER}\"")
+if(DEFINED MPD_INFO_SCREEN_2_VERSION)
+    message(STATUS "MPD_INFO_SCREEN_2_VERSION is defined, using version str: ${MPD_INFO_SCREEN_2_VERSION}")
+    target_compile_options(mpd_info_screen2 PRIVATE "-DMPD_INFO_SCREEN_2_VERSION=\"${MPD_INFO_SCREEN_2_VERSION}\"")
+else()
+    message(STATUS "MPD_INFO_SCREEN_2_VERSION is NOT defined, using 'git describe ...' for version str.")
+    add_custom_target(MPD_INFO_SCREEN2_VER_STR
+        COMMAND git describe --long --tags | xargs -I verstring echo -e "#define MPD_INFO_SCREEN_2_VERSION \"verstring\"" > MPD_INFO_SCREEN2_VER_STR.h
+        VERBATIM)
+    add_dependencies(mpd_info_screen2 MPD_INFO_SCREEN2_VER_STR)
+    target_compile_options(mpd_info_screen2 PRIVATE -include MPD_INFO_SCREEN2_VER_STR.h)
+endif()
