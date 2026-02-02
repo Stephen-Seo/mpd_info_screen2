@@ -22,6 +22,8 @@
 
 #include "print_helper.h"
 
+constexpr int TARGET_FPS = 5;
+constexpr int PPROMPT_FPS = 60;
 constexpr size_t READ_BUF_SIZE = 1024 * 1024;
 constexpr size_t READ_BUF_SIZE_SMALL = 1024;
 constexpr size_t MPD_BINARY_LIMIT = READ_BUF_SIZE - 100;
@@ -40,6 +42,7 @@ constexpr float TEXT_DEFAULT_SIZE_F = TEXT_DEFAULT_SIZE;
 constexpr int STATUS_TEXT_SIZE = 12;
 constexpr std::chrono::milliseconds REFRESH_DURATION =
     std::chrono::milliseconds(500);
+constexpr unsigned char CLEAR_BG_COLOR_RGB = 20;
 
 #define LOG_PRINT(setting, level, msg, ...)               \
   if (log_level_can_log(setting, level)) {                \
