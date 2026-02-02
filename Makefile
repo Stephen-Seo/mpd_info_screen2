@@ -62,7 +62,7 @@ OBJECTS := $(addprefix ${OBJDIR}/,$(subst .cc,.cc.o,${SOURCES}))
 
 all: mpd_info_screen2 unittest
 
-mpd_info_screen2: ${OBJECTS} third_party/lib/libraylib.a ${OBJDIR}/main.cc.o
+mpd_info_screen2: ${OBJECTS} ${OBJDIR}/main.cc.o third_party/lib/libraylib.a
 	${CXX} -o mpd_info_screen2 ${CXX_FLAGS} $^ ${CXX_LINKER_FLAGS}
 
 unittest: ${OBJDIR}/src/test.cc.o ${OBJECTS} third_party/lib/libraylib.a
