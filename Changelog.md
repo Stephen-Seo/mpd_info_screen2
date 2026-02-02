@@ -1,5 +1,9 @@
 # Upcoming Changes
 
+# Version 1.7.1
+
+Fix linking order in Makefile.
+
 # Version 1.7
 
 Use `git describe --long --tags` to set the "version string".
