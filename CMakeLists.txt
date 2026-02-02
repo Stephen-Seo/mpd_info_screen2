@@ -98,3 +98,15 @@ if(EXISTS "/usr/bin/clang-format")
     add_dependencies(mpd_info_screen2 CLANG_FORMAT)
     add_dependencies(unittests CLANG_FORMAT)
 endif()
+
+if(DEFINED MPD_INFO_SCREEN_2_VERSION)
+    message(STATUS "MPD_INFO_SCREEN_2_VERSION is defined, using version str: ${MPD_INFO_SCREEN_2_VERSION}")
+    target_compile_options(mpd_info_screen2 PRIVATE "-DMPD_INFO_SCREEN_2_VERSION=\"${MPD_INFO_SCREEN_2_VERSION}\"")
+else()
+    message(STATUS "MPD_INFO_SCREEN_2_VERSION is NOT defined, using 'git describe ...' for version str.")
+    add_custom_target(MPD_INFO_SCREEN2_VER_STR
+        COMMAND git describe --long --tags | xargs -I verstring echo -e "#define MPD_INFO_SCREEN_2_VERSION \"verstring\"" > MPD_INFO_SCREEN2_VER_STR.h
+        VERBATIM)
+    add_dependencies(mpd_info_screen2 MPD_INFO_SCREEN2_VER_STR)
+    set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/main.cc PROPERTIES COMPILE_OPTIONS "-include;${CMAKE_CURRENT_BINARY_DIR}/MPD_INFO_SCREEN2_VER_STR.h")
+endif()

@@ -1,3 +1,9 @@
+ifdef MPD_INFO_SCREEN_2_VERSION
+	MPD_INFO_SCREEN2_GIT_VER := "${MPD_INFO_SCREEN_2_VERSION}"
+else
+	MPD_INFO_SCREEN2_GIT_VER != git describe --long --tags
+endif
+
 ifdef RELEASE
 	CXX_COMMON_FLAGS := -O2 -DNDEBUG -fno-delete-null-pointer-checks -fno-strict-overflow -fno-strict-aliasing -ftrivial-auto-var-init=zero -Ithird_party/include
 else
@@ -34,7 +40,6 @@ CXX_FLAGS := \
 	${CXX_COMMON_FLAGS}
 
 SOURCES := \
-	src/main.cc \
 	src/args.cc \
 	src/mpd_client.cc \
 	src/constants.cc \
@@ -57,11 +62,21 @@ OBJECTS := $(addprefix ${OBJDIR}/,$(subst .cc,.cc.o,${SOURCES}))
 
 all: mpd_info_screen2 unittest
 
-mpd_info_screen2: ${OBJECTS} third_party/lib/libraylib.a
+mpd_info_screen2: ${OBJECTS} third_party/lib/libraylib.a ${OBJDIR}/main.cc.o
 	${CXX} -o mpd_info_screen2 ${CXX_FLAGS} $^ ${CXX_LINKER_FLAGS}
 
-unittest: ${OBJDIR}/src/test.cc.o $(filter-out ${OBJDIR}/src/main.cc.o,${OBJECTS}) third_party/lib/libraylib.a
+unittest: ${OBJDIR}/src/test.cc.o ${OBJECTS} third_party/lib/libraylib.a
 	${CXX} -o unittest -g -Og $^ ${CXX_LINKER_FLAGS}
+
+${OBJDIR}/MPD_INFO_SCREEN_2_VERSION.h:
+	@mkdir -p $(dir $@)
+	echo -n '#define MPD_INFO_SCREEN_2_VERSION "' > ${OBJDIR}/MPD_INFO_SCREEN_2_VERSION.h
+	echo -n "${MPD_INFO_SCREEN2_GIT_VER}" >> ${OBJDIR}/MPD_INFO_SCREEN_2_VERSION.h
+	echo '"' >> ${OBJDIR}/MPD_INFO_SCREEN_2_VERSION.h
+
+${OBJDIR}/main.cc.o: src/main.cc ${HEADERS} third_party/lib/libraylib.a ${OBJDIR}/MPD_INFO_SCREEN_2_VERSION.h | format
+	@mkdir -p $(dir $@)
+	${CXX} -o $@ -c ${CXX_FLAGS} -include ${OBJDIR}/MPD_INFO_SCREEN_2_VERSION.h $<
 
 ${OBJDIR}/%.cc.o: %.cc ${HEADERS} third_party/lib/libraylib.a | format
 	@mkdir -p $(dir $@)
@@ -85,7 +100,7 @@ third_party/raylib-5.5.tar.gz:
 	curl -L -o third_party/raylib-5.5.tar.gz https://github.com/raysan5/raylib/archive/refs/tags/5.5.tar.gz
 	sha256sum -c third_party/raylib-5.5_SHA256SUMS.txt || (rm -f third_party/raylib-5.5.tar.gz && false)
 
-.PHONY: clean format
+.PHONY: clean format ${OBJDIR}/MPD_INFO_SCREEN_2_VERSION.h
 
 clean:
 	rm -f mpd_info_screen2

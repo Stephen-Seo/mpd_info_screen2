@@ -59,6 +59,8 @@ extern std::string helper_str_to_lower(const std::string &s);
 
 extern bool helper_str_is_ascii(const std::string &s);
 
+extern uint32_t helper_uint32_byte_swap(uint32_t value);
+
 //==============================================================================
 // Template Definitions
 //==============================================================================
