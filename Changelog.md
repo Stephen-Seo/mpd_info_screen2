@@ -4,6 +4,8 @@ Use `git describe --long --tags` to set the "version string".
 
 Refactor `src/print_helper.h`: remove unnecessary functions.
 
+Attempt to fix ipv4 address parsing for big-endian systems.
+
 # Version 1.6.2
 
 Minor refactorings:
