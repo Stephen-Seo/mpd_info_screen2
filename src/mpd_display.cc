@@ -245,7 +245,6 @@ void MPDDisplay::update(const MPDClient &cli, const Args &args) {
     texture_y = (fsheight - ftexture_h * texture_scale) / 2.0F;
 
     flags.reset(2);
-    flags.set(6);
   }
 
   if (!args.get_flags().test(9)) {
