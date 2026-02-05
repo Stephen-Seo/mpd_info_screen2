@@ -74,7 +74,17 @@ MPDDisplay::MPDDisplay(const std::bitset<64> &args_flags, LogLevel level)
     : level(level),
       flags(),
       texture(),
-      refresh_timepoint(std::chrono::steady_clock::now()) {
+      refresh_timepoint(std::chrono::steady_clock::now()),
+      remaining_x(0),
+      remaining_y(0),
+      title_x(0),
+      title_y(0),
+      artist_x(0),
+      artist_y(0),
+      album_x(0),
+      album_y(0),
+      filename_x(0),
+      filename_y(0) {
   flags.set(1);
 }
 
@@ -92,7 +102,17 @@ MPDDisplay::MPDDisplay(MPDDisplay &&other)
     : level(other.level),
       flags(std::move(other.flags)),
       texture(std::move(other.texture)),
-      refresh_timepoint(std::move(other.refresh_timepoint)) {}
+      refresh_timepoint(std::move(other.refresh_timepoint)),
+      remaining_x(0),
+      remaining_y(0),
+      title_x(0),
+      title_y(0),
+      artist_x(0),
+      artist_y(0),
+      album_x(0),
+      album_y(0),
+      filename_x(0),
+      filename_y(0) {}
 
 MPDDisplay &MPDDisplay::operator=(MPDDisplay &&other) {
   level = other.level;
@@ -245,7 +265,6 @@ void MPDDisplay::update(const MPDClient &cli, const Args &args) {
     texture_y = (fsheight - ftexture_h * texture_scale) / 2.0F;
 
     flags.reset(2);
-    flags.set(6);
   }
 
   if (!args.get_flags().test(9)) {
@@ -379,6 +398,13 @@ void MPDDisplay::update_remaining_texts(const MPDClient &cli,
 
   remaining_width = text_size.x;
   remaining_height = text_size.y;
+
+  if (args.get_flags().test(15)) {
+    remaining_x =
+        GetScreenWidth() - static_cast<int>(std::ceil(remaining_width));
+  } else {
+    remaining_x = 0;
+  }
 }
 
 void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
@@ -404,11 +430,18 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
         if (text_size.x > static_cast<float>(width)) {
           --filename_size;
         }
-        filename_width = text_size.x;
-        filename_height = text_size.y;
+        filename_width = std::ceil(text_size.x);
+        filename_height = std::ceil(text_size.y);
       } while (text_size.x > static_cast<float>(width) && filename_size > 1.0F);
-      y_offset -= static_cast<int>(std::ceil(filename_height));
-      filename_offset = y_offset;
+      y_offset -= static_cast<int>(filename_height);
+      filename_y = y_offset;
+
+      if (args.get_flags().test(15)) {
+        filename_x = width - static_cast<int>(filename_width);
+      } else {
+        filename_x = 0;
+      }
+
       flags.set(14);
     }
   }
@@ -430,11 +463,18 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
         if (text_size.x > static_cast<float>(width)) {
           --album_size;
         }
-        album_width = text_size.x;
-        album_height = text_size.y;
+        album_width = std::ceil(text_size.x);
+        album_height = std::ceil(text_size.y);
       } while (text_size.x > static_cast<float>(width) && album_size > 1.0F);
-      y_offset -= static_cast<int>(std::ceil(album_height));
-      album_offset = y_offset;
+      y_offset -= static_cast<int>(album_height);
+      album_y = y_offset;
+
+      if (args.get_flags().test(15)) {
+        album_x = width - static_cast<int>(album_width);
+      } else {
+        album_x = 0;
+      }
+
       flags.set(13);
     }
   }
@@ -456,11 +496,18 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
         if (text_size.x > static_cast<float>(width)) {
           --artist_size;
         }
-        artist_width = text_size.x;
-        artist_height = text_size.y;
+        artist_width = std::ceil(text_size.x);
+        artist_height = std::ceil(text_size.y);
       } while (text_size.x > static_cast<float>(width) && artist_size > 1.0F);
-      y_offset -= static_cast<int>(std::ceil(artist_height));
-      artist_offset = y_offset;
+      y_offset -= static_cast<int>(artist_height);
+      artist_y = y_offset;
+
+      if (args.get_flags().test(15)) {
+        artist_x = width - static_cast<int>(artist_width);
+      } else {
+        artist_x = 0;
+      }
+
       flags.set(12);
     }
   }
@@ -482,18 +529,24 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
         if (text_size.x > static_cast<float>(width)) {
           --title_size;
         }
-        title_width = text_size.x;
-        title_height = text_size.y;
+        title_width = std::ceil(text_size.x);
+        title_height = std::ceil(text_size.y);
       } while (text_size.x > static_cast<float>(width) && title_size > 1.0F);
-      y_offset -= static_cast<int>(std::ceil(title_height));
-      title_offset = y_offset;
+      y_offset -= static_cast<int>(title_height);
+      title_y = y_offset;
+
+      if (args.get_flags().test(15)) {
+        title_x = width - static_cast<int>(title_width);
+      } else {
+        title_x = 0;
+      }
+
       flags.set(11);
     }
   }
 
   if (flags.test(15)) {
-    remaining_y_offset =
-        y_offset - static_cast<int>(std::ceil(remaining_height));
+    remaining_y = y_offset - static_cast<int>(std::ceil(remaining_height));
     flags.reset(15);
   }
 }
@@ -510,25 +563,24 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
     std::shared_ptr<Font> default_font = get_default_font();
 
     if (!remaining_time.empty()) {
-      DrawRectangle(0, static_cast<int>(remaining_y_offset),
-                    static_cast<int>(remaining_width),
+      DrawRectangle(remaining_x, remaining_y, static_cast<int>(remaining_width),
                     static_cast<int>(remaining_height), {0, 0, 0, opacity});
-      DrawTextEx(args.get_flags().test(13) ? GetFontDefault() : *default_font,
-                 remaining_time.c_str(),
-                 {0, static_cast<float>(remaining_y_offset)},
-                 scaled_font_size(), scaled_font_size() / 10.0F, WHITE);
+      DrawTextEx(
+          args.get_flags().test(13) ? GetFontDefault() : *default_font,
+          remaining_time.c_str(),
+          {static_cast<float>(remaining_x), static_cast<float>(remaining_y)},
+          scaled_font_size(), scaled_font_size() / 10.0F, WHITE);
     }
     if (!args.get_flags().test(1) && !draw_cached_title.empty()) {
       Font font = *default_font;
       if (auto fiter = fonts.find(TEXT_TITLE); fiter != fonts.end()) {
         font = *fiter->second.get();
       }
-      DrawRectangle(0, static_cast<int>(title_offset),
-                    static_cast<int>(title_width),
+      DrawRectangle(title_x, title_y, static_cast<int>(title_width),
                     static_cast<int>(title_height), {0, 0, 0, opacity});
       DrawTextEx(font, draw_cached_title.c_str(),
-                 {0, static_cast<float>(title_offset)}, title_size,
-                 title_size / 10.0F, WHITE);
+                 {static_cast<float>(title_x), static_cast<float>(title_y)},
+                 title_size, title_size / 10.0F, WHITE);
     }
 
     if (!args.get_flags().test(2) && !draw_cached_artist.empty()) {
@@ -536,12 +588,11 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
       if (auto fiter = fonts.find(TEXT_ARTIST); fiter != fonts.end()) {
         font = *fiter->second.get();
       }
-      DrawRectangle(0, static_cast<int>(artist_offset),
-                    static_cast<int>(artist_width),
+      DrawRectangle(artist_x, artist_y, static_cast<int>(artist_width),
                     static_cast<int>(artist_height), {0, 0, 0, opacity});
       DrawTextEx(font, draw_cached_artist.c_str(),
-                 {0, static_cast<float>(artist_offset)}, artist_size,
-                 artist_size / 10.0F, WHITE);
+                 {static_cast<float>(artist_x), static_cast<float>(artist_y)},
+                 artist_size, artist_size / 10.0F, WHITE);
     }
 
     if (!args.get_flags().test(3) && !draw_cached_album.empty()) {
@@ -549,12 +600,11 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
       if (auto fiter = fonts.find(TEXT_ALBUM); fiter != fonts.end()) {
         font = *fiter->second.get();
       }
-      DrawRectangle(0, static_cast<int>(album_offset),
-                    static_cast<int>(album_width),
+      DrawRectangle(album_x, album_y, static_cast<int>(album_width),
                     static_cast<int>(album_height), {0, 0, 0, opacity});
       DrawTextEx(font, draw_cached_album.c_str(),
-                 {0, static_cast<float>(album_offset)}, album_size,
-                 album_size / 10.0F, WHITE);
+                 {static_cast<float>(album_x), static_cast<float>(album_y)},
+                 album_size, album_size / 10.0F, WHITE);
     }
 
     if (!args.get_flags().test(4) && !draw_cached_filename.empty()) {
@@ -562,12 +612,12 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
       if (auto fiter = fonts.find(TEXT_FILENAME); fiter != fonts.end()) {
         font = *fiter->second.get();
       }
-      DrawRectangle(0, static_cast<int>(filename_offset),
-                    static_cast<int>(filename_width),
+      DrawRectangle(filename_x, filename_y, static_cast<int>(filename_width),
                     static_cast<int>(filename_height), {0, 0, 0, opacity});
-      DrawTextEx(font, draw_cached_filename.c_str(),
-                 {0, static_cast<float>(filename_offset)}, filename_size,
-                 filename_size / 10.0F, WHITE);
+      DrawTextEx(
+          font, draw_cached_filename.c_str(),
+          {static_cast<float>(filename_x), static_cast<float>(filename_y)},
+          filename_size, filename_size / 10.0F, WHITE);
     }
   }
 }
