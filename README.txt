@@ -32,6 +32,7 @@ Usage:
   --disable-show-filename : disable showing song filename
   --disable-show-remaining : disables showing remaining time
   --disable-show-percentage : disable showing song percentage
+  --align-text-right : Aligns the text to the right
   --pprompt : prompt for password on program start
   --pfile=<filename> : get password from specified file
   --no-scale-fill : don't scale fill the album art to the window
