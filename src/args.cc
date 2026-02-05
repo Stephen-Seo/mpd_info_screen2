@@ -57,6 +57,8 @@ Args::Args(int argc, char **argv)
       flags.set(12);
     } else if (std::strcmp("--disable-show-percentage", argv[0]) == 0) {
       flags.set(5);
+    } else if (std::strcmp("--align-text-right", argv[0]) == 0) {
+      flags.set(15);
     } else if (std::strcmp("--pprompt", argv[0]) == 0) {
       flags.set(6);
     } else if (std::strncmp("--pfile=", argv[0], 8) == 0) {
@@ -148,6 +150,7 @@ void Args::print_usage() {
       "  --disable-show-remaining : disables showing remaining time");
   PrintHelper::println(
       "  --disable-show-percentage : disable showing song percentage");
+  PrintHelper::println("  --align-text-right : Aligns the text to the right");
   PrintHelper::println("  --pprompt : prompt for password on program start");
   PrintHelper::println(
       "  --pfile=<filename> : get password from specified file");
