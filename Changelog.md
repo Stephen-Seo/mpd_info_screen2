@@ -1,5 +1,11 @@
 # Upcoming Changes
 
+# Version 1.8
+
+Add `--align-text-right`.
+
+Minor fixes/refactorings.
+
 # Version 1.7.1
 
 Fix linking order in Makefile.
