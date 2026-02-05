@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Get Dependencies
-        run: sudo apt-get -y install cmake g++ git libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libopengl-dev libgl-dev libfontconfig-dev
+        run: sudo apt-get -y update && sudo apt-get -y install cmake g++ git libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libopengl-dev libgl-dev libfontconfig-dev
       - name: Clone Repo
         run: git clone https://github.com/Stephen-Seo/mpd_info_screen2.git
       - name: Checkout Current Branch
