@@ -4,6 +4,9 @@ Implement `--remaining-font-scale-factor=<factor>` which only affects the
 remaining time text (remaining time and elapsed percentage). This option has
 precedence over `--font-scale-factor=<factor>`.
 
+Fix bad spacing between texts (cleanly displaying each text such that there are
+no gaps between them).
+
 # Version 1.9
 
 Implement `--font-scale-factor=<factor>`, and add man page entry for it.
