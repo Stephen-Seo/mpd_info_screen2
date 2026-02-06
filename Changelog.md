@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+Implement `--font-scale-factor=<factor>`, and add man page entry for it.
+
 # Version 1.8
 
 Add `--align-text-right`.
