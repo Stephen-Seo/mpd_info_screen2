@@ -48,6 +48,13 @@ Usage:
   --font-scale-factor=<factor> : Sets the factor to scale the font size with (default 1.0)
 
 --------------------------------------------------------------------------------
+    Man Page
+--------------------------------------------------------------------------------
+
+The html version of the man page of mpd_info_screen2 can be found here:
+https://stephen-seo.github.io/mpd_info_screen2/
+
+--------------------------------------------------------------------------------
     Compiling
 --------------------------------------------------------------------------------
 
