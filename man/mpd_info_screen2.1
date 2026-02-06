@@ -63,6 +63,16 @@ will use it to authenticate with MPD.
 When drawing the album art, \fBmpd_info_screen2\fR will not scale the album art
 to the window if this is specified.
 .TP
+.BR --align-album-art-left
+When drawing the album art, align the image to the left. This option is mutually
+exclusive with \fB\-\-align\-album\-art\-right\fR. If neither options are
+specified, then the image is centered.
+.TP
+.BR --align-album-art-right
+When drawing the album art, align the image to the right. This option is
+mutually exclusive with \fB\-\-align\-album\-art\-left\fR. If neither options
+are specified, then the image is centered.
+.TP
 .BR --log-level=<level>
 Sets the verbosity/log-level of outputs from \fBmpd_info_screen2\fR. The
 possible options are: ERROR, WARNING, DEBUG, VERBOSE. Note that the log-level
