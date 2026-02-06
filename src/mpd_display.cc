@@ -397,11 +397,20 @@ void MPDDisplay::update_remaining_texts(const MPDClient &cli,
   }
 
   std::shared_ptr<Font> default_font = get_default_font();
-  auto text_size = MeasureTextEx(
-      args.get_flags().test(13) ? GetFontDefault() : *default_font,
-      this->remaining_time.c_str(),
-      scaled_font_size() * args.get_font_scale_factor(),
-      scaled_font_size() * args.get_font_scale_factor() / 10.0F);
+  Vector2 text_size;
+  if (args.get_flags().test(18)) {
+    text_size = MeasureTextEx(
+        args.get_flags().test(13) ? GetFontDefault() : *default_font,
+        this->remaining_time.c_str(),
+        scaled_font_size() * args.get_remaining_font_scale_factor(),
+        scaled_font_size() * args.get_remaining_font_scale_factor() / 10.0F);
+  } else {
+    text_size = MeasureTextEx(
+        args.get_flags().test(13) ? GetFontDefault() : *default_font,
+        this->remaining_time.c_str(),
+        scaled_font_size() * args.get_font_scale_factor(),
+        scaled_font_size() * args.get_font_scale_factor() / 10.0F);
+  }
 
   remaining_width = text_size.x;
   remaining_height = text_size.y;
@@ -572,12 +581,22 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
     if (!remaining_time.empty()) {
       DrawRectangle(remaining_x, remaining_y, static_cast<int>(remaining_width),
                     static_cast<int>(remaining_height), {0, 0, 0, opacity});
-      DrawTextEx(
-          args.get_flags().test(13) ? GetFontDefault() : *default_font,
-          remaining_time.c_str(),
-          {static_cast<float>(remaining_x), static_cast<float>(remaining_y)},
-          scaled_font_size() * args.get_font_scale_factor(),
-          scaled_font_size() * args.get_font_scale_factor() / 10.0F, WHITE);
+      if (args.get_flags().test(18)) {
+        DrawTextEx(
+            args.get_flags().test(13) ? GetFontDefault() : *default_font,
+            remaining_time.c_str(),
+            {static_cast<float>(remaining_x), static_cast<float>(remaining_y)},
+            scaled_font_size() * args.get_remaining_font_scale_factor(),
+            scaled_font_size() * args.get_remaining_font_scale_factor() / 10.0F,
+            WHITE);
+      } else {
+        DrawTextEx(
+            args.get_flags().test(13) ? GetFontDefault() : *default_font,
+            remaining_time.c_str(),
+            {static_cast<float>(remaining_x), static_cast<float>(remaining_y)},
+            scaled_font_size() * args.get_font_scale_factor(),
+            scaled_font_size() * args.get_font_scale_factor() / 10.0F, WHITE);
+      }
     }
     if (!args.get_flags().test(1) && !draw_cached_title.empty()) {
       Font font = *default_font;
