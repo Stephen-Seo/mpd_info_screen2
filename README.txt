@@ -36,6 +36,8 @@ Usage:
   --pprompt : prompt for password on program start
   --pfile=<filename> : get password from specified file
   --no-scale-fill : don't scale fill the album art to the window
+  --align-album-art-left : align the album art to the left
+  --align-album-art-right: align the album art to the right
   --log-level=<level> : set the log level (ERROR, WARNING, DEBUG, VERBOSE)
   --bg-opacity=<percentage> : set the text bg opacity by percentage (decimal point allowed)
   --default-font-filename=<font_filename> : set the default font
