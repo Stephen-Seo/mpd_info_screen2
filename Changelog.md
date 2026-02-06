@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.10
+
 Implement `--remaining-font-scale-factor=<factor>` which only affects the
 remaining time text (remaining time and elapsed percentage). This option has
 precedence over `--font-scale-factor=<factor>`.
