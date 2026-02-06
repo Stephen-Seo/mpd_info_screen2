@@ -94,8 +94,8 @@ Forces all ascii text displayed to only use the default font.
 .BR --blacklist-font-str=<string>
 When fetching known fonts to use for an info text line, don't use fonts whose
 filename contains one of the string(s) specified by
-\fB\-\-blackolist\-font\-str=<string>\fR. Note that this option can be
-specified multiple times to add more strings to check against.
+\fB\-\-blacklist\-font\-str=<string>\fR. Note that this option can be specified
+multiple times to add more strings to check against.
 .TP
 .BR --remaining-force-default-raylib-font
 Forces the remaining time text and the percentage text to use the default
@@ -104,6 +104,12 @@ Raylib font.
 .BR --font-scale-factor=<factor>
 Sets the scale factor for all font sizes. By default, this is set to "1.0", and
 this value must be greater than zero.
+.TP
+.BR --remaining-font-scale-factor=<factor>
+Sets the scale factor for the remaining font text. Note that the "remaining"
+font text is the remaining time and elepsed percentage. By default, this is set
+to "1.0", and this value must be greater than zero. Also note that this option
+holds precedence over \fB\-\-font\-scale\-factor=<factor>\fR .
 .TP
 .BR --version
 Prints the current version of \fBmpd_info_screen2\fR.
