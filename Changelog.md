@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+Minor refactorings/improvements.
+
 # Version 1.10
 
 Implement `--remaining-font-scale-factor=<factor>` which only affects the
