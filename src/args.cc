@@ -67,6 +67,24 @@ Args::Args(int argc, char **argv)
       password_file = std::string(argv[0] + 8);
     } else if (std::strcmp("--no-scale-fill", argv[0]) == 0) {
       flags.set(7);
+    } else if (std::strcmp("--align-album-art-left", argv[0]) == 0) {
+      if (flags.test(17)) {
+        PrintHelper::println(stderr,
+                             "ERROR: --align-album-art-left and "
+                             "--align-album-art-right are mutally exclusive!");
+        flags.set(0);
+        return;
+      }
+      flags.set(16);
+    } else if (std::strcmp("--align-album-art-right", argv[0]) == 0) {
+      if (flags.test(16)) {
+        PrintHelper::println(stderr,
+                             "ERROR: --align-album-art-left and "
+                             "--align-album-art-right are mutally exclusive!");
+        flags.set(0);
+        return;
+      }
+      flags.set(17);
     } else if (std::strncmp("--log-level=", argv[0], 12) == 0) {
       std::string level(argv[0] + 12);
       for (char &c : level) {
@@ -168,6 +186,10 @@ void Args::print_usage() {
       "  --pfile=<filename> : get password from specified file");
   PrintHelper::println(
       "  --no-scale-fill : don't scale fill the album art to the window");
+  PrintHelper::println(
+      "  --align-album-art-left : align the album art to the left");
+  PrintHelper::println(
+      "  --align-album-art-right: align the album art to the right");
   PrintHelper::println(
       "  --log-level=<level> : set the log level (ERROR, WARNING, DEBUG, "
       "VERBOSE)");

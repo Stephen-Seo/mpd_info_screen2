@@ -60,6 +60,8 @@ class Args {
   // 13 - force remaining time to use default Raylib font
   // 14 - version specified
   // 15 - align text to the right
+  // 16 - align album art to the left
+  // 17 - align album art to the right
   std::bitset<64> flags;
   std::unordered_set<std::string> font_blacklist_strings;
   std::string host_ip_addr;

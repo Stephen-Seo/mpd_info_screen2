@@ -261,7 +261,13 @@ void MPDDisplay::update(const MPDClient &cli, const Args &args) {
                     : xscale > yscale        ? yscale
                                              : xscale;
 
-    texture_x = (fswidth - ftexture_w * texture_scale) / 2.0F;
+    if (args.get_flags().test(16)) {
+      texture_x = 0.0F;
+    } else if (args.get_flags().test(17)) {
+      texture_x = fswidth - ftexture_w * texture_scale;
+    } else {
+      texture_x = (fswidth - ftexture_w * texture_scale) / 2.0F;
+    }
     texture_y = (fsheight - ftexture_h * texture_scale) / 2.0F;
 
     flags.reset(2);
