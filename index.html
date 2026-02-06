@@ -118,7 +118,7 @@ between 0.0 and 1.0.</p>
 <dd>
 <p>When fetching known fonts to use for an info text line, don't use
 fonts whose filename contains one of the string(s) specified by
-<strong>--blackolist-font-str=&lt;string&gt;</strong>. Note that this
+<strong>--blacklist-font-str=&lt;string&gt;</strong>. Note that this
 option can be specified multiple times to add more strings to check
 against.</p>
 </dd>
@@ -131,6 +131,14 @@ default Raylib font.</p>
 <dd>
 <p>Sets the scale factor for all font sizes. By default, this is set to
 "1.0", and this value must be greater than zero.</p>
+</dd>
+<dt><strong>--remaining-font-scale-factor=&lt;factor&gt;</strong></dt>
+<dd>
+<p>Sets the scale factor for the remaining font text. Note that the
+"remaining" font text is the remaining time and elepsed percentage. By
+default, this is set to "1.0", and this value must be greater than zero.
+Also note that this option holds precedence over
+<strong>--font-scale-factor=&lt;factor&gt;</strong> .</p>
 </dd>
 <dt><strong>--version</strong></dt>
 <dd>
