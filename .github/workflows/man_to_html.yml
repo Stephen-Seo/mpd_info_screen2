@@ -1,0 +1,28 @@
+name: Make html from man page
+on:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  get-pandoc-and-convert-man-to-html:
+    runs-on: ubuntu-latest
+    permissions:
+        contents: write
+    steps:
+      - name: Get pandoc
+        run: sudo apt-get -y update && sudo apt-get -y install pandoc git
+      - name: Get Repository
+        run: git clone --depth=1 --no-single-branch https://github.com/Stephen-Seo/mpd_info_screen2.git mpd_info_screen2
+      - name: Checkout Current Branch
+        run: cd mpd_info_screen2 && git checkout "${GITHUB_REF_NAME}"
+      - name: Generate HTML
+        run: pandoc -f man -t html mpd_info_screen2/man/mpd_info_screen2.1 > mpd_info_screen.html
+      - name: Checkout "gh-pages"
+        run: cd mpd_info_screen2 && git checkout gh-pages
+      - name: Set HTML
+        run: echo '<link href="style.css" rel="stylesheet" />' | cat - mpd_info_screen.html > mpd_info_screen2/index.html
+      - name: Set Up Git
+        run: git config --global user.name 'Stephen Seo' && git config --global user.email 'seo.disparate@gmail.com' && cd mpd_info_screen2 && git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}
+      - name: Push Changes
+        run: cd mpd_info_screen2 && (git add . && git commit --no-edit -m 'Update exported Man to HTML page') && git push origin gh-pages || true

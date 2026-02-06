@@ -261,7 +261,13 @@ void MPDDisplay::update(const MPDClient &cli, const Args &args) {
                     : xscale > yscale        ? yscale
                                              : xscale;
 
-    texture_x = (fswidth - ftexture_w * texture_scale) / 2.0F;
+    if (args.get_flags().test(16)) {
+      texture_x = 0.0F;
+    } else if (args.get_flags().test(17)) {
+      texture_x = fswidth - ftexture_w * texture_scale;
+    } else {
+      texture_x = (fswidth - ftexture_w * texture_scale) / 2.0F;
+    }
     texture_y = (fsheight - ftexture_h * texture_scale) / 2.0F;
 
     flags.reset(2);
@@ -393,8 +399,9 @@ void MPDDisplay::update_remaining_texts(const MPDClient &cli,
   std::shared_ptr<Font> default_font = get_default_font();
   auto text_size = MeasureTextEx(
       args.get_flags().test(13) ? GetFontDefault() : *default_font,
-      this->remaining_time.c_str(), scaled_font_size(),
-      scaled_font_size() / 10.0F);
+      this->remaining_time.c_str(),
+      scaled_font_size() * args.get_font_scale_factor(),
+      scaled_font_size() * args.get_font_scale_factor() / 10.0F);
 
   remaining_width = text_size.x;
   remaining_height = text_size.y;
@@ -421,7 +428,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
       if (fiter != fonts.end()) {
         font = *fiter->second.get();
       }
-      filename_size = scaled_font_size();
+      filename_size = scaled_font_size() * args.get_font_scale_factor();
       Vector2 text_size;
       do {
         text_size = MeasureTextEx(font, draw_cached_filename.c_str(),
@@ -454,7 +461,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
       if (fiter != fonts.end()) {
         font = *fiter->second.get();
       }
-      album_size = scaled_font_size();
+      album_size = scaled_font_size() * args.get_font_scale_factor();
       Vector2 text_size;
       do {
         text_size = MeasureTextEx(font, draw_cached_album.c_str(),
@@ -487,7 +494,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
       if (fiter != fonts.end()) {
         font = *fiter->second.get();
       }
-      artist_size = scaled_font_size();
+      artist_size = scaled_font_size() * args.get_font_scale_factor();
       Vector2 text_size;
       do {
         text_size = MeasureTextEx(font, draw_cached_artist.c_str(),
@@ -520,7 +527,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
       if (fiter != fonts.end()) {
         font = *fiter->second.get();
       }
-      title_size = scaled_font_size();
+      title_size = scaled_font_size() * args.get_font_scale_factor();
       Vector2 text_size;
       do {
         text_size = MeasureTextEx(font, draw_cached_title.c_str(),
@@ -569,7 +576,8 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
           args.get_flags().test(13) ? GetFontDefault() : *default_font,
           remaining_time.c_str(),
           {static_cast<float>(remaining_x), static_cast<float>(remaining_y)},
-          scaled_font_size(), scaled_font_size() / 10.0F, WHITE);
+          scaled_font_size() * args.get_font_scale_factor(),
+          scaled_font_size() * args.get_font_scale_factor() / 10.0F, WHITE);
     }
     if (!args.get_flags().test(1) && !draw_cached_title.empty()) {
       Font font = *default_font;

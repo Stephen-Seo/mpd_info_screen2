@@ -20,6 +20,7 @@
 #include <cstring>
 #include <unordered_set>
 
+#include "constants.h"
 #include "print_helper.h"
 
 Args::Args(int argc, char **argv)
@@ -28,6 +29,7 @@ Args::Args(int argc, char **argv)
       default_font_filename(),
       password_file(),
       text_bg_opacity(0.745),
+      font_scale_factor(1.0F),
       level(LogLevel::ERROR),
       host_port(6600) {
   --argc;
@@ -65,6 +67,24 @@ Args::Args(int argc, char **argv)
       password_file = std::string(argv[0] + 8);
     } else if (std::strcmp("--no-scale-fill", argv[0]) == 0) {
       flags.set(7);
+    } else if (std::strcmp("--align-album-art-left", argv[0]) == 0) {
+      if (flags.test(17)) {
+        PrintHelper::println(stderr,
+                             "ERROR: --align-album-art-left and "
+                             "--align-album-art-right are mutally exclusive!");
+        flags.set(0);
+        return;
+      }
+      flags.set(16);
+    } else if (std::strcmp("--align-album-art-right", argv[0]) == 0) {
+      if (flags.test(16)) {
+        PrintHelper::println(stderr,
+                             "ERROR: --align-album-art-left and "
+                             "--align-album-art-right are mutally exclusive!");
+        flags.set(0);
+        return;
+      }
+      flags.set(17);
     } else if (std::strncmp("--log-level=", argv[0], 12) == 0) {
       std::string level(argv[0] + 12);
       for (char &c : level) {
@@ -108,6 +128,16 @@ Args::Args(int argc, char **argv)
     } else if (std::strcmp("--remaining-force-default-raylib-font", argv[0]) ==
                0) {
       flags.set(13);
+    } else if (std::strncmp("--font-scale-factor=", argv[0], 20) == 0) {
+      font_scale_factor = std::strtof(argv[0] + 20, nullptr);
+      if (font_scale_factor <= 0.0 ||
+          font_scale_factor >= FONT_SCALE_FACTOR_MAX) {
+        PrintHelper::println(
+            stderr, "ERROR: --font-scale-factor must be between 0.0 and {}!",
+            FONT_SCALE_FACTOR_MAX);
+        flags.set(0);
+        return;
+      }
     } else if (std::strcmp("--version", argv[0]) == 0) {
       flags.set(0);
       flags.set(14);
@@ -157,6 +187,10 @@ void Args::print_usage() {
   PrintHelper::println(
       "  --no-scale-fill : don't scale fill the album art to the window");
   PrintHelper::println(
+      "  --align-album-art-left : align the album art to the left");
+  PrintHelper::println(
+      "  --align-album-art-right: align the album art to the right");
+  PrintHelper::println(
       "  --log-level=<level> : set the log level (ERROR, WARNING, DEBUG, "
       "VERBOSE)");
   PrintHelper::println(
@@ -177,6 +211,9 @@ void Args::print_usage() {
   PrintHelper::println(
       "  --remaining-force-default-raylib-font : force the remaining time text "
       "to always use Raylib's default font");
+  PrintHelper::println(
+      "  --font-scale-factor=<factor> : Sets the factor to scale the font size "
+      "with (default 1.0)");
 }
 
 bool Args::is_error() const { return flags.test(0); }
@@ -199,6 +236,8 @@ const std::optional<std::string> &Args::get_password_file() const {
 }
 
 double Args::get_text_bg_opacity() const { return text_bg_opacity; }
+
+float Args::get_font_scale_factor() const { return font_scale_factor; }
 
 LogLevel Args::get_log_level() const { return level; }
 

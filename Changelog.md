@@ -1,5 +1,12 @@
 # Upcoming Changes
 
+# Version 1.9
+
+Implement `--font-scale-factor=<factor>`, and add man page entry for it.
+
+Implement `--align-album-art-left` and `--align-album-art-right`, and add man
+page entries for them.
+
 # Version 1.8
 
 Add `--align-text-right`.
