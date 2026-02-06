@@ -1,0 +1,147 @@
+<link href="style.css" rel="stylesheet" />
+<h1>NAME</h1>
+<p>mpd_info_screen2 - Views graphical info on MPD, the successor to
+mpd_info_screen, in C++</p>
+<h1>SYNOPSIS</h1>
+<p><strong>simplearchiver</strong> [<strong>-h | --help</strong>] [
+options ]</p>
+<h1>DESCRIPTION</h1>
+<p><strong>mpd_info_screen2</strong> shows info on MPD about the
+currently playing song. By default, the remaining time, remaining
+percentage, title, artist, album, and filename are displayed along with
+the album art.</p>
+<h1>OPTIONS</h1>
+<dl>
+<dt><strong>-h</strong>, <strong>--help</strong></dt>
+<dd>
+<p>Prints the "help text" which lists all options.</p>
+</dd>
+<dt><strong>--host=&lt;ip_addr&gt;</strong></dt>
+<dd>
+<p>The ip-address of the MPD server to connect to.</p>
+</dd>
+<dt><strong>--port=&lt;port&gt;</strong></dt>
+<dd>
+<p>The port of the MPD server to connect to.</p>
+</dd>
+<dt><strong>--disable-all-text</strong></dt>
+<dd>
+<p>Disables showing all text. Only the album art is shown in this
+case.</p>
+</dd>
+<dt><strong>--disable-show-title</strong></dt>
+<dd>
+<p>Disables showing the title text.</p>
+</dd>
+<dt><strong>--disable-show-artist</strong></dt>
+<dd>
+<p>Disables showing the artist text.</p>
+</dd>
+<dt><strong>--disable-show-album</strong></dt>
+<dd>
+<p>Disables showing the album text.</p>
+</dd>
+<dt><strong>--disable-show-filename</strong></dt>
+<dd>
+<p>Disables showing the filename text.</p>
+</dd>
+<dt><strong>--disable-show-remaining</strong></dt>
+<dd>
+<p>Disables showing the track's remaining time.</p>
+</dd>
+<dt><strong>--disable-show-percentage</strong></dt>
+<dd>
+<p>Disables showing the track's elapsed time percentage.</p>
+</dd>
+<dt><strong>--align-text-right</strong></dt>
+<dd>
+<p>Aligns the displayed text to the right (instead of to the left).</p>
+</dd>
+<dt><strong>--pprompt</strong></dt>
+<dd>
+<p>If MPD requires a password to authenticate with,
+<strong>mpd_info_screen2</strong> will prompt for a password if this
+option is specified. It is expected for the user to enter the password
+to authenticate with MPD, and to press Enter after the password has been
+input. Invalid passwords should result in
+<strong>mpd_info_screen2</strong> to prompt for a password again.</p>
+</dd>
+<dt><strong>--pfile=&lt;filename&gt;</strong></dt>
+<dd>
+<p>If MPD requires a password to authenticate with,
+<strong>mpd_info_screen2</strong> will read the file specified by
+<strong>--pfile=&lt;filename&gt;</strong> to get the password and will
+use it to authenticate with MPD.</p>
+</dd>
+<dt><strong>--no-scale-fill</strong></dt>
+<dd>
+<p>When drawing the album art, <strong>mpd_info_screen2</strong> will
+not scale the album art to the window if this is specified.</p>
+</dd>
+<dt><strong>--align-album-art-left</strong></dt>
+<dd>
+<p>When drawing the album art, align the image to the left. This option
+is mutually exclusive with <strong>--align-album-art-right</strong>. If
+neither options are specified, then the image is centered.</p>
+</dd>
+<dt><strong>--align-album-art-right</strong></dt>
+<dd>
+<p>When drawing the album art, align the image to the right. This option
+is mutually exclusive with <strong>--align-album-art-left</strong>. If
+neither options are specified, then the image is centered.</p>
+</dd>
+<dt><strong>--log-level=&lt;level&gt;</strong></dt>
+<dd>
+<p>Sets the verbosity/log-level of outputs from
+<strong>mpd_info_screen2</strong>. The possible options are: ERROR,
+WARNING, DEBUG, VERBOSE. Note that the log-level name check is
+case-insensitive.</p>
+</dd>
+<dt><strong>--bg-opacity=&lt;percentage&gt;</strong></dt>
+<dd>
+<p>Sets the opacity/transparency of the text backgrounds. Must be
+between 0.0 and 1.0.</p>
+</dd>
+<dt><strong>--default-font-filename=&lt;font_filename&gt;</strong></dt>
+<dd>
+<p>Sets the default font by filename for texts.</p>
+</dd>
+<dt><strong>--force-default-font</strong></dt>
+<dd>
+<p>Forces all text displayed to only be the default font.</p>
+</dd>
+<dt><strong>--force-default-font-ascii</strong></dt>
+<dd>
+<p>Forces all ascii text displayed to only use the default font.</p>
+</dd>
+<dt><strong>--blacklist-font-str=&lt;string&gt;</strong></dt>
+<dd>
+<p>When fetching known fonts to use for an info text line, don't use
+fonts whose filename contains one of the string(s) specified by
+<strong>--blackolist-font-str=&lt;string&gt;</strong>. Note that this
+option can be specified multiple times to add more strings to check
+against.</p>
+</dd>
+<dt><strong>--remaining-force-default-raylib-font</strong></dt>
+<dd>
+<p>Forces the remaining time text and the percentage text to use the
+default Raylib font.</p>
+</dd>
+<dt><strong>--font-scale-factor=&lt;factor&gt;</strong></dt>
+<dd>
+<p>Sets the scale factor for all font sizes. By default, this is set to
+"1.0", and this value must be greater than zero.</p>
+</dd>
+<dt><strong>--version</strong></dt>
+<dd>
+<p>Prints the current version of <strong>mpd_info_screen2</strong>.</p>
+</dd>
+</dl>
+<h1>NOTES</h1>
+<dl>
+<dt><strong>Supported Font Filetypes</strong></dt>
+<dd>
+<p>Note that ".ttc" files are not supported (by Raylib) and will not be
+used.</p>
+</dd>
+</dl>
