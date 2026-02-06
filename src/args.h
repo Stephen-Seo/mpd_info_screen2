@@ -38,6 +38,7 @@ class Args {
   const std::optional<std::string> &get_password_file() const;
   double get_text_bg_opacity() const;
   float get_font_scale_factor() const;
+  float get_remaining_font_scale_factor() const;
   LogLevel get_log_level() const;
   uint16_t get_host_port() const;
   const std::string &get_default_font_filename() const;
@@ -62,6 +63,7 @@ class Args {
   // 15 - align text to the right
   // 16 - align album art to the left
   // 17 - align album art to the right
+  // 18 - remaining font scale factor used
   std::bitset<64> flags;
   std::unordered_set<std::string> font_blacklist_strings;
   std::string host_ip_addr;
@@ -69,6 +71,7 @@ class Args {
   std::optional<std::string> password_file;
   double text_bg_opacity;
   float font_scale_factor;
+  float remaining_font_scale_factor;
   LogLevel level;
   uint16_t host_port;
 };
