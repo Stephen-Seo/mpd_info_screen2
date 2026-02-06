@@ -46,6 +46,7 @@ Usage:
   --blacklist-font-str=<string> : blacklist fonts that have <string> in its filename (use this option multiple times to add more strings to check)
   --remaining-force-default-raylib-font : force the remaining time text to always use Raylib's default font
   --font-scale-factor=<factor> : Sets the factor to scale the font size with (default 1.0)
+  --remaining-font-scale-factor=<factor> : Sets the factor to scale the remaining (remaining time and elapsed percentage) text's font size with (default 1.0)
 
 --------------------------------------------------------------------------------
     Man Page
