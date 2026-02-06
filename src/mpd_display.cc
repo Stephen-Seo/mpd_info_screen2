@@ -580,7 +580,8 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
 
     if (!remaining_time.empty()) {
       DrawRectangle(remaining_x, remaining_y, static_cast<int>(remaining_width),
-                    static_cast<int>(remaining_height), {0, 0, 0, opacity});
+                    static_cast<int>(std::ceil(remaining_height)),
+                    {0, 0, 0, opacity});
       if (args.get_flags().test(18)) {
         DrawTextEx(
             args.get_flags().test(13) ? GetFontDefault() : *default_font,
