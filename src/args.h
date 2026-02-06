@@ -37,6 +37,7 @@ class Args {
   const std::string &get_host_ip_addr() const;
   const std::optional<std::string> &get_password_file() const;
   double get_text_bg_opacity() const;
+  float get_font_scale_factor() const;
   LogLevel get_log_level() const;
   uint16_t get_host_port() const;
   const std::string &get_default_font_filename() const;
@@ -65,6 +66,7 @@ class Args {
   std::string default_font_filename;
   std::optional<std::string> password_file;
   double text_bg_opacity;
+  float font_scale_factor;
   LogLevel level;
   uint16_t host_port;
 };

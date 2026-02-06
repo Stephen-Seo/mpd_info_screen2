@@ -43,6 +43,7 @@ constexpr int STATUS_TEXT_SIZE = 12;
 constexpr std::chrono::milliseconds REFRESH_DURATION =
     std::chrono::milliseconds(500);
 constexpr unsigned char CLEAR_BG_COLOR_RGB = 20;
+constexpr float FONT_SCALE_FACTOR_MAX = 10.0F;
 
 #define LOG_PRINT(setting, level, msg, ...)               \
   if (log_level_can_log(setting, level)) {                \
