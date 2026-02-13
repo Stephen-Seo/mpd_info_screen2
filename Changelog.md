@@ -2,6 +2,8 @@
 
 Minor refactorings/improvements.
 
+Add bundled libraries to CMakeLists.txt.
+
 # Version 1.10
 
 Implement `--remaining-font-scale-factor=<factor>` which only affects the
