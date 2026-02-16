@@ -72,7 +72,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD/
     VERBATIM)
 
 add_custom_target(LIBRAYLIB DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD/raylib/libraylib.a")
-set_target_properties(LIBRAYLIB PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-5.5;${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD;${CMAKE_CURRENT_BINARY_DIR}/third-party/glfw-3.4")
+set_target_properties(LIBRAYLIB PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-5.5;${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD;${CMAKE_CURRENT_BINARY_DIR}/third_party/glfw-3.4")
 
 add_dependencies(mpd_info_screen2 LIBRAYLIB)
 add_dependencies(unittests LIBRAYLIB)
