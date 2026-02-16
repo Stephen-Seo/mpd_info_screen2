@@ -46,11 +46,24 @@ else()
     set(EXTERNAL_GLFW_CMAKE_FLAG "")
 endif()
 
+if(DEFINED CROSS_CC AND NOT DEFINED CROSS_AR)
+    message(FATAL_ERROR "CROSS_CC defined but not CROSS_AR!")
+elseif(NOT DEFINED CROSS_CC AND NOT DEFINED CROSS_AR)
+    set(CROSS_AR "/usr/bin/ar")
+endif()
+if(DEFINED CROSS_CC AND NOT DEFINED CROSS_RANLIB)
+    message(FATAL_ERROR "CROSS_CC defined but not CROSS_RANLIB!")
+elseif(NOT DEFINED CROSS_CC AND NOT DEFINED CROSS_RANLIB)
+    set(CROSS_RANLIB "/usr/bin/ranlib")
+endif()
 if(NOT DEFINED CROSS_CC)
     set(CROSS_CC "/usr/bin/gcc")
 endif()
 if(NOT DEFINED CROSS_CXX)
     set(CROSS_CXX "/usr/bin/g++")
+endif()
+if(DEFINED CROSS_HOST)
+    set(CROSS_HOST_FLAG "--host=${CROSS_HOST}")
 endif()
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD/raylib/libraylib.a"
@@ -60,7 +73,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD/
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/raylib-5.5.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
     COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}" && patch -p1 < "${CMAKE_CURRENT_SOURCE_DIR}/third_party/disable-busy-wait-loop.patch"
     COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}" && patch -p1 < "${CMAKE_CURRENT_SOURCE_DIR}/third_party/font-atlas-size-conservative.patch"
-    COMMAND CC=${CROSS_CC} CXX=${CROSS_CXX} cmake -S "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-5.5" -B "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD" -DCMAKE_BUILD_TYPE=Release ${EXTERNAL_GLFW_CMAKE_FLAG}
+    COMMAND CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} cmake -S "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-5.5" -B "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD" -DCMAKE_BUILD_TYPE=Release ${EXTERNAL_GLFW_CMAKE_FLAG}
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD" raylib
     VERBATIM)
 
@@ -75,7 +88,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.7.4/l
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/expat-2.7.4.tar.gz" || curl -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/expat-2.7.4.tar.gz" -L "https://github.com/libexpat/libexpat/releases/download/R_2_7_4/expat-2.7.4.tar.gz"
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/expat-2.7.4.tar.gz" | grep 461ecc8aa98ab1a68c2db788175665d1a4db640dc05bf0e289b6ea17122144ec
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/expat-2.7.4.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.7.4" && ./buildconf.sh && CC=${CROSS_CC} CXX=${CROSS_CXX} ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-static=yes --enable-shared=no
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.7.4" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./buildconf.sh && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-static=yes --enable-shared=no ${CROSS_HOST_FLAG}
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.7.4"
     VERBATIM)
 
@@ -87,7 +100,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.1/li
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/zlib-1.3.1.tar.gz" || curl -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/zlib-1.3.1.tar.gz" -L "https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.gz"
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/zlib-1.3.1.tar.gz" | grep 9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/zlib-1.3.1.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.1" && CC=${CROSS_CC} CXX=${CROSS_CXX} ./configure --prefix=/usr --static
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.1" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure --prefix=/usr --static
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.1"
     VERBATIM)
 
@@ -99,7 +112,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/gzip-1.14/lib
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/gzip-1.14.tar.gz" || curl -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/gzip-1.14.tar.gz" -L "https://mirrors.ocf.berkeley.edu/gnu/gzip/gzip-1.14.tar.gz"
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/gzip-1.14.tar.gz" | grep 613d6ea44f1248d7370c7ccdeee0dd0017a09e6c39de894b3c6f03f981191c6b
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/gzip-1.14.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/gzip-1.14" && CC=${CROSS_CC} CXX=${CROSS_CXX} ./configure --prefix=/usr
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/gzip-1.14" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure --prefix=/usr ${CROSS_HOST_FLAG}
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/gzip-1.14"
     VERBATIM)
 
@@ -111,7 +124,8 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/bzip2-bzip2-1.0.8.tar.gz" || curl -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/bzip2-bzip2-1.0.8.tar.gz" -L "https://gitlab.com/bzip2/bzip2/-/archive/bzip2-1.0.8/bzip2-bzip2-1.0.8.tar.gz?ref_type=tags"
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/bzip2-bzip2-1.0.8.tar.gz" | grep db106b740252669664fd8f3a1c69fe7f689d5cd4b132f82ba82b9afba27627df
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/bzip2-bzip2-1.0.8.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND CC=${CROSS_CC} CXX=${CROSS_CXX} make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1.0.8" libbz2.a
+    COMMAND sed -i -e "/^CC=/cCC=${CROSS_CC}" -e "/^AR=/cAR=${CROSS_AR}" -e "/^RANLIB=/cRANLIB=${CROSS_RANLIB}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1.0.8/Makefile"
+    COMMAND CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1.0.8" libbz2.a
     VERBATIM)
 
 add_custom_target(LIBBZIP2 DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1.0.8/libbz2.a")
@@ -125,7 +139,7 @@ add_custom_command(
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/brotli-1.2.0.tar.gz" || curl -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/brotli-1.2.0.tar.gz" -L "https://github.com/google/brotli/archive/refs/tags/v1.2.0.tar.gz"
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/brotli-1.2.0.tar.gz" | grep 816c96e8e8f193b40151dad7e8ff37b1221d019dbcb9c35cd3fadbfe6477dfec
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/brotli-1.2.0.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND CC=${CROSS_CC} CXX=${CROSS_CXX} cmake -S "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0" -B "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=Off
+    COMMAND CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} cmake -S "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0" -B "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=Off
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD"
     VERBATIM)
 
@@ -140,21 +154,35 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng-1.6.55
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libpng-1.6.55.tar.gz" || curl -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libpng-1.6.55.tar.gz" -L "http://prdownloads.sourceforge.net/libpng/libpng-1.6.55.tar.gz?download"
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libpng-1.6.55.tar.gz" | grep 4b0abab6d219e95690ebe4db7fc9aa95f4006c83baaa022373c0c8442271283d
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libpng-1.6.55.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng-1.6.55" && CC=${CROSS_CC} CXX=${CROSS_CXX} ./configure --prefix=/usr --enable-shared=no --enable-static=yes
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng-1.6.55" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} CPPFLAGS=-I${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.1 LDFLAGS=-L${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.1 ./configure --prefix=/usr --enable-shared=no --enable-static=yes ${CROSS_HOST_FLAG}
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng-1.6.55"
     VERBATIM)
 
 add_custom_target(LIBPNG DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng-1.6.55/.libs/libpng16.a")
 set_target_properties(LIBPNG PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng-1.6.55")
 
+add_dependencies(LIBPNG LIBZLIB)
+
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-12.3.2/BUILD/libharfbuzz.a"
+    COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/harfbuzz-12.3.2.tar.gz" || curl -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/harfbuzz-12.3.2.tar.gz" -L "https://github.com/harfbuzz/harfbuzz/archive/refs/tags/12.3.2.tar.gz"
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/harfbuzz-12.3.2.tar.gz" | grep 3ca6621821e19266710ec1a0cb6146fdc832a75828f7c55fea5502c2a810c3c8
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/harfbuzz-12.3.2.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} cmake -S "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-12.3.2" -B "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-12.3.2/BUILD" -DCMAKE_BUILD_TYPE=Release
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-12.3.2/BUILD" harfbuzz
+    VERBATIM)
+
+add_custom_target(LIBHARFBUZZ DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-12.3.2/BUILD/libharfbuzz.a")
+set_target_properties(LIBHARFBUZZ PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-12.3.2")
+
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.1/objs/.libs/libfreetype.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/freetype-2.14.1.tar.gz" || curl -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/freetype-2.14.1.tar.gz" -L "https://download.savannah.gnu.org/releases/freetype/freetype-2.14.1.tar.gz"
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/freetype-2.14.1.tar.gz" | grep 174d9e53402e1bf9ec7277e22ec199ba3e55a6be2c0740cb18c0ee9850fc8c34
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/freetype-2.14.1.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.1" && ./autogen.sh && CC=${CROSS_CC} CXX=${CROSS_CXX} ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-static=yes --enable-shared=no
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.1" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./autogen.sh && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} "CPPFLAGS=-I${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/c/include -I${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.1 -I${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1.0.8" ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-static=yes --enable-shared=no ${CROSS_HOST_FLAG}
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.1"
-    VERBATIM)
+    )
 
 add_custom_target(LIBFREETYPE2 DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.1/objs/.libs/libfreetype.a")
 set_target_properties(LIBFREETYPE2 PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.1")
@@ -171,34 +199,23 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/fontconfig-2.17.1.tar.gz" | grep 82e73b26adad651b236e5f5d4b3074daf8ff0910188808496326bd3449e5261d
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/fontconfig-2.17.1.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
     COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}" && patch -p1 < "${CMAKE_CURRENT_SOURCE_DIR}/third_party/fontconfig_autogen.patch"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1" && CC=${CROSS_CC} CXX=${CROSS_CXX} EXPAT_CFLAGS=-I${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.7.4/lib ./autogen.sh --sysconfdir=/etc --prefix=/usr --mandir=/usr/share/man --enable-static=yes --enable-shared=no
-    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1"
-    VERBATIM)
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} "EXPAT_CFLAGS=-I${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.7.4/lib" "EXPAT_LIBS=-L${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.7.4/lib/.libs -lexpat" "FREETYPE_CFLAGS=-I${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.1/include" "FREETYPE_LIBS=-L${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.1/objs/.libs -lfreetype" "LDFLAGS=-L${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.1 -L${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1.0.8 -L${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng-1.6.55/.libs -L${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD -L${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-12.3.2/BUILD" ./autogen.sh --sysconfdir=/etc --prefix=/usr --mandir=/usr/share/man --enable-static=yes --enable-shared=no ${CROSS_HOST_FLAG}
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1/fc-lang"
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1/fc-case"
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1/src" fcftalias.h
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1/src" fcobjshash.h
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1/src" libfontconfig.la
+    )
 
 add_custom_target(LIBFONTCONFIG DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1/src/.libs/libfontconfig.a")
 set_target_properties(LIBFONTCONFIG PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1")
 
-add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-12.3.2/BUILD/libharfbuzz.a"
-    COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/harfbuzz-12.3.2.tar.gz" || curl -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/harfbuzz-12.3.2.tar.gz" -L "https://github.com/harfbuzz/harfbuzz/archive/refs/tags/12.3.2.tar.gz"
-    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/harfbuzz-12.3.2.tar.gz" | grep 3ca6621821e19266710ec1a0cb6146fdc832a75828f7c55fea5502c2a810c3c8
-    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/harfbuzz-12.3.2.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND CC=${CROSS_CC} CXX=${CROSS_CXX} cmake -S "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-12.3.2" -B "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-12.3.2/BUILD" -DCMAKE_BUILD_TYPE=Release
-    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-12.3.2/BUILD" harfbuzz
-    VERBATIM)
-
-add_custom_target(LIBHARFBUZZ DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-12.3.2/BUILD/libharfbuzz.a")
-set_target_properties(LIBHARFBUZZ PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-12.3.2")
-
-add_dependencies(LIBHARFBUZZ LIBFONTCONFIG)
-
 add_dependencies(LIBFONTCONFIG LIBEXPAT)
 add_dependencies(LIBFONTCONFIG LIBFREETYPE2)
+add_dependencies(LIBFONTCONFIG LIBHARFBUZZ)
 
 add_dependencies(mpd_info_screen2 LIBFONTCONFIG)
-add_dependencies(mpd_info_screen2 LIBHARFBUZZ)
 add_dependencies(unittests LIBFONTCONFIG)
-add_dependencies(unittests LIBHARFBUZZ)
 
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "")
     message(STATUS "CMAKE_BUILD_TYPE not specified, defaulting to \"Debug\".")
