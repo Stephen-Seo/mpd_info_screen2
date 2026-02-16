@@ -63,7 +63,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD/
     VERBATIM)
 
 add_custom_target(LIBRAYLIB DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD/raylib/libraylib.a")
-set_target_properties(LIBRAYLIB PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party")
+set_target_properties(LIBRAYLIB PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-5.5;${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD")
 
 add_dependencies(mpd_info_screen2 LIBRAYLIB)
 add_dependencies(unittests LIBRAYLIB)
@@ -78,7 +78,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.7.4/l
     VERBATIM)
 
 add_custom_target(LIBEXPAT DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.7.4/lib/.libs/libexpat.a")
-set_target_properties(LIBEXPAT PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party")
+set_target_properties(LIBEXPAT PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.7.4")
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.1/libz.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
@@ -90,7 +90,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.1/li
     VERBATIM)
 
 add_custom_target(LIBZLIB DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.1/libz.a")
-set_target_properties(LIBZLIB PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party")
+set_target_properties(LIBZLIB PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.1")
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/gzip-1.14/lib/libgzip.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
@@ -102,7 +102,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/gzip-1.14/lib
     VERBATIM)
 
 add_custom_target(LIBGZIP DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/gzip-1.14/lib/libgzip.a")
-set_target_properties(LIBGZIP PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party")
+set_target_properties(LIBGZIP PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/gzip-1.14")
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1.0.8/libbz2.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
@@ -113,7 +113,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1
     VERBATIM)
 
 add_custom_target(LIBBZIP2 DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1.0.8/libbz2.a")
-set_target_properties(LIBBZIP2 PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party")
+set_target_properties(LIBBZIP2 PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1.0.8")
 
 add_custom_command(
     OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlicommon.a"
@@ -131,7 +131,7 @@ add_custom_target(LIBBROTLI
     DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlicommon.a"
             "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlidec.a"
             "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlienc.a")
-set_target_properties(LIBBROTLI PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party")
+set_target_properties(LIBBROTLI PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0")
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng-1.6.55/.libs/libpng16.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
@@ -143,7 +143,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng-1.6.55
     VERBATIM)
 
 add_custom_target(LIBPNG DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng-1.6.55/.libs/libpng16.a")
-set_target_properties(LIBPNG PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party")
+set_target_properties(LIBPNG PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng-1.6.55")
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.1/objs/.libs/libfreetype.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
@@ -155,7 +155,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14
     VERBATIM)
 
 add_custom_target(LIBFREETYPE2 DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.1/objs/.libs/libfreetype.a")
-set_target_properties(LIBFREETYPE2 PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party")
+set_target_properties(LIBFREETYPE2 PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.1")
 
 add_dependencies(LIBFREETYPE2 LIBZLIB)
 add_dependencies(LIBFREETYPE2 LIBGZIP)
@@ -174,7 +174,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.
     VERBATIM)
 
 add_custom_target(LIBFONTCONFIG DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1/src/.libs/libfontconfig.a")
-set_target_properties(LIBFONTCONFIG PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party")
+set_target_properties(LIBFONTCONFIG PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1")
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-12.3.2/BUILD/libharfbuzz.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
@@ -186,7 +186,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-12.3
     VERBATIM)
 
 add_custom_target(LIBHARFBUZZ DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-12.3.2/BUILD/libharfbuzz.a")
-set_target_properties(LIBHARFBUZZ PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party")
+set_target_properties(LIBHARFBUZZ PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-12.3.2")
 
 add_dependencies(LIBHARFBUZZ LIBFONTCONFIG)
 
