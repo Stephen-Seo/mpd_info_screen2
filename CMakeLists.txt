@@ -67,7 +67,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD/
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/glfw-3.4.tar.gz" | grep c038d34200234d071fae9345bc455e4a8f2f544ab60150765d7704e08f3dac01
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/glfw-3.4.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
     COMMAND sed -i -e "/^    add_subdirectory(external/cadd_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/third_party/glfw-3.4 ${CMAKE_CURRENT_BINARY_DIR}/third_party/glfw-3.4/BUILD_DIR)" "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-5.5/cmake/GlfwImport.cmake"
-    COMMAND CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} cmake -S "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-5.5" -B "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD" -DCMAKE_BUILD_TYPE=Release
+    COMMAND CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} cmake -S "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-5.5" -B "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD" -DCMAKE_BUILD_TYPE=Release -DGLFW_BUILD_WAYLAND=ON
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD" raylib
     VERBATIM)
 
