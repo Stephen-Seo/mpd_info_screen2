@@ -3,6 +3,7 @@ https://gitlab.com/bzip2/bzip2/-/tags
 https://github.com/libexpat/libexpat/releases
 https://gitlab.freedesktop.org/fontconfig/fontconfig/-/tags
 https://freetype.org/
+https://github.com/glfw/glfw/releases
 https://mirrors.ocf.berkeley.edu/gnu/gzip/
 https://github.com/harfbuzz/harfbuzz/releases
 https://www.libpng.org/pub/png/libpng.html
