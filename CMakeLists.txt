@@ -174,9 +174,9 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/freetype-2.14.1.tar.gz" || curl -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/freetype-2.14.1.tar.gz" -L "https://download.savannah.gnu.org/releases/freetype/freetype-2.14.1.tar.gz"
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/freetype-2.14.1.tar.gz" | grep 174d9e53402e1bf9ec7277e22ec199ba3e55a6be2c0740cb18c0ee9850fc8c34
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/freetype-2.14.1.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.1" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./autogen.sh && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} "CPPFLAGS=-I${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/c/include -I${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.1 -I${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1.0.8" ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-static=yes --enable-shared=no ${CROSS_HOST_FLAG}
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.1" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./autogen.sh && env CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} CPPFLAGS=-I${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/c/include\ -I${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.1\ -I${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1.0.8 ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-static=yes --enable-shared=no ${CROSS_HOST_FLAG}
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.1"
-    )
+    VERBATIM)
 
 add_custom_target(LIBFREETYPE2 DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.1/objs/.libs/libfreetype.a")
 set_target_properties(LIBFREETYPE2 PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.1")
@@ -193,13 +193,13 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/fontconfig-2.17.1.tar.gz" | grep 82e73b26adad651b236e5f5d4b3074daf8ff0910188808496326bd3449e5261d
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/fontconfig-2.17.1.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
     COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}" && patch -p1 < "${CMAKE_CURRENT_SOURCE_DIR}/third_party/fontconfig_autogen.patch"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} "EXPAT_CFLAGS=-I${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.7.4/lib" "EXPAT_LIBS=-L${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.7.4/lib/.libs -lexpat" "FREETYPE_CFLAGS=-I${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.1/include" "FREETYPE_LIBS=-L${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.1/objs/.libs -lfreetype" "LDFLAGS=-L${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.1 -L${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1.0.8 -L${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng-1.6.55/.libs -L${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD -L${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-12.3.2/BUILD" ./autogen.sh --sysconfdir=/etc --prefix=/usr --mandir=/usr/share/man --enable-static=yes --enable-shared=no ${CROSS_HOST_FLAG}
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1" && env CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} EXPAT_CFLAGS=-I${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.7.4/lib EXPAT_LIBS=-L${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.7.4/lib/.libs\ -lexpat FREETYPE_CFLAGS=-I${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.1/include FREETYPE_LIBS=-L${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.1/objs/.libs\ -lfreetype LDFLAGS=-L${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.1\ -L${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1.0.8\ -L${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng-1.6.55/.libs\ -L${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD\ -L${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-12.3.2/BUILD ./autogen.sh --sysconfdir=/etc --prefix=/usr --mandir=/usr/share/man --enable-static=yes --enable-shared=no ${CROSS_HOST_FLAG}
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1/fc-lang"
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1/fc-case"
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1/src" fcftalias.h
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1/src" fcobjshash.h
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1/src" libfontconfig.la
-    )
+    VERBATIM)
 
 add_custom_target(LIBFONTCONFIG DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1/src/.libs/libfontconfig.a")
 set_target_properties(LIBFONTCONFIG PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1")
