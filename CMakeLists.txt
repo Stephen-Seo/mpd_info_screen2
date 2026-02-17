@@ -56,6 +56,47 @@ if(DEFINED CROSS_HOST)
     set(CROSS_HOST_FLAG "--host=${CROSS_HOST}")
 endif()
 
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0/BUILD/src/wayland-scanner"
+    COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/wayland-1.24.0.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/wayland-1.24.0.tar.xz" https://gitlab.freedesktop.org/wayland/wayland/-/releases/1.24.0/downloads/wayland-1.24.0.tar.xz
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/wayland-1.24.0.tar.xz" | grep 82892487a01ad67b334eca83b54317a7c86a03a89cfadacfef5211f11a5d0536
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/wayland-1.24.0.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND meson setup --prefix "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --buildtype release -D documentation=false -D dtd_validation=false --prefer-static --default-library static --default-both-libraries static "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0/BUILD" "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0"
+    COMMAND ninja -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0/BUILD" install
+    VERBATIM)
+
+add_custom_target(LIBWAYLAND DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0/BUILD/src/wayland-scanner")
+set_target_properties(LIBWAYLAND PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/include/wayland-protocols"
+    COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/wayland-protocols-1.47.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/wayland-protocols-1.47.tar.xz" https://gitlab.freedesktop.org/wayland/wayland-protocols/-/releases/1.47/downloads/wayland-protocols-1.47.tar.xz
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/wayland-protocols-1.47.tar.xz" | grep 5fd4349bcbc9bab9a46f8cf77d1f434296a7a052c87440a094f63fcf62a58e20
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/wayland-protocols-1.47.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND meson setup --prefix "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --pkg-config-path "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig" --buildtype release -D tests=false --prefer-static --default-library static --default-both-libraries static "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-protocols-1.47/BUILD" "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-protocols-1.47"
+    COMMAND ninja -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-protocols-1.47/BUILD" install
+    VERBATIM)
+
+add_custom_target(LIBWAYLAND_PROTOCOLS DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/include/wayland-protocols")
+set_target_properties(LIBWAYLAND_PROTOCOLS PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-protocols-1.47;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+
+add_dependencies(LIBWAYLAND_PROTOCOLS LIBWAYLAND)
+
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libxkbcommon.a"
+    COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xkbcommon-1.13.1.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xkbcommon-1.13.1.tar.gz" https://github.com/xkbcommon/libxkbcommon/archive/refs/tags/xkbcommon-1.13.1.tar.gz
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xkbcommon-1.13.1.tar.gz" | grep aeb951964c2f7ecc08174cb5517962d157595e9e3f38fc4a130b91dc2f9fec18
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xkbcommon-1.13.1.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND meson setup --prefix "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --pkg-config-path "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" --buildtype release --prefer-static --default-library static --default-both-libraries static -D enable-x11=false "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxkbcommon-xkbcommon-1.13.1/BUILD" "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxkbcommon-xkbcommon-1.13.1"
+    COMMAND ninja -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxkbcommon-xkbcommon-1.13.1/BUILD" install
+    VERBATIM)
+
+add_custom_target(LIBXKBCOMMON DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libxkbcommon.a")
+set_target_properties(LIBXKBCOMMON PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxkbcommon-xkbcommon-1.13.1;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+
+add_dependencies(LIBXKBCOMMON LIBWAYLAND)
+add_dependencies(LIBXKBCOMMON LIBWAYLAND_PROTOCOLS)
+
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD/raylib/libraylib.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/raylib-5.5.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/raylib-5.5.tar.gz" https://github.com/raysan5/raylib/archive/refs/tags/5.5.tar.gz
@@ -67,12 +108,14 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD/
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/glfw-3.4.tar.gz" | grep c038d34200234d071fae9345bc455e4a8f2f544ab60150765d7704e08f3dac01
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/glfw-3.4.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
     COMMAND sed -i -e "/^    add_subdirectory(external\\/glfw)/cadd_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/third_party/glfw-3.4 ${CMAKE_CURRENT_BINARY_DIR}/third_party/glfw-3.4/BUILD_DIR)" "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-5.5/cmake/GlfwImport.cmake"
-    COMMAND CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} cmake -S "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-5.5" -B "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD" -DCMAKE_BUILD_TYPE=Release -DGLFW_BUILD_WAYLAND=ON
+    COMMAND env "CMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} cmake -S "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-5.5" -B "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD" -DCMAKE_BUILD_TYPE=Release -DGLFW_BUILD_WAYLAND=ON "-DWAYLAND_SCANNER_EXECUTABLE=${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0/BUILD/src/wayland-scanner"
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD" raylib
     VERBATIM)
 
 add_custom_target(LIBRAYLIB DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD/raylib/libraylib.a")
 set_target_properties(LIBRAYLIB PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-5.5;${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD;${CMAKE_CURRENT_BINARY_DIR}/third_party/glfw-3.4")
+
+add_dependencies(LIBRAYLIB LIBXKBCOMMON)
 
 add_dependencies(mpd_info_screen2 LIBRAYLIB)
 add_dependencies(unittests LIBRAYLIB)
