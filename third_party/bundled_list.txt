@@ -13,3 +13,5 @@ https://wayland.freedesktop.org/releases.html
 https://github.com/xkbcommon/libxkbcommon/releases
 https://gitlab.freedesktop.org/xorg/lib/libx11/-/tags
 https://www.x.org/releases/individual/util/
+https://www.x.org/releases/individual/lib/
+https://www.x.org/releases/individual/proto/

@@ -97,6 +97,205 @@ set_target_properties(LIBXKBCOMMON PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CU
 add_dependencies(LIBXKBCOMMON LIBWAYLAND)
 add_dependencies(LIBXKBCOMMON LIBWAYLAND_PROTOCOLS)
 
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/aclocal/xorg-macros.m4"
+    COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xorg-util-macros-1.20.2.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xorg-util-macros-1.20.2.tar.xz" https://www.x.org/releases/individual/util/util-macros-1.20.2.tar.xz
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xorg-util-macros-1.20.2.tar.xz" | grep 9ac269eba24f672d7d7b3574e4be5f333d13f04a7712303b1821b2a51ac82e8e
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xorg-util-macros-1.20.2.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/util-macros-1.20.2" && ./configure "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT"
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/util-macros-1.20.2" install
+    VERBATIM)
+
+add_custom_target(XORGUTILMACROS DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/aclocal/xorg-macros.m4")
+set_target_properties(XORGUTILMACROS PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/util-macros-1.20.2;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/include/X11/Xtrans/Xtrans.h"
+    COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xtrans-1.6.0.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xtrans-1.6.0.tar.xz" https://www.x.org/releases/individual/lib/xtrans-1.6.0.tar.xz
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xtrans-1.6.0.tar.xz" | grep faafea166bf2451a173d9d593352940ec6404145c5d1da5c213423ce4d359e92
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xtrans-1.6.0.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/xtrans-1.6.0" && ./configure "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT"
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/xtrans-1.6.0" install
+    VERBATIM)
+
+add_custom_target(XTRANSFILES DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/include/X11/Xtrans/Xtrans.h")
+set_target_properties(XTRANSFILES PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/xtrans-1.6.0;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/include/X11/Xproto.h"
+    COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xorgproto-2025.1.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xorgproto-2025.1.tar.xz" https://www.x.org/releases/individual/proto/xorgproto-2025.1.tar.xz
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xorgproto-2025.1.tar.xz" | grep 56898c716c0578df8a2d828c9c3e5c528277705c0484381a81960fe1a67668e8
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xorgproto-2025.1.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/xorgproto-2025.1" && ./configure "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT"
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/xorgproto-2025.1" install
+    VERBATIM)
+
+add_custom_target(XORGPROTO DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/include/X11/Xproto.h")
+set_target_properties(XORGPROTO PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/xorgproto-2025.1;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/xcb/xproto.xml"
+    COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xcb-proto-1.17.0.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xcb-proto-1.17.0.tar.xz" https://www.x.org/releases/individual/proto/xcb-proto-1.17.0.tar.xz
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xcb-proto-1.17.0.tar.xz" | grep 2c1bacd2110f4799f74de6ebb714b94cf6f80fb112316b1219480fd22562148c
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xcb-proto-1.17.0.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/xcb-proto-1.17.0" && ./configure "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT"
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/xcb-proto-1.17.0" install
+    VERBATIM)
+
+add_custom_target(XCBPROTO DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/xcb/xproto.xml")
+set_target_properties(XCBPROTO PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/xcb-proto-1.17.0;${CMAKE_CURRENT_BIANRY_DIR}/third_party/PREFIX_OUT")
+
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXau.a"
+    COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXau-1.0.12.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXau-1.0.12.tar.xz" https://www.x.org/releases/individual/lib/libXau-1.0.12.tar.xz
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXau-1.0.12.tar.xz" | grep 74d0e4dfa3d39ad8939e99bda37f5967aba528211076828464d2777d477fc0fb
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXau-1.0.12.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXau-1.0.12" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" ./configure "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXau-1.0.12" install
+    VERBATIM)
+
+add_custom_target(LIBXAU DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXau.a")
+set_target_properties(LIBXAU PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXau-1.0.12;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+
+add_dependencies(LIBXAU XORGPROTO)
+
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libxcb-xkb.a"
+    COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libxcb-1.17.0.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libxcb-1.17.0.tar.xz" https://www.x.org/releases/individual/lib/libxcb-1.17.0.tar.xz
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libxcb-1.17.0.tar.xz" | grep 599ebf9996710fea71622e6e184f3a8ad5b43d0e5fa8c4e407123c88a59a6d55
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libxcb-1.17.0.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxcb-1.17.0" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig" ./configure "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxcb-1.17.0" install
+    VERBATIM)
+
+add_custom_target(LIBXCB DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libxcb-xkb.a")
+set_target_properties(LIBXCB PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxcb-1.17.0;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+
+add_dependencies(LIBXCB LIBXAU)
+add_dependencies(LIBXCB XCBPROTO)
+
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libX11.a"
+    COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libx11-1.8.13.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libx11-1.8.13.tar.gz" https://www.x.org/releases/individual/lib/libX11-1.8.13.tar.gz
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libx11-1.8.13.tar.gz" | grep d210291f5cd974e5029cce4bde0fc1b8bfc0ce88b8530ea6ba4b1fcf141506ab
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libx11-1.8.13.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libx11-libX11-1.8.13" && env "ACLOCAL_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/aclocal" "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig" ./autogen.sh "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libx11-libX11-1.8.13" install
+    VERBATIM)
+
+add_custom_target(LIBX11 DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libX11.a")
+set_target_properties(LIBX11 PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libx11-libX11-1.8.13;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+
+add_dependencies(LIBX11 XORGUTILMACROS)
+add_dependencies(LIBX11 XTRANSFILES)
+add_dependencies(LIBX11 XORGPROTO)
+add_dependencies(LIBX11 XCBPROTO)
+add_dependencies(LIBX11 LIBXAU)
+add_dependencies(LIBX11 LIBXCB)
+
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXext.a"
+    COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXext-1.3.7.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXext-1.3.7.tar.xz" https://www.x.org/releases/individual/lib/libXext-1.3.7.tar.xz
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXext-1.3.7.tar.xz" | grep 6c643c7035cdacf67afd68f25d01b90ef889d546c9fcd7c0adf7c2cf91e3a32d
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXext-1.3.7.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXext-1.3.7" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" ./configure "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXext-1.3.7" install
+    VERBATIM)
+
+add_custom_target(LIBXEXT DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXext.a")
+set_target_properties(LIBXEXT PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXext-1.3.7;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+
+add_dependencies(LIBXEXT LIBX11)
+
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXrender.a"
+    COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXrender-0.9.12.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXrender-0.9.12.tar.xz" https://www.x.org/releases/individual/lib/libXrender-0.9.12.tar.xz
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXrender-0.9.12.tar.xz" | grep b832128da48b39c8d608224481743403ad1691bf4e554e4be9c174df171d1b97
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXrender-0.9.12.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXrender-0.9.12" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" ./configure "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXrender-0.9.12" install
+    VERBATIM)
+
+add_custom_target(LIBXRENDER DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXrender.a")
+set_target_properties(LIBXRENDER PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXrender-0.9.12;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+
+add_dependencies(LIBXRENDER LIBX11)
+
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXrandr.a"
+    COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXrandr-1.5.5.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXrandr-1.5.5.tar.xz" https://www.x.org/releases/individual/lib/libXrandr-1.5.5.tar.xz
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXrandr-1.5.5.tar.xz" | grep 72b922c2e765434e9e9f0960148070bd4504b288263e2868a4ccce1b7cf2767a
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXrandr-1.5.5.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXrandr-1.5.5" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" ./configure "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXrandr-1.5.5" install
+    VERBATIM)
+
+add_custom_target(LIBXRANDR DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXrandr.a")
+set_target_properties(LIBXRANDR PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXrandr-1.5.5;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+
+add_dependencies(LIBXRANDR LIBXEXT)
+add_dependencies(LIBXRANDR LIBXRENDER)
+
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXinerama.a"
+    COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXinerama-1.1.6.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXinerama-1.1.6.tar.xz" https://www.x.org/releases/individual/lib/libXinerama-1.1.6.tar.xz
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXinerama-1.1.6.tar.xz" | grep d00fc1599c303dc5cbc122b8068bdc7405d6fcb19060f4597fc51bd3a8be51d7
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXinerama-1.1.6.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXinerama-1.1.6" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" ./configure "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXinerama-1.1.6" install
+    VERBATIM)
+
+add_custom_target(LIBXINERAMA DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXinerama.a")
+set_target_properties(LIBXINERAMA PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXinerama-1.1.6;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+
+add_dependencies(LIBXINERAMA LIBX11)
+add_dependencies(LIBXINERAMA LIBXEXT)
+
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXfixes.a"
+    COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXfixes-6.0.2.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXfixes-6.0.2.tar.xz" https://www.x.org/releases/individual/lib/libXfixes-6.0.2.tar.xz
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXfixes-6.0.2.tar.xz" | grep 39f115d72d9c5f8111e4684164d3d68cc1fd21f9b27ff2401b08fddfc0f409ba
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXfixes-6.0.2.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXfixes-6.0.2" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" ./configure "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXfixes-6.0.2" install
+    VERBATIM)
+
+add_custom_target(LIBXFIXES DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXfixes.a")
+set_target_properties(LIBXFIXES PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXfixes-6.0.2;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+
+add_dependencies(LIBXFIXES LIBX11)
+
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXcursor.a"
+    COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXcursor-1.2.3.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXcursor-1.2.3.tar.xz" https://www.x.org/releases/individual/lib/libXcursor-1.2.3.tar.xz
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXcursor-1.2.3.tar.xz" | grep fde9402dd4cfe79da71e2d96bb980afc5e6ff4f8a7d74c159e1966afb2b2c2c0
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXcursor-1.2.3.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXcursor-1.2.3" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" ./configure "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXcursor-1.2.3" install
+    VERBATIM)
+
+add_custom_target(LIBXCURSOR DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXcursor.a")
+set_target_properties(LIBXCURSOR PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXcursor-1.2.3;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+
+add_dependencies(LIBXCURSOR LIBXFIXES)
+add_dependencies(LIBXCURSOR LIBXRENDER)
+
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXi.a"
+    COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXi-1.8.2.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXi-1.8.2.tar.xz" https://www.x.org/releases/individual/lib/libXi-1.8.2.tar.xz
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXi-1.8.2.tar.xz" | grep d0e0555e53d6e2114eabfa44226ba162d2708501a25e18d99cfb35c094c6c104
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXi-1.8.2.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXi-1.8.2" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" ./configure "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXi-1.8.2" install
+    VERBATIM)
+
+add_custom_target(LIBXI DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXi.a")
+set_target_properties(LIBXI PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXi-1.8.2;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+
+add_dependencies(LIBXI LIBX11)
+add_dependencies(LIBXI LIBXEXT)
+add_dependencies(LIBXI LIBXFIXES)
+
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD/raylib/libraylib.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/raylib-5.5.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/raylib-5.5.tar.gz" https://github.com/raysan5/raylib/archive/refs/tags/5.5.tar.gz
@@ -108,7 +307,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD/
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/glfw-3.4.tar.gz" | grep c038d34200234d071fae9345bc455e4a8f2f544ab60150765d7704e08f3dac01
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/glfw-3.4.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
     COMMAND sed -i -e "/^    add_subdirectory(external\\/glfw)/cadd_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/third_party/glfw-3.4 ${CMAKE_CURRENT_BINARY_DIR}/third_party/glfw-3.4/BUILD_DIR)" "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-5.5/cmake/GlfwImport.cmake"
-    COMMAND env "CMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} cmake -S "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-5.5" -B "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD" -DCMAKE_BUILD_TYPE=Release -DGLFW_BUILD_WAYLAND=ON "-DWAYLAND_SCANNER_EXECUTABLE=${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0/BUILD/src/wayland-scanner"
+    COMMAND env "CMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} cmake -S "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-5.5" -B "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD" -DCMAKE_BUILD_TYPE=Release -DGLFW_BUILD_WAYLAND=ON "-DWAYLAND_SCANNER_EXECUTABLE=${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0/BUILD/src/wayland-scanner" "-DOPENGL_INCLUDE_DIR=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/include"
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD" raylib
     VERBATIM)
 
@@ -116,6 +315,11 @@ add_custom_target(LIBRAYLIB DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/ray
 set_target_properties(LIBRAYLIB PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-5.5;${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD;${CMAKE_CURRENT_BINARY_DIR}/third_party/glfw-3.4")
 
 add_dependencies(LIBRAYLIB LIBXKBCOMMON)
+add_dependencies(LIBRAYLIB LIBX11)
+add_dependencies(LIBRAYLIB LIBXRANDR)
+add_dependencies(LIBRAYLIB LIBXINERAMA)
+add_dependencies(LIBRAYLIB LIBXCURSOR)
+add_dependencies(LIBRAYLIB LIBXI)
 
 add_dependencies(mpd_info_screen2 LIBRAYLIB)
 add_dependencies(unittests LIBRAYLIB)
