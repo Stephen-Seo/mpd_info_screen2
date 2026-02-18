@@ -56,7 +56,7 @@ The html version of the man page of mpd_info_screen2 can be found here:
 https://stephen-seo.github.io/mpd_info_screen2/
 
 --------------------------------------------------------------------------------
-    Compiling
+    Compiling: Makefile
 --------------------------------------------------------------------------------
 
 Bash, make, git, curl, and cmake is required.
@@ -74,5 +74,12 @@ It may be faster to use "make -j 4"
 When using the Makefile, define the environment variable `USE_EXTERNAL_GLFW`,
 and it will build with the system's GLFW when compiling Raylib.
 
-When using CMake, define `-DUSE_EXTERNAL_GLFW=ON`, and it will use the system's
-GLFW when compiling Raylib.
+--------------------------------------------------------------------------------
+    Compiling: CMake
+--------------------------------------------------------------------------------
+
+The CMake build is configured to bundle most dependencies.
+
+meson, ninja, cmake, python, and gperf are build dependencies.
+
+`-DCMAKE_BUILD_TYPE=Release` is recommended.
