@@ -46,8 +46,16 @@ if(DEFINED CROSS_CC AND NOT DEFINED CROSS_RANLIB)
 elseif(NOT DEFINED CROSS_CC AND NOT DEFINED CROSS_RANLIB)
     set(CROSS_RANLIB "/usr/bin/ranlib")
 endif()
+if(DEFINED CROSS_CC AND NOT DEFINED CROSS_SYSTEM)
+    message(FATAL_ERROR "CROSS_CC defined but not CROSS_SYSTEM! (e.g. \"linux\")")
+endif()
+if(DEFINED CROSS_CC AND NOT DEFINED CROSS_CPU)
+    message(FATAL_ERROR "CROSS_CC defined but not CROSS_CPU! (e.g. \"aarch64\")")
+endif()
 if(NOT DEFINED CROSS_CC)
     set(CROSS_CC "/usr/bin/gcc")
+else()
+    set(CROSS_COMP_ENABLED ON)
 endif()
 if(NOT DEFINED CROSS_CXX)
     set(CROSS_CXX "/usr/bin/g++")
@@ -55,26 +63,90 @@ endif()
 if(DEFINED CROSS_HOST)
     set(CROSS_HOST_FLAG "--host=${CROSS_HOST}")
 endif()
+if(NOT DEFINED CROSS_ENDIAN)
+    set(CROSS_ENDIAN "little")
+endif()
 
-add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0/BUILD/src/wayland-scanner"
+if(CROSS_COMP_ENABLED)
+    add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/meson_cross.txt"
+        COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+        COMMAND echo "[binaries]" > "${CMAKE_CURRENT_BINARY_DIR}/third_party/meson_cross.txt"
+        COMMAND echo "c = '${CROSS_CC}'" >> "${CMAKE_CURRENT_BINARY_DIR}/third_party/meson_cross.txt"
+        COMMAND echo "cpp = '${CROSS_CXX}'" >> "${CMAKE_CURRENT_BINARY_DIR}/third_party/meson_cross.txt"
+        COMMAND echo "ar = '${CROSS_AR}'" >> "${CMAKE_CURRENT_BINARY_DIR}/third_party/meson_cross.txt"
+        COMMAND echo "ranlib = '${CROSS_RANLIB}'" >> "${CMAKE_CURRENT_BINARY_DIR}/third_party/meson_cross.txt"
+        COMMAND echo "pkg-config = 'pkg-config'" >> "${CMAKE_CURRENT_BINARY_DIR}/third_party/meson_cross.txt"
+        COMMAND echo "[host_machine]" >> "${CMAKE_CURRENT_BINARY_DIR}/third_party/meson_cross.txt"
+        COMMAND echo "system = '${CROSS_SYSTEM}'" >> "${CMAKE_CURRENT_BINARY_DIR}/third_party/meson_cross.txt"
+        COMMAND echo "cpu_family = '${CROSS_CPU}'" >> "${CMAKE_CURRENT_BINARY_DIR}/third_party/meson_cross.txt"
+        COMMAND echo "cpu = '${CROSS_CPU}'" >> "${CMAKE_CURRENT_BINARY_DIR}/third_party/meson_cross.txt"
+        COMMAND echo "endian = '${CROSS_ENDIAN}'" >> "${CMAKE_CURRENT_BINARY_DIR}/third_party/meson_cross.txt"
+        COMMAND echo "[properties]" >> "${CMAKE_CURRENT_BINARY_DIR}/third_party/meson_cross.txt"
+        COMMAND echo "pkg_config_libdir = '${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig'" >> "${CMAKE_CURRENT_BINARY_DIR}/third_party/meson_cross.txt"
+        VERBATIM)
+
+    add_custom_target(MESON_CROSS DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/meson_cross.txt")
+
+    set(MESON_CROSS_FILE "${CMAKE_CURRENT_BINARY_DIR}/third_party/meson_cross.txt")
+else()
+    set(MESON_CROSS_FILE "")
+endif()
+
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib64/libffi.a"
+    COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libffi-3.5.2.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libffi-3.5.2.tar.gz" https://github.com/libffi/libffi/archive/refs/tags/v3.5.2.tar.gz
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libffi-3.5.2.tar.gz" | grep dd19253d3007f366319a51d248a40c9e5fcace4498cbea990b566291844e4e30
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libffi-3.5.2.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libffi-3.5.2" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./autogen.sh --enable-static=yes --enable-shared=no ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure --enable-static=yes --enable-shared=no ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT"
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libffi-3.5.2" install
+    COMMAND test -e "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib64" || ln -sr "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib64"
+    VERBATIM)
+
+add_custom_target(LIBFFI DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib64/libffi.a")
+set_target_properties(LIBFFI PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libffi-3.5.2;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/bin/wayland-scanner"
+    COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party/native"
+    COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/wayland-1.24.0.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/wayland-1.24.0.tar.xz" https://gitlab.freedesktop.org/wayland/wayland/-/releases/1.24.0/downloads/wayland-1.24.0.tar.xz
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/wayland-1.24.0.tar.xz" | grep 82892487a01ad67b334eca83b54317a7c86a03a89cfadacfef5211f11a5d0536
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/wayland-1.24.0.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/native"
+    COMMAND meson setup --prefix "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT" --buildtype release -D documentation=false -D dtd_validation=false --prefer-static --default-library static --default-both-libraries static "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/wayland-1.24.0/BUILD" "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/wayland-1.24.0"
+    COMMAND ninja -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/wayland-1.24.0/BUILD" install
+    COMMAND cp "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/lib/pkgconfig/wayland-scanner.pc" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig/"
+    COMMAND_EXPAND_LISTS
+    VERBATIM)
+
+add_custom_target(WAYLAND_SCANNER DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/bin/wayland-scanner")
+set_target_properties(WAYLAND_SCANNER PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/native")
+
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libwayland-server.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/wayland-1.24.0.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/wayland-1.24.0.tar.xz" https://gitlab.freedesktop.org/wayland/wayland/-/releases/1.24.0/downloads/wayland-1.24.0.tar.xz
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/wayland-1.24.0.tar.xz" | grep 82892487a01ad67b334eca83b54317a7c86a03a89cfadacfef5211f11a5d0536
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/wayland-1.24.0.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND meson setup --prefix "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --buildtype release -D documentation=false -D dtd_validation=false --prefer-static --default-library static --default-both-libraries static "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0/BUILD" "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0"
+    COMMAND env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig" meson setup --prefix "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --buildtype release -D documentation=false -D dtd_validation=false -D scanner=false --prefer-static --default-library static --default-both-libraries static "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,--native-file>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,${MESON_CROSS_FILE}>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,--cross-file>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,${MESON_CROSS_FILE}>" "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0/BUILD" "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0"
     COMMAND ninja -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0/BUILD" install
+    COMMAND_EXPAND_LISTS
     VERBATIM)
 
-add_custom_target(LIBWAYLAND DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0/BUILD/src/wayland-scanner")
+add_custom_target(LIBWAYLAND DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libwayland-server.a")
 set_target_properties(LIBWAYLAND PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+
+add_dependencies(LIBWAYLAND WAYLAND_SCANNER)
+add_dependencies(LIBWAYLAND LIBFFI)
+if(CROSS_COMP_ENABLED)
+    add_dependencies(LIBWAYLAND MESON_CROSS)
+endif()
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/include/wayland-protocols"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/wayland-protocols-1.47.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/wayland-protocols-1.47.tar.xz" https://gitlab.freedesktop.org/wayland/wayland-protocols/-/releases/1.47/downloads/wayland-protocols-1.47.tar.xz
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/wayland-protocols-1.47.tar.xz" | grep 5fd4349bcbc9bab9a46f8cf77d1f434296a7a052c87440a094f63fcf62a58e20
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/wayland-protocols-1.47.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND meson setup --prefix "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --pkg-config-path "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig" --buildtype release -D tests=false --prefer-static --default-library static --default-both-libraries static "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-protocols-1.47/BUILD" "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-protocols-1.47"
+    COMMAND env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig" meson setup --prefix "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --pkg-config-path "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig" --buildtype release -D tests=false --prefer-static --default-library static --default-both-libraries static "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,--native-file>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,${MESON_CROSS_FILE}>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,--cross-file>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,${MESON_CROSS_FILE}>" "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-protocols-1.47/BUILD" "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-protocols-1.47"
     COMMAND ninja -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-protocols-1.47/BUILD" install
+    COMMAND_EXPAND_LISTS
     VERBATIM)
 
 add_custom_target(LIBWAYLAND_PROTOCOLS DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/include/wayland-protocols")
@@ -82,13 +154,26 @@ set_target_properties(LIBWAYLAND_PROTOCOLS PROPERTIES ADDITIONAL_CLEAN_FILES "${
 
 add_dependencies(LIBWAYLAND_PROTOCOLS LIBWAYLAND)
 
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libxml2.a"
+    COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libxml2-2.15.1.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libxml2-2.15.1.tar.gz" https://github.com/GNOME/libxml2/archive/refs/tags/v2.15.1.tar.gz
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libxml2-2.15.1.tar.gz" | grep 23b1ebd74cc562cd592cd2618c2bd88dc06fa0dfdbcd56e03cb26d6ff6b7e373
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libxml2-2.15.1.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxml2-2.15.1" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./autogen.sh ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxml2-2.15.1" install
+    VERBATIM)
+
+add_custom_target(LIBXML2 DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libxml2.a")
+set_target_properties(LIBXML2 PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxml2-2.15.1;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libxkbcommon.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xkbcommon-1.13.1.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xkbcommon-1.13.1.tar.gz" https://github.com/xkbcommon/libxkbcommon/archive/refs/tags/xkbcommon-1.13.1.tar.gz
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xkbcommon-1.13.1.tar.gz" | grep aeb951964c2f7ecc08174cb5517962d157595e9e3f38fc4a130b91dc2f9fec18
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xkbcommon-1.13.1.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND meson setup --prefix "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --pkg-config-path "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" --buildtype release --prefer-static --default-library static --default-both-libraries static -D enable-x11=false "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxkbcommon-xkbcommon-1.13.1/BUILD" "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxkbcommon-xkbcommon-1.13.1"
+    COMMAND env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig" meson setup --prefix "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --pkg-config-path "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" --buildtype release --prefer-static --default-library static --default-both-libraries static -D enable-x11=false "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,--native-file>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,${MESON_CROSS_FILE}>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,--cross-file>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,${MESON_CROSS_FILE}>" "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxkbcommon-xkbcommon-1.13.1/BUILD" "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxkbcommon-xkbcommon-1.13.1"
     COMMAND ninja -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxkbcommon-xkbcommon-1.13.1/BUILD" install
+    COMMAND_EXPAND_LISTS
     VERBATIM)
 
 add_custom_target(LIBXKBCOMMON DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libxkbcommon.a")
@@ -96,13 +181,14 @@ set_target_properties(LIBXKBCOMMON PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CU
 
 add_dependencies(LIBXKBCOMMON LIBWAYLAND)
 add_dependencies(LIBXKBCOMMON LIBWAYLAND_PROTOCOLS)
+add_dependencies(LIBXKBCOMMON LIBXML2)
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/aclocal/xorg-macros.m4"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xorg-util-macros-1.20.2.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xorg-util-macros-1.20.2.tar.xz" https://www.x.org/releases/individual/util/util-macros-1.20.2.tar.xz
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xorg-util-macros-1.20.2.tar.xz" | grep 9ac269eba24f672d7d7b3574e4be5f333d13f04a7712303b1821b2a51ac82e8e
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xorg-util-macros-1.20.2.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/util-macros-1.20.2" && ./configure "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/util-macros-1.20.2" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT"
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/util-macros-1.20.2" install
     VERBATIM)
 
@@ -114,7 +200,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/in
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xtrans-1.6.0.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xtrans-1.6.0.tar.xz" https://www.x.org/releases/individual/lib/xtrans-1.6.0.tar.xz
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xtrans-1.6.0.tar.xz" | grep faafea166bf2451a173d9d593352940ec6404145c5d1da5c213423ce4d359e92
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xtrans-1.6.0.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/xtrans-1.6.0" && ./configure "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/xtrans-1.6.0" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT"
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/xtrans-1.6.0" install
     VERBATIM)
 
@@ -126,7 +212,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/in
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xorgproto-2025.1.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xorgproto-2025.1.tar.xz" https://www.x.org/releases/individual/proto/xorgproto-2025.1.tar.xz
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xorgproto-2025.1.tar.xz" | grep 56898c716c0578df8a2d828c9c3e5c528277705c0484381a81960fe1a67668e8
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xorgproto-2025.1.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/xorgproto-2025.1" && ./configure "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/xorgproto-2025.1" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT"
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/xorgproto-2025.1" install
     VERBATIM)
 
@@ -138,7 +224,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/sh
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xcb-proto-1.17.0.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xcb-proto-1.17.0.tar.xz" https://www.x.org/releases/individual/proto/xcb-proto-1.17.0.tar.xz
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xcb-proto-1.17.0.tar.xz" | grep 2c1bacd2110f4799f74de6ebb714b94cf6f80fb112316b1219480fd22562148c
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/xcb-proto-1.17.0.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/xcb-proto-1.17.0" && ./configure "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/xcb-proto-1.17.0" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT"
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/xcb-proto-1.17.0" install
     VERBATIM)
 
@@ -150,7 +236,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/li
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXau-1.0.12.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXau-1.0.12.tar.xz" https://www.x.org/releases/individual/lib/libXau-1.0.12.tar.xz
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXau-1.0.12.tar.xz" | grep 74d0e4dfa3d39ad8939e99bda37f5967aba528211076828464d2777d477fc0fb
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXau-1.0.12.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXau-1.0.12" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" ./configure "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXau-1.0.12" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXau-1.0.12" install
     VERBATIM)
 
@@ -164,7 +250,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/li
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libxcb-1.17.0.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libxcb-1.17.0.tar.xz" https://www.x.org/releases/individual/lib/libxcb-1.17.0.tar.xz
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libxcb-1.17.0.tar.xz" | grep 599ebf9996710fea71622e6e184f3a8ad5b43d0e5fa8c4e407123c88a59a6d55
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libxcb-1.17.0.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxcb-1.17.0" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig" ./configure "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxcb-1.17.0" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig" CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxcb-1.17.0" install
     VERBATIM)
 
@@ -179,7 +265,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/li
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libx11-1.8.13.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libx11-1.8.13.tar.gz" https://www.x.org/releases/individual/lib/libX11-1.8.13.tar.gz
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libx11-1.8.13.tar.gz" | grep d210291f5cd974e5029cce4bde0fc1b8bfc0ce88b8530ea6ba4b1fcf141506ab
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libx11-1.8.13.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libx11-libX11-1.8.13" && env "ACLOCAL_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/aclocal" "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig" ./autogen.sh "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libx11-libX11-1.8.13" && env "ACLOCAL_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/aclocal" "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig" CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./autogen.sh ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libx11-libX11-1.8.13" install
     VERBATIM)
 
@@ -198,7 +284,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/li
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXext-1.3.7.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXext-1.3.7.tar.xz" https://www.x.org/releases/individual/lib/libXext-1.3.7.tar.xz
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXext-1.3.7.tar.xz" | grep 6c643c7035cdacf67afd68f25d01b90ef889d546c9fcd7c0adf7c2cf91e3a32d
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXext-1.3.7.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXext-1.3.7" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" ./configure "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXext-1.3.7" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXext-1.3.7" install
     VERBATIM)
 
@@ -212,7 +298,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/li
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXrender-0.9.12.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXrender-0.9.12.tar.xz" https://www.x.org/releases/individual/lib/libXrender-0.9.12.tar.xz
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXrender-0.9.12.tar.xz" | grep b832128da48b39c8d608224481743403ad1691bf4e554e4be9c174df171d1b97
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXrender-0.9.12.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXrender-0.9.12" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" ./configure "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXrender-0.9.12" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXrender-0.9.12" install
     VERBATIM)
 
@@ -226,7 +312,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/li
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXrandr-1.5.5.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXrandr-1.5.5.tar.xz" https://www.x.org/releases/individual/lib/libXrandr-1.5.5.tar.xz
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXrandr-1.5.5.tar.xz" | grep 72b922c2e765434e9e9f0960148070bd4504b288263e2868a4ccce1b7cf2767a
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXrandr-1.5.5.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXrandr-1.5.5" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" ./configure "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXrandr-1.5.5" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXrandr-1.5.5" install
     VERBATIM)
 
@@ -241,7 +327,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/li
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXinerama-1.1.6.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXinerama-1.1.6.tar.xz" https://www.x.org/releases/individual/lib/libXinerama-1.1.6.tar.xz
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXinerama-1.1.6.tar.xz" | grep d00fc1599c303dc5cbc122b8068bdc7405d6fcb19060f4597fc51bd3a8be51d7
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXinerama-1.1.6.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXinerama-1.1.6" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" ./configure "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXinerama-1.1.6" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXinerama-1.1.6" install
     VERBATIM)
 
@@ -256,7 +342,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/li
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXfixes-6.0.2.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXfixes-6.0.2.tar.xz" https://www.x.org/releases/individual/lib/libXfixes-6.0.2.tar.xz
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXfixes-6.0.2.tar.xz" | grep 39f115d72d9c5f8111e4684164d3d68cc1fd21f9b27ff2401b08fddfc0f409ba
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXfixes-6.0.2.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXfixes-6.0.2" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" ./configure "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXfixes-6.0.2" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXfixes-6.0.2" install
     VERBATIM)
 
@@ -270,7 +356,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/li
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXcursor-1.2.3.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXcursor-1.2.3.tar.xz" https://www.x.org/releases/individual/lib/libXcursor-1.2.3.tar.xz
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXcursor-1.2.3.tar.xz" | grep fde9402dd4cfe79da71e2d96bb980afc5e6ff4f8a7d74c159e1966afb2b2c2c0
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXcursor-1.2.3.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXcursor-1.2.3" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" ./configure "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXcursor-1.2.3" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXcursor-1.2.3" install
     VERBATIM)
 
@@ -285,7 +371,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/li
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXi-1.8.2.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXi-1.8.2.tar.xz" https://www.x.org/releases/individual/lib/libXi-1.8.2.tar.xz
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXi-1.8.2.tar.xz" | grep d0e0555e53d6e2114eabfa44226ba162d2708501a25e18d99cfb35c094c6c104
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libXi-1.8.2.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXi-1.8.2" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" ./configure "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXi-1.8.2" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no --enable-docs=no --disable-malloc0returnsnull
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXi-1.8.2" install
     VERBATIM)
 
@@ -307,7 +393,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD/
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/third_party/glfw-3.4.tar.gz" | grep c038d34200234d071fae9345bc455e4a8f2f544ab60150765d7704e08f3dac01
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/third_party/glfw-3.4.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
     COMMAND sed -i -e "/^    add_subdirectory(external\\/glfw)/cadd_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/third_party/glfw-3.4 ${CMAKE_CURRENT_BINARY_DIR}/third_party/glfw-3.4/BUILD_DIR)" "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-5.5/cmake/GlfwImport.cmake"
-    COMMAND env "CMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} cmake -S "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-5.5" -B "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD" -DCMAKE_BUILD_TYPE=Release -DGLFW_BUILD_WAYLAND=ON "-DWAYLAND_SCANNER_EXECUTABLE=${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0/BUILD/src/wayland-scanner" "-DOPENGL_INCLUDE_DIR=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/include"
+    COMMAND env "CMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} cmake -S "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-5.5" -B "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD" -DCMAKE_BUILD_TYPE=Release -DGLFW_BUILD_WAYLAND=ON "-DWAYLAND_SCANNER_EXECUTABLE=${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/bin/wayland-scanner" "-DOPENGL_INCLUDE_DIR=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/include"
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD" raylib
     VERBATIM)
 

@@ -15,3 +15,5 @@ https://gitlab.freedesktop.org/xorg/lib/libx11/-/tags
 https://www.x.org/releases/individual/util/
 https://www.x.org/releases/individual/lib/
 https://www.x.org/releases/individual/proto/
+https://github.com/libffi/libffi/releases
+https://github.com/GNOME/libxml2/tags

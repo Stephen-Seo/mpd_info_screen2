@@ -83,3 +83,7 @@ The CMake build is configured to bundle most dependencies.
 meson, ninja, cmake, python, and gperf are build dependencies.
 
 `-DCMAKE_BUILD_TYPE=Release` is recommended.
+
+When cross compiling, use a command like the following example:
+
+CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++ cmake -S . -B buildAArch64 -DCMAKE_BUILD_TYPE=Release -DCROSS_CC=aarch64-linux-gnu-gcc -DCROSS_CXX=aarch64-linux-gnu-g++ -DCROSS_HOST=aarch64-linux-gnu -DCROSS_AR=aarch64-linux-gnu-ar -DCROSS_RANLIB=aarch64-linux-gnu-ranlib -DCROSS_SYSTEM=linux -DCROSS_CPU=aarch64
