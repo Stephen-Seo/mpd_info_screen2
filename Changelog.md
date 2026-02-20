@@ -2,7 +2,10 @@
 
 Minor refactorings/improvements.
 
-Add bundled libraries to CMakeLists.txt.
+Create bundled build in `bundled/CMakeLists.txt`. Should support cross
+compilation (see the README).
+
+Minor refactoring to `CMakeLists.txt`.
 
 # Version 1.10
 
