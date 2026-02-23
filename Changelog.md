@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.11
+
 Minor refactorings/improvements.
 
 Create bundled build in `bundled/CMakeLists.txt`. Should support cross
