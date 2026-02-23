@@ -64,6 +64,7 @@ if(DEFINED CROSS_HOST)
     set(CROSS_HOST_FLAG "--host=${CROSS_HOST}")
 endif()
 if(NOT DEFINED CROSS_ENDIAN)
+    message(WARNING "\"CROSS_ENDIAN\" not specified, defaulting to \"little\"")
     set(CROSS_ENDIAN "little")
 endif()
 
