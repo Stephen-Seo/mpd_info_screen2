@@ -104,7 +104,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX
     VERBATIM)
 
 add_custom_target(LIBFFINATIVE DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/lib64/libffi.a")
-set_target_properties(LIBFFINATIVE PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libffi-3.5.2;${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT")
+set_target_properties(LIBFFINATIVE PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/libffi-3.5.2;${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT")
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib64/libffi.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
