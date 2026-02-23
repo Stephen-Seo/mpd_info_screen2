@@ -1,5 +1,9 @@
 # Upcoming Changes
 
+# Version 1.12
+
+Fix bundled build on systems without `bison` installed.
+
 # Version 1.11
 
 Minor refactorings/improvements.
