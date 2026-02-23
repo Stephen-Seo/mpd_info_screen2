@@ -1,5 +1,9 @@
 # Upcoming Changes
 
+Minor fixes/refactorings.
+
+On failure to find appropriate font for text, default to Raylib's default font.
+
 # Version 1.12
 
 Fix bundled build on systems without `bison` installed.
