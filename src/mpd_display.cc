@@ -31,7 +31,8 @@
 // third-party includes
 #include <raylib.h>
 
-FontWrapper::FontWrapper(std::string filename, std::string text) {
+FontWrapper::FontWrapper(std::string filename, std::string text)
+    : font(), flags() {
   int codepoints_count = 0;
   int *codepoints = LoadCodepoints(text.c_str(), &codepoints_count);
 
@@ -55,8 +56,13 @@ FontWrapper::FontWrapper(std::string filename, std::string text) {
   }
 }
 
+FontWrapper::FontWrapper()
+    : font(std::make_unique<Font>(GetFontDefault())), flags() {
+  flags.set(0);
+}
+
 FontWrapper::~FontWrapper() {
-  if (font) {
+  if (!flags.test(0) && font) {
     UnloadFont(*font);
   }
 }
@@ -692,24 +698,18 @@ void MPDDisplay::load_draw_text_font(const std::string &text, TextType type,
     filename =
         helper_unicode_font_fetch(text, args.get_font_blacklist_strings());
   }
+  FontWrapper font;
   if (filename.empty()) {
-    switch (type) {
-      case TEXT_TITLE:
-        flags.set(7);
-        break;
-      case TEXT_ARTIST:
-        flags.set(8);
-        break;
-      case TEXT_ALBUM:
-        flags.set(9);
-        break;
-      case TEXT_FILENAME:
-        flags.set(10);
-        break;
+    if (!args.get_default_font_filename().empty()) {
+      font = FontWrapper(args.get_default_font_filename(), text);
+    } else {
+      LOG_PRINT(level, LogLevel::WARNING,
+                "WARNING: Failed to find font for text, defaulting to Raylib's "
+                "font...");
     }
-    return;
+  } else {
+    font = FontWrapper(filename, text);
   }
-  FontWrapper font(filename, text);
   if (font.get() != nullptr) {
     fonts.erase(type);
     fonts.insert(std::make_pair<int, FontWrapper>(type, std::move(font)));
