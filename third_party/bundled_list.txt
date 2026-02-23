@@ -1,0 +1,19 @@
+https://github.com/google/brotli/releases
+https://gitlab.com/bzip2/bzip2/-/tags
+https://github.com/libexpat/libexpat/releases
+https://gitlab.freedesktop.org/fontconfig/fontconfig/-/tags
+https://freetype.org/
+https://github.com/glfw/glfw/releases
+https://mirrors.ocf.berkeley.edu/gnu/gzip/
+https://github.com/harfbuzz/harfbuzz/releases
+https://github.com/libffi/libffi/releases
+https://www.libpng.org/pub/png/libpng.html
+https://github.com/raysan5/raylib/releases
+https://github.com/madler/zlib/releases
+https://wayland.freedesktop.org/releases.html
+https://github.com/xkbcommon/libxkbcommon/releases
+https://gitlab.freedesktop.org/xorg/lib/libx11/-/tags
+https://www.x.org/releases/individual/util/ -> util-macros
+https://www.x.org/releases/individual/lib/ -> libxau, libxcb, libXcursor, libXext, libXfixes, libXi, libXinerama, libXrandr, libXrender, xtrans
+https://www.x.org/releases/individual/proto/ -> xorgproto, xcb-proto
+https://github.com/GNOME/libxml2/tags

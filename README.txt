@@ -56,7 +56,7 @@ The html version of the man page of mpd_info_screen2 can be found here:
 https://stephen-seo.github.io/mpd_info_screen2/
 
 --------------------------------------------------------------------------------
-    Compiling
+    Compiling: Makefile
 --------------------------------------------------------------------------------
 
 Bash, make, git, curl, and cmake is required.
@@ -74,5 +74,31 @@ It may be faster to use "make -j 4"
 When using the Makefile, define the environment variable `USE_EXTERNAL_GLFW`,
 and it will build with the system's GLFW when compiling Raylib.
 
-When using CMake, define `-DUSE_EXTERNAL_GLFW=ON`, and it will use the system's
-GLFW when compiling Raylib.
+Define `FORCE_DEBUG_FLAG` and even release builds will use `-g` passed to the
+C++ compiler.
+
+--------------------------------------------------------------------------------
+    Compiling: CMake
+--------------------------------------------------------------------------------
+
+Same dependencies as the Makefile.
+
+Set `-DUSE_EXTERNAL_GLFW=On` to use the system's glfw when building Raylib.
+
+Set `-DFORCE_DEBUG_FLAG=On` to use `-g` even in release builds.
+
+--------------------------------------------------------------------------------
+    Compiling: CMake Bundled
+--------------------------------------------------------------------------------
+
+Using "bundled/CMakeLists.txt".
+
+The CMake bundled build is configured to bundle most dependencies.
+
+meson, ninja, cmake, python, and gperf are build dependencies.
+
+`-DCMAKE_BUILD_TYPE=Release` is recommended.
+
+When cross compiling, use a command like the following example:
+
+CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++ cmake -S bundled -B buildAArch64 -DCMAKE_BUILD_TYPE=Release -DCROSS_CC=aarch64-linux-gnu-gcc -DCROSS_CXX=aarch64-linux-gnu-g++ -DCROSS_HOST=aarch64-linux-gnu -DCROSS_AR=aarch64-linux-gnu-ar -DCROSS_RANLIB=aarch64-linux-gnu-ranlib -DCROSS_SYSTEM=linux -DCROSS_CPU=aarch64

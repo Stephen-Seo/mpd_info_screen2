@@ -1,5 +1,14 @@
 # Upcoming Changes
 
+# Version 1.11
+
+Minor refactorings/improvements.
+
+Create bundled build in `bundled/CMakeLists.txt`. Should support cross
+compilation (see the README).
+
+Minor refactoring to `CMakeLists.txt`.
+
 # Version 1.10
 
 Implement `--remaining-font-scale-factor=<factor>` which only affects the

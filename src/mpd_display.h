@@ -116,8 +116,8 @@ class MPDDisplay {
   float texture_scale;
   float texture_x;
   float texture_y;
-  float remaining_width;
-  float remaining_height;
+  int remaining_width;
+  int remaining_height;
   int remaining_x;
   int remaining_y;
   int title_x;

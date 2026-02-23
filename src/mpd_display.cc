@@ -21,7 +21,6 @@
 #include "constants.h"
 #include "helpers.h"
 #include "mpd_client.h"
-#include "print_helper.h"
 
 // standard library includes
 #include <chrono>
@@ -412,12 +411,11 @@ void MPDDisplay::update_remaining_texts(const MPDClient &cli,
         scaled_font_size() * args.get_font_scale_factor() / 10.0F);
   }
 
-  remaining_width = text_size.x;
-  remaining_height = text_size.y;
+  remaining_width = static_cast<int>(std::ceil(text_size.x));
+  remaining_height = static_cast<int>(std::ceil(text_size.y));
 
   if (args.get_flags().test(15)) {
-    remaining_x =
-        GetScreenWidth() - static_cast<int>(std::ceil(remaining_width));
+    remaining_x = GetScreenWidth() - remaining_width;
   } else {
     remaining_x = 0;
   }
@@ -562,7 +560,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
   }
 
   if (flags.test(15)) {
-    remaining_y = y_offset - static_cast<int>(std::ceil(remaining_height));
+    remaining_y = y_offset - remaining_height;
     flags.reset(15);
   }
 }
@@ -579,8 +577,7 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
     std::shared_ptr<Font> default_font = get_default_font();
 
     if (!remaining_time.empty()) {
-      DrawRectangle(remaining_x, remaining_y, static_cast<int>(remaining_width),
-                    static_cast<int>(std::ceil(remaining_height)),
+      DrawRectangle(remaining_x, remaining_y, remaining_width, remaining_height,
                     {0, 0, 0, opacity});
       if (args.get_flags().test(18)) {
         DrawTextEx(
