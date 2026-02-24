@@ -37,6 +37,7 @@ struct Font;
 class FontWrapper {
  public:
   FontWrapper(std::string filename, std::string text);
+  FontWrapper();
   ~FontWrapper();
 
   // disallow copy
@@ -45,12 +46,14 @@ class FontWrapper {
 
   // allow move
   FontWrapper(FontWrapper &&) = default;
-  FontWrapper &operator=(FontWrapper &&) = default;
+  FontWrapper &operator=(FontWrapper &&);
 
   const Font *get() const;
 
  private:
   std::unique_ptr<Font> font;
+  // 0 - Faux font: return Raylib default font on "get()"
+  std::bitset<32> flags;
 };
 
 class MPDDisplay {

@@ -52,6 +52,9 @@ endif()
 if(DEFINED CROSS_CC AND NOT DEFINED CROSS_CPU)
     message(FATAL_ERROR "CROSS_CC defined but not CROSS_CPU! (e.g. \"aarch64\")")
 endif()
+if(DEFINED CROSS_CC AND NOT DEFINED CROSS_HOST)
+    message(FATAL_ERROR "CROSS_CC defined but not CROSS_HOST! (e.g. \"aarch64-linux-gnu\")")
+endif()
 if(NOT DEFINED CROSS_CC)
     set(CROSS_CC "/usr/bin/gcc")
 else()
@@ -64,6 +67,7 @@ if(DEFINED CROSS_HOST)
     set(CROSS_HOST_FLAG "--host=${CROSS_HOST}")
 endif()
 if(NOT DEFINED CROSS_ENDIAN)
+    message(WARNING "\"CROSS_ENDIAN\" not specified, defaulting to \"little\"")
     set(CROSS_ENDIAN "little")
 endif()
 
@@ -103,7 +107,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX
     VERBATIM)
 
 add_custom_target(LIBFFINATIVE DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/lib64/libffi.a")
-set_target_properties(LIBFFINATIVE PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libffi-3.5.2;${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT")
+set_target_properties(LIBFFINATIVE PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/libffi-3.5.2;${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT")
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib64/libffi.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
