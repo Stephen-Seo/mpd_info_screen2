@@ -50,6 +50,8 @@ class FontWrapper {
 
   const Font *get() const;
 
+  bool is_default() const;
+
  private:
   std::unique_ptr<Font> font;
   // 0 - Faux font: return Raylib default font on "get()"
