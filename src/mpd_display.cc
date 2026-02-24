@@ -67,6 +67,17 @@ FontWrapper::~FontWrapper() {
   }
 }
 
+FontWrapper &FontWrapper::operator=(FontWrapper &&other) {
+  if (!flags.test(0) && font) {
+    UnloadFont(*font);
+  }
+
+  font = std::move(other.font);
+  flags = std::move(other.flags);
+
+  return *this;
+}
+
 const Font *FontWrapper::get() const {
   if (font) {
     return font.get();
