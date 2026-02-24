@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+More robust handling of when a font is not found for the text to be displayed.
+
 # Version 1.13
 
 Minor fixes/refactorings.
