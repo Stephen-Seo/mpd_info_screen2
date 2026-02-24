@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.13
+
 Minor fixes/refactorings.
 
 On failure to find appropriate font for text, default to Raylib's default font.
