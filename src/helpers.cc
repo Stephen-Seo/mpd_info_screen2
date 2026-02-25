@@ -183,7 +183,7 @@ extern std::string helper_unicode_font_fetch(
             break;
           }
         }
-        if (!whitelisted) {
+        if (!whitelist_strings.empty() && !whitelisted) {
           continue;
         }
 
