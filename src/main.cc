@@ -170,7 +170,7 @@ int main(int argc, char **argv) {
                           args.get_log_level());
         }
       } else {
-        reconnect_time_point = std::chrono::steady_clock::now();
+        reconnect_time_point = new_time_point;
         LOG_PRINT(args.get_log_level(), LogLevel::ERROR,
                   "ERROR: Disconnected from MPD, reconnecting in {} seconds...",
                   RECONNECT_INTERVAL.count());
