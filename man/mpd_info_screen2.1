@@ -97,6 +97,14 @@ filename contains one of the string(s) specified by
 \fB\-\-blacklist\-font\-str=<string>\fR. Note that this option can be specified
 multiple times to add more strings to check against.
 .TP
+.BR --whitelist-font-str=<string>
+When fetching known fonts to use for an info text line, only use fonts whose
+filename contains one of the string(s) specified by
+\fB\-\-whitelist\-font\-str=<string>\fR. Note that this option can be specified
+multiple times to add more strings to check against. Also note that the
+whitelisting is implemented as "a font that contains ANY whitelisted string is
+allowed".
+.TP
 .BR --remaining-force-default-raylib-font
 Forces the remaining time text and the percentage text to use the default
 Raylib font.

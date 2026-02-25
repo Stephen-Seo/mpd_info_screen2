@@ -6,6 +6,8 @@ Reconnect 5 seconds after when the connection is dropped. Note that if a
 reconnection attempt fails, `mpd_info_screen2` may not re-attempt to reconnect
 again.
 
+Add font-name whitelisting via args.
+
 # Version 1.13
 
 Minor fixes/refactorings.
