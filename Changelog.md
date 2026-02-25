@@ -2,9 +2,9 @@
 
 More robust handling of when a font is not found for the text to be displayed.
 
-Reconnect 5 seconds after when the connection is dropped. Note that if a
-reconnection attempt fails, `mpd_info_screen2` may not re-attempt to reconnect
-again.
+Reconnect on a 5 second interval if connection to MPD is lost. Up to 5
+reconnection attempts are made, after which the program stops if reconnection
+fails.
 
 Add font-name whitelisting via args.
 
