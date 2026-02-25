@@ -117,3 +117,9 @@ Prints the current version of \fBmpd_info_screen2\fR.
 .TP
 .BR "Supported Font Filetypes"
 Note that ".ttc" files are not supported (by Raylib) and will not be used.
+.TP
+.BR "On Disconnection"
+By default, if MPD was successfully connected to, but the TCP connection is
+somehow dropped, then \fBmpd_info_screen2\fR will attempt to reconnect on a
+5-second interval. Note that if reconnection fails, then new attempts to
+reconnect will not be made.
