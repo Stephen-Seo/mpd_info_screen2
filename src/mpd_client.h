@@ -66,6 +66,8 @@ class MPDClient {
   void request_data_update();
   void request_refetch_album_art();
 
+  bool ping_success() const;
+
  private:
   enum StatusEnum {
     SE_SUCCESS,

@@ -586,6 +586,8 @@ void MPDClient::request_refetch_album_art() {
   flags.reset(11);
 }
 
+bool MPDClient::ping_success() const { return flags.test(2); }
+
 std::tuple<MPDClient::StatusEnum, std::string> MPDClient::write_read(
     std::string to_send) {
   if (!is_ok() || tcp_socket < 0) {

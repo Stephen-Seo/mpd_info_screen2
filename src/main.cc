@@ -28,6 +28,7 @@
 #include <atomic>
 #include <chrono>
 #include <fstream>
+#include <optional>
 
 // third-party includes
 #include <raylib.h>
@@ -128,6 +129,8 @@ int main(int argc, char **argv) {
 #ifndef NDEBUG
   auto print_info_time_point = std::chrono::steady_clock::now();
 #endif
+  std::optional<decltype(update_time_point)> reconnect_time_point =
+      std::nullopt;
 
   while (!WindowShouldClose() &&
          !IS_SIGNAL_HANDLED.load(std::memory_order_relaxed)) {
@@ -156,6 +159,22 @@ int main(int argc, char **argv) {
 
     if (IsWindowResized()) {
       disp->request_reposition_texture();
+    }
+
+    if (!cli.is_ok() && cli.ping_success()) {
+      if (reconnect_time_point.has_value()) {
+        if (new_time_point - reconnect_time_point.value() >
+            RECONNECT_INTERVAL) {
+          reconnect_time_point = std::nullopt;
+          cli = MPDClient(args.get_host_ip_addr(), args.get_host_port(),
+                          args.get_log_level());
+        }
+      } else {
+        reconnect_time_point = std::chrono::steady_clock::now();
+        LOG_PRINT(args.get_log_level(), LogLevel::ERROR,
+                  "ERROR: Disconnected from MPD, reconnecting in {} seconds...",
+                  RECONNECT_INTERVAL.count());
+      }
     }
 
     cli.update();
