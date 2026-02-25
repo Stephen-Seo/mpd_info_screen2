@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.14
+
 More robust handling of when a font is not found for the text to be displayed.
 
 Reconnect on a 5 second interval if connection to MPD is lost. Up to 5
