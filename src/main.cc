@@ -171,9 +171,12 @@ int main(int argc, char **argv) {
         }
       } else {
         reconnect_time_point = new_time_point;
-        LOG_PRINT(args.get_log_level(), LogLevel::ERROR,
-                  "ERROR: Disconnected from MPD, reconnecting in {} seconds...",
-                  RECONNECT_INTERVAL.count());
+        LOG_PRINT(
+            args.get_log_level(), LogLevel::ERROR,
+            "ERROR: Disconnected from MPD, reconnecting in {} milliseconds...",
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                RECONNECT_INTERVAL)
+                .count());
       }
     }
 
