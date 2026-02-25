@@ -44,6 +44,8 @@ constexpr std::chrono::milliseconds REFRESH_DURATION =
     std::chrono::milliseconds(500);
 constexpr unsigned char CLEAR_BG_COLOR_RGB = 20;
 constexpr float FONT_SCALE_FACTOR_MAX = 10.0F;
+constexpr std::chrono::seconds RECONNECT_INTERVAL = std::chrono::seconds(5);
+constexpr int MAX_RECONNECT_ATTEMPTS = 5;
 
 #define LOG_PRINT(setting, level, msg, ...)               \
   if (log_level_can_log(setting, level)) {                \

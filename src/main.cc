@@ -28,6 +28,7 @@
 #include <atomic>
 #include <chrono>
 #include <fstream>
+#include <optional>
 
 // third-party includes
 #include <raylib.h>
@@ -128,6 +129,10 @@ int main(int argc, char **argv) {
 #ifndef NDEBUG
   auto print_info_time_point = std::chrono::steady_clock::now();
 #endif
+  std::optional<decltype(update_time_point)> reconnect_time_point =
+      std::nullopt;
+
+  int reconnect_attempts = 0;
 
   while (!WindowShouldClose() &&
          !IS_SIGNAL_HANDLED.load(std::memory_order_relaxed)) {
@@ -156,6 +161,39 @@ int main(int argc, char **argv) {
 
     if (IsWindowResized()) {
       disp->request_reposition_texture();
+    }
+
+    if (!cli.is_ok() &&
+        (cli.ping_success() || reconnect_attempts < MAX_RECONNECT_ATTEMPTS)) {
+      if (reconnect_time_point.has_value()) {
+        if (new_time_point - reconnect_time_point.value() >
+            RECONNECT_INTERVAL) {
+          reconnect_time_point = std::nullopt;
+          cli = MPDClient(args.get_host_ip_addr(), args.get_host_port(),
+                          args.get_log_level());
+          disp = std::make_unique<MPDDisplay>(args.get_flags(),
+                                              args.get_log_level());
+        }
+      } else {
+        reconnect_time_point = new_time_point;
+        if (cli.ping_success()) {
+          reconnect_attempts = 1;
+        } else {
+          ++reconnect_attempts;
+        }
+        LOG_PRINT(args.get_log_level(), LogLevel::ERROR,
+                  "ERROR: Disconnected from MPD, reconnecting in {} "
+                  "milliseconds (attempt {})...",
+                  std::chrono::duration_cast<std::chrono::milliseconds>(
+                      RECONNECT_INTERVAL)
+                      .count(),
+                  reconnect_attempts);
+      }
+    } else if (!cli.is_ok() && reconnect_attempts >= MAX_RECONNECT_ATTEMPTS) {
+      LOG_PRINT(LogLevel::ERROR, LogLevel::ERROR,
+                "ERROR: Failed to reconnect after {} attempts, stopping...",
+                MAX_RECONNECT_ATTEMPTS);
+      break;
     }
 
     cli.update();

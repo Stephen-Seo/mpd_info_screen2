@@ -97,6 +97,14 @@ filename contains one of the string(s) specified by
 \fB\-\-blacklist\-font\-str=<string>\fR. Note that this option can be specified
 multiple times to add more strings to check against.
 .TP
+.BR --whitelist-font-str=<string>
+When fetching known fonts to use for an info text line, only use fonts whose
+filename contains one of the string(s) specified by
+\fB\-\-whitelist\-font\-str=<string>\fR. Note that this option can be specified
+multiple times to add more strings to check against. Also note that the
+whitelisting is implemented as "a font that contains ANY whitelisted string is
+allowed". If this option is not used, then no whitelisting is used.
+.TP
 .BR --remaining-force-default-raylib-font
 Forces the remaining time text and the percentage text to use the default
 Raylib font.
@@ -117,3 +125,9 @@ Prints the current version of \fBmpd_info_screen2\fR.
 .TP
 .BR "Supported Font Filetypes"
 Note that ".ttc" files are not supported (by Raylib) and will not be used.
+.TP
+.BR "On Disconnection"
+By default, if MPD was successfully connected to, but the TCP connection is
+somehow dropped, then \fBmpd_info_screen2\fR will attempt to reconnect on a
+5-second interval. Note reconnection attempts by default will be tried up to 5
+times, after which the program will stop if reconnection failed.

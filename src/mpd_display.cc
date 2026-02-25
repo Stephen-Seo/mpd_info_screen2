@@ -86,6 +86,8 @@ const Font *FontWrapper::get() const {
   }
 }
 
+bool FontWrapper::is_default() const { return flags.test(0); }
+
 MPDDisplay::MPDDisplay(const std::bitset<64> &args_flags, LogLevel level)
     : level(level),
       flags(),
@@ -707,24 +709,55 @@ void MPDDisplay::load_draw_text_font(const std::string &text, TextType type,
     filename = args.get_default_font_filename();
   } else {
     filename =
-        helper_unicode_font_fetch(text, args.get_font_blacklist_strings());
+        helper_unicode_font_fetch(text, args.get_font_blacklist_strings(),
+                                  args.get_font_whitelist_strings());
   }
-  FontWrapper font;
+
+  FontWrapper font{};
   if (filename.empty()) {
     if (!args.get_default_font_filename().empty()) {
       font = FontWrapper(args.get_default_font_filename(), text);
-    } else {
-      LOG_PRINT(level, LogLevel::WARNING,
-                "WARNING: Failed to find font for text, defaulting to Raylib's "
-                "font...");
     }
   } else {
     font = FontWrapper(filename, text);
   }
-  if (font.get() != nullptr) {
-    fonts.erase(type);
-    fonts.insert(std::make_pair<int, FontWrapper>(type, std::move(font)));
+
+  if (font.get() == nullptr) {
+    font = FontWrapper();
+    if (font.get() == nullptr) {
+      LOG_PRINT(level, LogLevel::ERROR,
+                "ERROR: Failed to find font and failed to set Raylib's font!");
+      fonts.erase(type);
+      switch (type) {
+        case TEXT_TITLE:
+          flags.set(7);
+          draw_cached_title = text;
+          return;
+        case TEXT_ARTIST:
+          flags.set(8);
+          draw_cached_artist = text;
+          return;
+        case TEXT_ALBUM:
+          flags.set(9);
+          draw_cached_album = text;
+          return;
+        case TEXT_FILENAME:
+          flags.set(10);
+          draw_cached_filename = text;
+          return;
+      }
+    }
   }
+
+  fonts.erase(type);
+  fonts.insert(std::make_pair<int, FontWrapper>(type, std::move(font)));
+
+  if (font.is_default()) {
+    LOG_PRINT(level, LogLevel::WARNING,
+              "WARNING: Failed to find font for text, defaulting to Raylib's "
+              "font...");
+  }
+
   switch (type) {
     case TEXT_TITLE:
       flags.set(7);
