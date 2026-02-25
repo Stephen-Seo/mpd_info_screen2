@@ -126,6 +126,11 @@ Args::Args(int argc, char **argv)
       if (!string.empty()) {
         font_blacklist_strings.insert(string);
       }
+    } else if (std::strncmp("--whitelist-font-str=", argv[0], 21) == 0) {
+      std::string string(argv[0] + 21);
+      if (!string.empty()) {
+        font_whitelist_strings.insert(string);
+      }
     } else if (std::strcmp("--remaining-force-default-raylib-font", argv[0]) ==
                0) {
       flags.set(13);
@@ -223,6 +228,10 @@ void Args::print_usage() {
       "its filename (use this option multiple times to add more strings to "
       "check)");
   PrintHelper::println(
+      "  --whitelist-font-str=<string> : whitelist fonts that have <string> in "
+      "its filename (use this option multiple times to add more strings to "
+      "check; if a font matches ANY strings in the whitelist, it is allowed)");
+  PrintHelper::println(
       "  --remaining-force-default-raylib-font : force the remaining time text "
       "to always use Raylib's default font");
   PrintHelper::println(
@@ -247,6 +256,11 @@ const std::string &Args::get_default_font_filename() const {
 const std::unordered_set<std::string> &Args::get_font_blacklist_strings()
     const {
   return font_blacklist_strings;
+}
+
+const std::unordered_set<std::string> &Args::get_font_whitelist_strings()
+    const {
+  return font_whitelist_strings;
 }
 
 const std::optional<std::string> &Args::get_password_file() const {

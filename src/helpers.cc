@@ -91,7 +91,8 @@ extern std::string helper_replace_in_string(const std::string &in,
 
 extern std::string helper_unicode_font_fetch(
     const std::string &str_to_render,
-    const std::unordered_set<std::string> &blacklist_strings) {
+    const std::unordered_set<std::string> &blacklist_strings,
+    const std::unordered_set<std::string> &whitelist_strings) {
   if (FcInit() != FcTrue) {
     return {};
   }
@@ -174,6 +175,18 @@ extern std::string helper_unicode_font_fetch(
       std::string inner_filename(reinterpret_cast<const char *>(file));
       if (auto idx = inner_filename.find(".ttf");
           idx != std::string::npos && idx + 4 == inner_filename.size()) {
+        bool whitelisted = false;
+        for (const std::string &whitelist_str : whitelist_strings) {
+          if (auto idx = inner_filename.find(whitelist_str);
+              idx != std::string::npos) {
+            whitelisted = true;
+            break;
+          }
+        }
+        if (!whitelisted) {
+          continue;
+        }
+
         bool blacklisted = false;
         for (const std::string &blacklist_str : blacklist_strings) {
           if (auto idx = inner_filename.find(blacklist_str);

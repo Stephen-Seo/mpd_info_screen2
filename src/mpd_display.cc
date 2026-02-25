@@ -709,7 +709,8 @@ void MPDDisplay::load_draw_text_font(const std::string &text, TextType type,
     filename = args.get_default_font_filename();
   } else {
     filename =
-        helper_unicode_font_fetch(text, args.get_font_blacklist_strings());
+        helper_unicode_font_fetch(text, args.get_font_blacklist_strings(),
+                                  args.get_font_whitelist_strings());
   }
 
   FontWrapper font{};

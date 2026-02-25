@@ -43,6 +43,7 @@ class Args {
   uint16_t get_host_port() const;
   const std::string &get_default_font_filename() const;
   const std::unordered_set<std::string> &get_font_blacklist_strings() const;
+  const std::unordered_set<std::string> &get_font_whitelist_strings() const;
 
  private:
   // 0 - error parsing args
@@ -66,6 +67,7 @@ class Args {
   // 18 - remaining font scale factor used
   std::bitset<64> flags;
   std::unordered_set<std::string> font_blacklist_strings;
+  std::unordered_set<std::string> font_whitelist_strings;
   std::string host_ip_addr;
   std::string default_font_filename;
   std::optional<std::string> password_file;
