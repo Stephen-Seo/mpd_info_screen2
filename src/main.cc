@@ -168,6 +168,8 @@ int main(int argc, char **argv) {
           reconnect_time_point = std::nullopt;
           cli = MPDClient(args.get_host_ip_addr(), args.get_host_port(),
                           args.get_log_level());
+          disp = std::make_unique<MPDDisplay>(args.get_flags(),
+                                              args.get_log_level());
         }
       } else {
         reconnect_time_point = new_time_point;
