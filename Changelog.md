@@ -2,6 +2,10 @@
 
 More robust handling of when a font is not found for the text to be displayed.
 
+Reconnect 5 seconds after when the connection is dropped. Note that if a
+reconnection attempt fails, `mpd_info_screen2` may not re-attempt to reconnect
+again.
+
 # Version 1.13
 
 Minor fixes/refactorings.
