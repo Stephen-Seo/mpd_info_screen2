@@ -749,14 +749,14 @@ void MPDDisplay::load_draw_text_font(const std::string &text, TextType type,
     }
   }
 
-  fonts.erase(type);
-  fonts.insert(std::make_pair<int, FontWrapper>(type, std::move(font)));
-
   if (font.is_default()) {
     LOG_PRINT(level, LogLevel::WARNING,
               "WARNING: Failed to find font for text, defaulting to Raylib's "
               "font...");
   }
+
+  fonts.erase(type);
+  fonts.insert(std::make_pair<int, FontWrapper>(type, std::move(font)));
 
   switch (type) {
     case TEXT_TITLE:
