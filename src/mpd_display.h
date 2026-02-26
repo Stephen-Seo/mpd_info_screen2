@@ -45,7 +45,7 @@ class FontWrapper {
   FontWrapper &operator=(const FontWrapper &) = delete;
 
   // allow move
-  FontWrapper(FontWrapper &&) = default;
+  FontWrapper(FontWrapper &&);
   FontWrapper &operator=(FontWrapper &&);
 
   const Font *get() const;
