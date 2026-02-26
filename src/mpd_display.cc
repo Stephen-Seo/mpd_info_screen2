@@ -67,6 +67,12 @@ FontWrapper::~FontWrapper() {
   }
 }
 
+FontWrapper::FontWrapper(FontWrapper &&other)
+    : font(std::move(other.font)), flags(std::move(other.flags)) {
+  other.font = std::make_unique<Font>(GetFontDefault());
+  other.flags.set(0);
+}
+
 FontWrapper &FontWrapper::operator=(FontWrapper &&other) {
   if (!flags.test(0) && font) {
     UnloadFont(*font);
@@ -75,7 +81,8 @@ FontWrapper &FontWrapper::operator=(FontWrapper &&other) {
   font = std::move(other.font);
   flags = std::move(other.flags);
 
-  other.flags.reset(0);
+  other.font = std::make_unique<Font>(GetFontDefault());
+  other.flags.set(0);
 
   return *this;
 }
