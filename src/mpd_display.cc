@@ -75,6 +75,8 @@ FontWrapper &FontWrapper::operator=(FontWrapper &&other) {
   font = std::move(other.font);
   flags = std::move(other.flags);
 
+  other.flags.reset(0);
+
   return *this;
 }
 
