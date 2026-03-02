@@ -1,5 +1,11 @@
 # Upcoming Changes
 
+# Version 1.14.2
+
+Update bundled dependency freetype to 2.14.2 .
+
+Minor tweak to bundled CMakeLists.txt .
+
 # Version 1.14.1
 
 Minor fixes/refactorings.
