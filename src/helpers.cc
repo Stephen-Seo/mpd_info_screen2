@@ -92,7 +92,8 @@ extern std::string helper_replace_in_string(const std::string &in,
 extern std::string helper_unicode_font_fetch(
     const std::string &str_to_render,
     const std::unordered_set<std::string> &blacklist_strings,
-    const std::unordered_set<std::string> &whitelist_strings) {
+    const std::unordered_set<std::string> &whitelist_strings,
+    const std::string_view default_font_filename) {
   if (FcInit() != FcTrue) {
     return {};
   }
@@ -166,6 +167,23 @@ extern std::string helper_unicode_font_fetch(
     return {};
   }
 
+  // Check if default font is one of the matching fonts.
+  if (!default_font_filename.empty()) {
+    for (int idx = 0; idx < fset->nfont; ++idx) {
+      FcPattern *pat = fset->fonts[idx];
+
+      FcChar8 *file;
+
+      if (FcPatternGetString(pat, FC_FILE, 0, &file) == FcResultMatch) {
+        std::string inner_filename(reinterpret_cast<const char *>(file));
+        if (inner_filename == default_font_filename) {
+          return inner_filename;
+        }
+      }
+    }
+  }
+
+  // Check against white/blacklists.
   for (int idx = 0; idx < fset->nfont; ++idx) {
     FcPattern *pat = fset->fonts[idx];
 
