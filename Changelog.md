@@ -1,5 +1,12 @@
 # Upcoming Changes
 
+# Version 1.15.1
+
+Update bundled dependencies:
+
+ - libxml2 (2.15.1 -> 2.15.2)
+ - harfbuzz (12.3.2 -> 13.0.1)
+
 # Version 1.15
 
 Refactor how font searching is handled when a default font is specified, such
