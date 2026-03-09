@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.15
+
 Refactor how font searching is handled when a default font is specified, such
 that the default font is preferred if it is one of the eligible fonts for a
 line of text.
