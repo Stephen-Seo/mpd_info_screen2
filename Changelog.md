@@ -1,5 +1,8 @@
 # Upcoming Changes
 
+Minor tweaks to album-art-fetching code to more robustly handle error during
+fetching.
+
 # Version 1.15.1
 
 Update bundled dependencies:
