@@ -1,5 +1,19 @@
 # Upcoming Changes
 
+# Version 1.15
+
+Refactor how font searching is handled when a default font is specified, such
+that the default font is preferred if it is one of the eligible fonts for a
+line of text.
+
+In other words, if a default font is set, then it is used most of the time even
+for non-ascii text (as long as the default font can render all characters in
+the text).
+
+Note that `--force-default-font-ascii` will not be removed because `font_config`
+usually returns paths to fonts with absolute paths, but a user can specify a
+font with `--default-font-filename=<filename>` with a relative path.
+
 # Version 1.14.2
 
 Update bundled dependency freetype to 2.14.2 .

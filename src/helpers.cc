@@ -92,7 +92,8 @@ extern std::string helper_replace_in_string(const std::string &in,
 extern std::string helper_unicode_font_fetch(
     const std::string &str_to_render,
     const std::unordered_set<std::string> &blacklist_strings,
-    const std::unordered_set<std::string> &whitelist_strings) {
+    const std::unordered_set<std::string> &whitelist_strings,
+    const std::string_view default_font_filename) {
   if (FcInit() != FcTrue) {
     return {};
   }
@@ -166,6 +167,9 @@ extern std::string helper_unicode_font_fetch(
     return {};
   }
 
+  // If specified, check if default font is one of the matching fonts.
+  // Need to check against white/blacklists.
+  std::string first;
   for (int idx = 0; idx < fset->nfont; ++idx) {
     FcPattern *pat = fset->fonts[idx];
 
@@ -175,36 +179,51 @@ extern std::string helper_unicode_font_fetch(
       std::string inner_filename(reinterpret_cast<const char *>(file));
       if (auto idx = inner_filename.find(".ttf");
           idx != std::string::npos && idx + 4 == inner_filename.size()) {
-        bool whitelisted = false;
-        for (const std::string &whitelist_str : whitelist_strings) {
-          if (auto idx = inner_filename.find(whitelist_str);
-              idx != std::string::npos) {
-            whitelisted = true;
-            break;
-          }
-        }
-        if (!whitelist_strings.empty() && !whitelisted) {
-          continue;
+        if (!default_font_filename.empty() &&
+            default_font_filename == inner_filename) {
+          return inner_filename;
         }
 
-        bool blacklisted = false;
-        for (const std::string &blacklist_str : blacklist_strings) {
-          if (auto idx = inner_filename.find(blacklist_str);
-              idx != std::string::npos) {
-            // Blacklisted string in filename, don't use this font.
-            blacklisted = true;
-            break;
+        if (first.empty()) {
+          bool whitelisted = false;
+          for (const std::string &whitelist_str : whitelist_strings) {
+            if (auto idx = inner_filename.find(whitelist_str);
+                idx != std::string::npos) {
+              whitelisted = true;
+              break;
+            }
+          }
+          if (!whitelist_strings.empty() && !whitelisted) {
+            continue;
+          }
+
+          bool blacklisted = false;
+          for (const std::string &blacklist_str : blacklist_strings) {
+            if (auto idx = inner_filename.find(blacklist_str);
+                idx != std::string::npos) {
+              // Blacklisted string in filename, don't use this font.
+              blacklisted = true;
+              break;
+            }
+          }
+          if (blacklisted) {
+            continue;
+          }
+
+          if (default_font_filename.empty()) {
+            // Immediately return the first filename that passes.
+            return inner_filename;
+          } else {
+            // Still need to check against "default_font_filename".
+            // Cache the result into "first", and continue checking.
+            first = std::move(inner_filename);
           }
         }
-        if (blacklisted) {
-          continue;
-        }
-        return inner_filename;
       }
     }
   }
 
-  return {};
+  return first;
 }
 
 std::string helper_str_to_lower(const std::string &s) {
