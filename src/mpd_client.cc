@@ -485,6 +485,13 @@ void MPDClient::update() {
       flags.set(0);
       LOG_PRINT(level, LogLevel::ERROR,
                 "ERROR: Internal error while fetching album art from MPD!");
+      flags.reset(8);
+      flags.set(11);
+      album_art = std::nullopt;
+      album_art_offset = std::nullopt;
+      album_art_expected_size = 0;
+      album_art_mime_type.clear();
+      return;
     } else if (buf.at(0) == 'A' && buf.at(1) == 'C' && buf.at(2) == 'K') {
       if (buf.at(5) == '4' && buf.at(6) == '@') {
         // Permission/Auth required
