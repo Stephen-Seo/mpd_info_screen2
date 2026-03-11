@@ -150,6 +150,16 @@ default, this is set to "1.0", and this value must be greater than zero.
 Also note that this option holds precedence over
 <strong>--font-scale-factor=&lt;factor&gt;</strong> .</p>
 </dd>
+<dt><strong>--h-toggles-text</strong></dt>
+<dd>
+<p>Changes the behavior of the "H" key. When this option is not used,
+then the displayed text will be visible by default, and hidden while "H"
+is pressed. If this option is specified, then the "H" key becomes a
+toggle to show/hide the displayed text. Note that due to
+<strong>mpd_info_screen2</strong> running at a low frame-rate to run
+efficiently, the "H" key toggle may not work if the "H" key is depressed
+too quickly.</p>
+</dd>
 <dt><strong>--version</strong></dt>
 <dd>
 <p>Prints the current version of <strong>mpd_info_screen2</strong>.</p>
