@@ -48,6 +48,7 @@ Usage:
   --remaining-force-default-raylib-font : force the remaining time text to always use Raylib's default font
   --font-scale-factor=<factor> : Sets the factor to scale the font size with (default 1.0)
   --remaining-font-scale-factor=<factor> : Sets the factor to scale the remaining (remaining time and elapsed percentage) text's font size with (default 1.0)
+  --h-toggles-text : Make the "H" key toggle displaying text instead of only hiding while pressed
 
 --------------------------------------------------------------------------------
     Man Page
