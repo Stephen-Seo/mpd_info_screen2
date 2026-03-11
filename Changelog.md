@@ -1,5 +1,10 @@
 # Upcoming Changes
 
+# Version 1.16
+
+Add `--h-toggles-text` option to change the behavior of the "H" key. Check the
+README.txt and/or man page for more details.
+
 # Version 1.15.2
 
 Minor tweaks to album-art-fetching code to more robustly handle error during
