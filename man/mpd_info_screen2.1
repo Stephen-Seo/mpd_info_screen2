@@ -119,6 +119,14 @@ font text is the remaining time and elepsed percentage. By default, this is set
 to "1.0", and this value must be greater than zero. Also note that this option
 holds precedence over \fB\-\-font\-scale\-factor=<factor>\fR .
 .TP
+.BR --h-toggles-text
+Changes the behavior of the "H" key. When this option is not used, then the
+displayed text will be visible by default, and hidden while "H" is pressed. If
+this option is specified, then the "H" key becomes a toggle to show/hide the
+displayed text. Note that due to \fBmpd_info_screen2\fR running at a low
+frame-rate to run efficiently, the "H" key toggle may not work if the "H" key is
+depressed too quickly.
+.TP
 .BR --version
 Prints the current version of \fBmpd_info_screen2\fR.
 .SH NOTES
