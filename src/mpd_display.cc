@@ -113,6 +113,7 @@ MPDDisplay::MPDDisplay(const std::bitset<64> &args_flags, LogLevel level)
       filename_x(0),
       filename_y(0) {
   flags.set(1);
+  flags.set(16);
 }
 
 MPDDisplay::~MPDDisplay() {
@@ -322,6 +323,12 @@ void MPDDisplay::update(const MPDClient &cli, const Args &args) {
       }
     }
   }
+
+  if (args.get_flags().test(19) && IsKeyPressed(KEY_H)) {
+    flags.flip(16);
+  } else if (!args.get_flags().test(19)) {
+    flags.set(16, !IsKeyDown(KEY_H));
+  }
 }
 
 void MPDDisplay::draw(const MPDClient &cli, const Args &args) {
@@ -343,7 +350,7 @@ void MPDDisplay::draw(const MPDClient &cli, const Args &args) {
     DrawTextureEx(*texture, {texture_x, texture_y}, 0.0F, texture_scale, WHITE);
   }
 
-  if (!args.get_flags().test(9) && !IsKeyDown(KEY_H)) {
+  if (!args.get_flags().test(9) && flags.test(16)) {
     draw_draw_texts(cli, args);
   }
 }

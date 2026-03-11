@@ -65,6 +65,7 @@ class Args {
   // 16 - align album art to the left
   // 17 - align album art to the right
   // 18 - remaining font scale factor used
+  // 19 - "h" key toggles text visibility
   std::bitset<64> flags;
   std::unordered_set<std::string> font_blacklist_strings;
   std::unordered_set<std::string> font_whitelist_strings;

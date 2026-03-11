@@ -104,6 +104,7 @@ class MPDDisplay {
   // 13 - album MeasureTextEx loaded
   // 14 - filename MeasureTextEx loaded
   // 15 - MeasureTextEx re-measure requested
+  // 16 - H toggle - display text enabled
   std::bitset<64> flags;
   std::unique_ptr<Texture> texture;
   std::shared_ptr<Font> raylib_default_font;

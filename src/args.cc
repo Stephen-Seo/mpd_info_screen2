@@ -157,6 +157,8 @@ Args::Args(int argc, char **argv)
         return;
       }
       flags.set(18);
+    } else if (std::strcmp("--h-toggles-text", argv[0]) == 0) {
+      flags.set(19);
     } else if (std::strcmp("--version", argv[0]) == 0) {
       flags.set(0);
       flags.set(14);
@@ -241,6 +243,9 @@ void Args::print_usage() {
       "  --remaining-font-scale-factor=<factor> : Sets the factor to scale the "
       "remaining (remaining time and elapsed percentage) text's font size with "
       "(default 1.0)");
+  PrintHelper::println(
+      "  --h-toggles-text : Make the \"H\" key toggle displaying text instead "
+      "of only hiding while pressed");
 }
 
 bool Args::is_error() const { return flags.test(0); }
