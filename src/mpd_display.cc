@@ -333,7 +333,11 @@ void MPDDisplay::update(const MPDClient &cli, const Args &args) {
 
 void MPDDisplay::draw(const MPDClient &cli, const Args &args) {
   if (flags.test(5)) {
-    DrawText("Failed authenticating to MPD!", 0, 0, 12, WHITE);
+    if (args.get_bg_grayscale() < 0.5) {
+      DrawText("Failed authenticating to MPD!", 0, 0, 12, WHITE);
+    } else {
+      DrawText("Failed authenticating to MPD!", 0, 0, 12, BLACK);
+    }
     return;
   } else if (flags.test(3)) {
     if (args.get_flags().test(6)) {
@@ -611,9 +615,17 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
 
 void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
   if (cli.get_play_state() == "stop") {
-    DrawText("MPD is stopped", 0, 0, STATUS_TEXT_SIZE, WHITE);
+    if (args.get_bg_grayscale() < 0.5) {
+      DrawText("MPD is stopped", 0, 0, STATUS_TEXT_SIZE, WHITE);
+    } else {
+      DrawText("MPD is stopped", 0, 0, STATUS_TEXT_SIZE, BLACK);
+    }
   } else if (cli.get_play_state() == "pause") {
-    DrawText("MPD is paused", 0, 0, STATUS_TEXT_SIZE, WHITE);
+    if (args.get_bg_grayscale() < 0.5) {
+      DrawText("MPD is paused", 0, 0, STATUS_TEXT_SIZE, WHITE);
+    } else {
+      DrawText("MPD is paused", 0, 0, STATUS_TEXT_SIZE, BLACK);
+    }
   } else {
     unsigned char opacity =
         static_cast<unsigned char>(args.get_text_bg_opacity() * 255);
