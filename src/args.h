@@ -44,6 +44,7 @@ class Args {
   const std::string &get_default_font_filename() const;
   const std::unordered_set<std::string> &get_font_blacklist_strings() const;
   const std::unordered_set<std::string> &get_font_whitelist_strings() const;
+  uint8_t get_bg_grayscale() const;
 
  private:
   // 0 - error parsing args
@@ -77,6 +78,7 @@ class Args {
   float remaining_font_scale_factor;
   LogLevel level;
   uint16_t host_port;
+  uint8_t bg_grayscale;
 };
 
 #endif

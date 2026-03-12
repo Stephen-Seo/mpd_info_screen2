@@ -32,7 +32,8 @@ Args::Args(int argc, char **argv)
       font_scale_factor(1.0F),
       remaining_font_scale_factor(1.0F),
       level(LogLevel::ERROR),
-      host_port(6600) {
+      host_port(6600),
+      bg_grayscale(CLEAR_BG_COLOR_RGB) {
   --argc;
   ++argv;
   while (argc > 0) {
@@ -159,6 +160,36 @@ Args::Args(int argc, char **argv)
       flags.set(18);
     } else if (std::strcmp("--h-toggles-text", argv[0]) == 0) {
       flags.set(19);
+    } else if (std::strncmp("--background-color=", argv[0], 19) == 0) {
+      std::string string(argv[0] + 19);
+      double value;
+      try {
+        value = std::stod(string);
+      } catch (const std::exception &e) {
+        PrintHelper::println(
+            stderr,
+            "ERROR: Invalid value passed to --background-color=<value>!");
+        flags.set(0);
+        return;
+      }
+      if (value < 0.0) {
+        PrintHelper::println(
+            stderr,
+            "ERROR: Value passed to --background-color=<value> is too low "
+            "(must be at least 0.0)!");
+        flags.set(0);
+        return;
+      } else if (value > 1.0) {
+        PrintHelper::println(
+            stderr,
+            "ERROR: Value passed to --background-color=<value> is too high "
+            "(must be at most 1.0)!");
+        flags.set(0);
+        return;
+      }
+      // Add 0.5 to round to the nearest integer, since it truncates when
+      // converting.
+      bg_grayscale = static_cast<uint8_t>(value * 255.0 + 0.5);
     } else if (std::strcmp("--version", argv[0]) == 0) {
       flags.set(0);
       flags.set(14);
@@ -246,6 +277,9 @@ void Args::print_usage() {
   PrintHelper::println(
       "  --h-toggles-text : Make the \"H\" key toggle displaying text instead "
       "of only hiding while pressed");
+  PrintHelper::println(
+      "  --background-color=<value> : Sets the grayscale color of the "
+      "background (between 0.0 and 1.0; black and white)");
 }
 
 bool Args::is_error() const { return flags.test(0); }
@@ -283,3 +317,5 @@ float Args::get_remaining_font_scale_factor() const {
 LogLevel Args::get_log_level() const { return level; }
 
 uint16_t Args::get_host_port() const { return host_port; }
+
+uint8_t Args::get_bg_grayscale() const { return bg_grayscale; }

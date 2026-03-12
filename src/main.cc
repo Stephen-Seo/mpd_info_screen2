@@ -33,9 +33,6 @@
 // third-party includes
 #include <raylib.h>
 
-constexpr Color CLEAR_BG_COLOR = {CLEAR_BG_COLOR_RGB, CLEAR_BG_COLOR_RGB,
-                                  CLEAR_BG_COLOR_RGB, 255};
-
 int main(int argc, char **argv) {
   Args args(argc, argv);
 
@@ -50,6 +47,9 @@ int main(int argc, char **argv) {
     }
     return 1;
   }
+
+  const Color CLEAR_BG_COLOR{args.get_bg_grayscale(), args.get_bg_grayscale(),
+                             args.get_bg_grayscale(), 255};
 
   MPDClient cli(args.get_host_ip_addr(), args.get_host_port(),
                 args.get_log_level());

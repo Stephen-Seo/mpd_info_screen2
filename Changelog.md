@@ -1,5 +1,10 @@
 # Upcoming Changes
 
+# Version 1.17
+
+Add `--background-color=<value>` that takes a value between 0.0 and 1.0 to
+determine the background color (between black and white).
+
 # Version 1.16
 
 Add `--h-toggles-text` option to change the behavior of the "H" key. Check the
