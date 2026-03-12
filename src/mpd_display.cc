@@ -337,11 +337,20 @@ void MPDDisplay::draw(const MPDClient &cli, const Args &args) {
     return;
   } else if (flags.test(3)) {
     if (args.get_flags().test(6)) {
-      DrawText(display_pass.c_str(), 0, 0, 12, WHITE);
+      if (args.get_bg_grayscale() < 0.5) {
+        DrawText(display_pass.c_str(), 0, 0, 12, WHITE);
+      } else {
+        DrawText(display_pass.c_str(), 0, 0, 12, BLACK);
+      }
       return;
     } else {
-      DrawText("Needs password, but --pprompt nor --pfile=<file> specified!", 0,
-               0, 12, WHITE);
+      if (args.get_bg_grayscale() < 0.5) {
+        DrawText("Needs password, but --pprompt nor --pfile=<file> specified!",
+                 0, 0, 12, WHITE);
+      } else {
+        DrawText("Needs password, but --pprompt nor --pfile=<file> specified!",
+                 0, 0, 12, BLACK);
+      }
       return;
     }
   }
