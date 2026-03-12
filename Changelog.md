@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.17.1
+
 Fix other informational text to be black if `--background-color=...` value is
 greater than 0.5 .
 
