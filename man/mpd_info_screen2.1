@@ -80,7 +80,8 @@ name check is case-insensitive.
 .TP
 .BR --bg-opacity=<percentage>
 Sets the opacity/transparency of the text backgrounds. Must be between 0.0 and
-1.0.
+1.0. Note that if \fB\-\-text\-bg\-color\fR is used, then this option is
+ignored.
 .TP
 .BR --default-font-filename=<font_filename>
 Sets the default font by filename for texts.
@@ -133,6 +134,16 @@ anything in between is the appropriate level of gray. Note that the default
 value is close to 0.0, but not 0.0. Note that if this value is greater than
 0.5, then the color of the \fB\-\-pprompt\fR text and other similarly displayed
 text is black instead of white.
+.TP
+.BR --text-fg-color=<RED>,<BLUE>,<GREEN>,<ALPHA>
+Set the foreground color of displayed text (not including informational texts
+like when mpd is stopped or the \fB\-\-pprompt\fR text). Values are expected to
+be between 0.0 and 1.0 .
+.TP
+.BR --text-bg-color=<RED>,<BLUE>,<GREEN>,<ALPHA>
+Set the background color of displayed text (not including informational texts
+like when mpd is stopped or the \fB\-\-pprompt\fR text). Values are expected to
+be between 0.0 and 1.0 . Note that this has priority over \fB\-\-bg\-opacity\fR.
 .TP
 .BR --version
 Prints the current version of \fBmpd_info_screen2\fR.

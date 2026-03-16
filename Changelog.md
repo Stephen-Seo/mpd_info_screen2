@@ -1,5 +1,15 @@
 # Upcoming Changes
 
+# Version 1.18
+
+Fix drawing of certain texts based on background color. This should fix problems
+like the `--prompt` text not being visible.
+
+Fix setting the version of the executable when building from a directory outside
+of the source directory with CMake.
+
+Impl `--text-fg-color` and `--text-bg-color`.
+
 # Version 1.17.1
 
 Fix other informational text to be black if `--background-color=...` value is

@@ -19,12 +19,16 @@
 
 #include <bitset>
 #include <cstdint>
+#include <memory>
 #include <optional>
 #include <string>
 #include <unordered_set>
 
 // local includes
 #include "constants.h"
+
+// forward declaration
+struct Color;
 
 class Args {
  public:
@@ -45,6 +49,8 @@ class Args {
   const std::unordered_set<std::string> &get_font_blacklist_strings() const;
   const std::unordered_set<std::string> &get_font_whitelist_strings() const;
   uint8_t get_bg_grayscale() const;
+  const std::unique_ptr<Color> &get_text_fg_color() const;
+  const std::unique_ptr<Color> &get_text_bg_color() const;
 
  private:
   // 0 - error parsing args
@@ -73,6 +79,8 @@ class Args {
   std::string host_ip_addr;
   std::string default_font_filename;
   std::optional<std::string> password_file;
+  std::unique_ptr<Color> text_fg_color;
+  std::unique_ptr<Color> text_bg_color;
   double text_bg_opacity;
   float font_scale_factor;
   float remaining_font_scale_factor;

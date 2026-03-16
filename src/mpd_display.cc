@@ -333,7 +333,7 @@ void MPDDisplay::update(const MPDClient &cli, const Args &args) {
 
 void MPDDisplay::draw(const MPDClient &cli, const Args &args) {
   if (flags.test(5)) {
-    if (args.get_bg_grayscale() < 0.5) {
+    if (args.get_bg_grayscale() < 128) {
       DrawText("Failed authenticating to MPD!", 0, 0, 12, WHITE);
     } else {
       DrawText("Failed authenticating to MPD!", 0, 0, 12, BLACK);
@@ -341,14 +341,14 @@ void MPDDisplay::draw(const MPDClient &cli, const Args &args) {
     return;
   } else if (flags.test(3)) {
     if (args.get_flags().test(6)) {
-      if (args.get_bg_grayscale() < 0.5) {
+      if (args.get_bg_grayscale() < 128) {
         DrawText(display_pass.c_str(), 0, 0, 12, WHITE);
       } else {
         DrawText(display_pass.c_str(), 0, 0, 12, BLACK);
       }
       return;
     } else {
-      if (args.get_bg_grayscale() < 0.5) {
+      if (args.get_bg_grayscale() < 128) {
         DrawText("Needs password, but --pprompt nor --pfile=<file> specified!",
                  0, 0, 12, WHITE);
       } else {
@@ -615,13 +615,13 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
 
 void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
   if (cli.get_play_state() == "stop") {
-    if (args.get_bg_grayscale() < 0.5) {
+    if (args.get_bg_grayscale() < 128) {
       DrawText("MPD is stopped", 0, 0, STATUS_TEXT_SIZE, WHITE);
     } else {
       DrawText("MPD is stopped", 0, 0, STATUS_TEXT_SIZE, BLACK);
     }
   } else if (cli.get_play_state() == "pause") {
-    if (args.get_bg_grayscale() < 0.5) {
+    if (args.get_bg_grayscale() < 128) {
       DrawText("MPD is paused", 0, 0, STATUS_TEXT_SIZE, WHITE);
     } else {
       DrawText("MPD is paused", 0, 0, STATUS_TEXT_SIZE, BLACK);
@@ -632,9 +632,12 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
 
     std::shared_ptr<Font> default_font = get_default_font();
 
+    const std::unique_ptr<Color> &fg_color = args.get_text_fg_color();
+    const std::unique_ptr<Color> &bg_color = args.get_text_bg_color();
+
     if (!remaining_time.empty()) {
       DrawRectangle(remaining_x, remaining_y, remaining_width, remaining_height,
-                    {0, 0, 0, opacity});
+                    bg_color ? *bg_color : Color{0, 0, 0, opacity});
       if (args.get_flags().test(18)) {
         DrawTextEx(
             args.get_flags().test(13) ? GetFontDefault() : *default_font,
@@ -642,14 +645,15 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
             {static_cast<float>(remaining_x), static_cast<float>(remaining_y)},
             scaled_font_size() * args.get_remaining_font_scale_factor(),
             scaled_font_size() * args.get_remaining_font_scale_factor() / 10.0F,
-            WHITE);
+            fg_color ? *fg_color : WHITE);
       } else {
         DrawTextEx(
             args.get_flags().test(13) ? GetFontDefault() : *default_font,
             remaining_time.c_str(),
             {static_cast<float>(remaining_x), static_cast<float>(remaining_y)},
             scaled_font_size() * args.get_font_scale_factor(),
-            scaled_font_size() * args.get_font_scale_factor() / 10.0F, WHITE);
+            scaled_font_size() * args.get_font_scale_factor() / 10.0F,
+            fg_color ? *fg_color : WHITE);
       }
     }
     if (!args.get_flags().test(1) && !draw_cached_title.empty()) {
@@ -658,10 +662,11 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
         font = *fiter->second.get();
       }
       DrawRectangle(title_x, title_y, static_cast<int>(title_width),
-                    static_cast<int>(title_height), {0, 0, 0, opacity});
+                    static_cast<int>(title_height),
+                    bg_color ? *bg_color : Color{0, 0, 0, opacity});
       DrawTextEx(font, draw_cached_title.c_str(),
                  {static_cast<float>(title_x), static_cast<float>(title_y)},
-                 title_size, title_size / 10.0F, WHITE);
+                 title_size, title_size / 10.0F, fg_color ? *fg_color : WHITE);
     }
 
     if (!args.get_flags().test(2) && !draw_cached_artist.empty()) {
@@ -670,10 +675,12 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
         font = *fiter->second.get();
       }
       DrawRectangle(artist_x, artist_y, static_cast<int>(artist_width),
-                    static_cast<int>(artist_height), {0, 0, 0, opacity});
+                    static_cast<int>(artist_height),
+                    bg_color ? *bg_color : Color{0, 0, 0, opacity});
       DrawTextEx(font, draw_cached_artist.c_str(),
                  {static_cast<float>(artist_x), static_cast<float>(artist_y)},
-                 artist_size, artist_size / 10.0F, WHITE);
+                 artist_size, artist_size / 10.0F,
+                 fg_color ? *fg_color : WHITE);
     }
 
     if (!args.get_flags().test(3) && !draw_cached_album.empty()) {
@@ -682,10 +689,11 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
         font = *fiter->second.get();
       }
       DrawRectangle(album_x, album_y, static_cast<int>(album_width),
-                    static_cast<int>(album_height), {0, 0, 0, opacity});
+                    static_cast<int>(album_height),
+                    bg_color ? *bg_color : Color{0, 0, 0, opacity});
       DrawTextEx(font, draw_cached_album.c_str(),
                  {static_cast<float>(album_x), static_cast<float>(album_y)},
-                 album_size, album_size / 10.0F, WHITE);
+                 album_size, album_size / 10.0F, fg_color ? *fg_color : WHITE);
     }
 
     if (!args.get_flags().test(4) && !draw_cached_filename.empty()) {
@@ -694,11 +702,12 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
         font = *fiter->second.get();
       }
       DrawRectangle(filename_x, filename_y, static_cast<int>(filename_width),
-                    static_cast<int>(filename_height), {0, 0, 0, opacity});
+                    static_cast<int>(filename_height),
+                    bg_color ? *bg_color : Color{0, 0, 0, opacity});
       DrawTextEx(
           font, draw_cached_filename.c_str(),
           {static_cast<float>(filename_x), static_cast<float>(filename_y)},
-          filename_size, filename_size / 10.0F, WHITE);
+          filename_size, filename_size / 10.0F, fg_color ? *fg_color : WHITE);
     }
   }
 }
