@@ -50,6 +50,8 @@ Usage:
   --remaining-font-scale-factor=<factor> : Sets the factor to scale the remaining (remaining time and elapsed percentage) text's font size with (default 1.0)
   --h-toggles-text : Make the "H" key toggle displaying text instead of only hiding while pressed
   --background-color=<value> : Sets the grayscale color of the background (between 0.0 and 1.0; black and white)
+  --text-fg-color=<RED>,<BLUE>,<GREEN>,<ALPHA> : Sets the fg-color of the main displayed text. Expects values between 0.0 and 1.0 per item
+  --text-bg-color=<RED>,<BLUE>,<GREEN>,<ALPHA> : Sets the bg-color of the main displayed text. Expects values between 0.0 and 1.0 per item
 
 --------------------------------------------------------------------------------
     Man Page
