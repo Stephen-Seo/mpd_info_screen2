@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.18
+
 Fix drawing of certain texts based on background color. This should fix problems
 like the `--prompt` text not being visible.
 
