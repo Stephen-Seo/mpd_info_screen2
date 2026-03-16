@@ -333,7 +333,7 @@ void MPDDisplay::update(const MPDClient &cli, const Args &args) {
 
 void MPDDisplay::draw(const MPDClient &cli, const Args &args) {
   if (flags.test(5)) {
-    if (args.get_bg_grayscale() < 0.5) {
+    if (args.get_bg_grayscale() < 128) {
       DrawText("Failed authenticating to MPD!", 0, 0, 12, WHITE);
     } else {
       DrawText("Failed authenticating to MPD!", 0, 0, 12, BLACK);
@@ -341,14 +341,14 @@ void MPDDisplay::draw(const MPDClient &cli, const Args &args) {
     return;
   } else if (flags.test(3)) {
     if (args.get_flags().test(6)) {
-      if (args.get_bg_grayscale() < 0.5) {
+      if (args.get_bg_grayscale() < 128) {
         DrawText(display_pass.c_str(), 0, 0, 12, WHITE);
       } else {
         DrawText(display_pass.c_str(), 0, 0, 12, BLACK);
       }
       return;
     } else {
-      if (args.get_bg_grayscale() < 0.5) {
+      if (args.get_bg_grayscale() < 128) {
         DrawText("Needs password, but --pprompt nor --pfile=<file> specified!",
                  0, 0, 12, WHITE);
       } else {
@@ -615,13 +615,13 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
 
 void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
   if (cli.get_play_state() == "stop") {
-    if (args.get_bg_grayscale() < 0.5) {
+    if (args.get_bg_grayscale() < 128) {
       DrawText("MPD is stopped", 0, 0, STATUS_TEXT_SIZE, WHITE);
     } else {
       DrawText("MPD is stopped", 0, 0, STATUS_TEXT_SIZE, BLACK);
     }
   } else if (cli.get_play_state() == "pause") {
-    if (args.get_bg_grayscale() < 0.5) {
+    if (args.get_bg_grayscale() < 128) {
       DrawText("MPD is paused", 0, 0, STATUS_TEXT_SIZE, WHITE);
     } else {
       DrawText("MPD is paused", 0, 0, STATUS_TEXT_SIZE, BLACK);
