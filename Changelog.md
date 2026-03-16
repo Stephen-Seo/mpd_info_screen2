@@ -1,5 +1,8 @@
 # Upcoming Changes
 
+Fix setting the version of the executable when building from a directory outside
+of the source directory with CMake.
+
 # Version 1.17.1
 
 Fix other informational text to be black if `--background-color=...` value is
