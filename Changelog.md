@@ -1,5 +1,9 @@
 # Upcoming Changes
 
+Actually fix setting of the executable when building from a directory outside
+of the source directory with CMake. (The previous version only fixed this with
+the standard CMakeLists.txt but not the bundled/CMakeLists.txt .)
+
 # Version 1.18
 
 Fix drawing of certain texts based on background color. This should fix problems
