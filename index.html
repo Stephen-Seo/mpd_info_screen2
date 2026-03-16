@@ -100,7 +100,8 @@ case-insensitive.</p>
 <dt><strong>--bg-opacity=&lt;percentage&gt;</strong></dt>
 <dd>
 <p>Sets the opacity/transparency of the text backgrounds. Must be
-between 0.0 and 1.0.</p>
+between 0.0 and 1.0. Note that if <strong>--text-bg-color</strong> is
+used, then this option is ignored.</p>
 </dd>
 <dt><strong>--default-font-filename=&lt;font_filename&gt;</strong></dt>
 <dd>
@@ -168,6 +169,21 @@ that the default value is close to 0.0, but not 0.0. Note that if this
 value is greater than 0.5, then the color of the
 <strong>--pprompt</strong> text and other similarly displayed text is
 black instead of white.</p>
+</dd>
+<dt><strong>--text-fg-color=&lt;RED&gt;,&lt;BLUE&gt;,&lt;GREEN&gt;,&lt;ALPHA&gt;</strong></dt>
+<dd>
+<p>Set the foreground color of displayed text (not including
+informational texts like when mpd is stopped or the
+<strong>--pprompt</strong> text). Values are expected to be between 0.0
+and 1.0 .</p>
+</dd>
+<dt><strong>--text-bg-color=&lt;RED&gt;,&lt;BLUE&gt;,&lt;GREEN&gt;,&lt;ALPHA&gt;</strong></dt>
+<dd>
+<p>Set the background color of displayed text (not including
+informational texts like when mpd is stopped or the
+<strong>--pprompt</strong> text). Values are expected to be between 0.0
+and 1.0 . Note that this has priority over
+<strong>--bg-opacity</strong>.</p>
 </dd>
 <dt><strong>--version</strong></dt>
 <dd>
