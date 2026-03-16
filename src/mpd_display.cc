@@ -111,7 +111,8 @@ MPDDisplay::MPDDisplay(const std::bitset<64> &args_flags, LogLevel level)
       album_x(0),
       album_y(0),
       filename_x(0),
-      filename_y(0) {
+      filename_y(0),
+      img_load_fail_count(0) {
   flags.set(1);
   flags.set(16);
 }
@@ -151,7 +152,7 @@ MPDDisplay &MPDDisplay::operator=(MPDDisplay &&other) {
   return *this;
 }
 
-void MPDDisplay::update(const MPDClient &cli, const Args &args) {
+void MPDDisplay::update(MPDClient &cli, const Args &args) {
   if (!cli.is_ok()) {
     return;
   }
@@ -233,10 +234,13 @@ void MPDDisplay::update(const MPDClient &cli, const Args &args) {
     flags.reset(13);
     flags.reset(14);
 
+    flags.reset(17);
+    img_load_fail_count = 0;
+
     flags.set(15);
   }
 
-  if (!texture || flags.test(1)) {
+  if ((!texture || flags.test(1)) && !flags.test(17)) {
     // Load next album art image.
     const auto &cli_image = cli.get_album_art();
     if (cli_image.has_value()) {
@@ -263,10 +267,32 @@ void MPDDisplay::update(const MPDClient &cli, const Args &args) {
         if (texture->width != 0 && texture->height != 0) {
           flags.set(2);
           flags.reset(1);
-          UnloadImage(art_img);
           SetTextureFilter(*texture, TEXTURE_FILTER_BILINEAR);
+          img_load_fail_count = 0;
         } else {
           texture.reset();
+          if (img_load_fail_count > MAX_IMAGE_LOAD_FAILURE) {
+            flags.set(17);
+            LOG_PRINT(level, LogLevel::ERROR,
+                      "ERROR: Failed to load album art!");
+          } else {
+            cli.request_refetch_album_art();
+            ++img_load_fail_count;
+          }
+        }
+
+        UnloadImage(art_img);
+      } else {
+        if (texture) {
+          UnloadTexture(*texture);
+          texture.reset();
+        }
+        if (img_load_fail_count > MAX_IMAGE_LOAD_FAILURE) {
+          flags.set(17);
+          LOG_PRINT(level, LogLevel::ERROR, "ERROR: Failed to load album art!");
+        } else {
+          cli.request_refetch_album_art();
+          ++img_load_fail_count;
         }
       }
     }
