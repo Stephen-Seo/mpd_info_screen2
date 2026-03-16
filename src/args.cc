@@ -16,12 +16,111 @@
 
 #include "args.h"
 
+// Standard library includes
+#include <array>
 #include <cstdlib>
 #include <cstring>
 #include <unordered_set>
 
+// Local includes
 #include "constants.h"
 #include "print_helper.h"
+
+// Third party includes
+#include <raylib.h>
+
+////////////////////////////////////////////////////////////////////////////////
+// Internal functions
+////////////////////////////////////////////////////////////////////////////////
+
+std::unique_ptr<Color> INTERNAL_parse_str_to_Color(std::string str,
+                                                   const char *opt_name) {
+  std::array<double, 4> values;
+  size_t values_idx = 0;
+  size_t prev_idx = 0;
+  size_t idx = 0;
+
+  const auto parse_fn = [&]() -> bool {
+    double *val = nullptr;
+    try {
+      val = &values.at(values_idx++);
+    } catch (const std::exception &e) {
+      PrintHelper::println(stderr, "ERROR: Too many values passed to \"{}\"!",
+                           opt_name);
+      return true;
+    }
+
+    if (!val) {
+      PrintHelper::println(
+          stderr, "ERROR: Invalid value passed to \"{}\" (nullptr)!", opt_name);
+      return true;
+    }
+
+    try {
+      *val = std::stod(str.substr(prev_idx, idx - prev_idx));
+    } catch (const std::exception &e) {
+      PrintHelper::println(stderr, "ERROR: Invalid value passed to \"{}\"!",
+                           opt_name);
+      return true;
+    }
+    prev_idx = idx + 1;
+
+    return false;
+  };
+
+  while (idx < str.size()) {
+    if (str.at(idx) == ',') {
+      if (prev_idx < idx) {
+        if (parse_fn()) {
+          return {};
+        }
+      } else {
+        PrintHelper::println(stderr,
+                             "ERROR: Invalid value passed to "
+                             "\"{}\" (invalid state)!",
+                             opt_name);
+        return {};
+      }
+    }
+
+    ++idx;
+  }
+
+  if (prev_idx < idx) {
+    if (parse_fn()) {
+      return {};
+    }
+  }
+
+  if (values_idx < values.size()) {
+    PrintHelper::println(stderr, "ERROR: Not enough values passed to \"{}\"!",
+                         opt_name);
+    return {};
+  }
+
+  for (double val : values) {
+    if (val < 0.0 || val > 1.0) {
+      PrintHelper::println(stderr,
+                           "ERROR: Value passed to \"{}\" is out of range "
+                           "(must be between 0.0 and 1.0)!",
+                           opt_name);
+      return {};
+    }
+  }
+
+  // Add 0.5 to round up when truncating from double to unsigned char.
+  std::unique_ptr<Color> color = std::make_unique<Color>(
+      Color{static_cast<uint8_t>(values.at(0) * 255.0 + 0.5),
+            static_cast<uint8_t>(values.at(1) * 255.0 + 0.5),
+            static_cast<uint8_t>(values.at(2) * 255.0 + 0.5),
+            static_cast<uint8_t>(values.at(3) * 255.0 + 0.5)});
+
+  return color;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// END of Internal functions
+////////////////////////////////////////////////////////////////////////////////
 
 Args::Args(int argc, char **argv)
     : flags(),
@@ -190,6 +289,24 @@ Args::Args(int argc, char **argv)
       // Add 0.5 to round to the nearest integer, since it truncates when
       // converting.
       bg_grayscale = static_cast<uint8_t>(value * 255.0 + 0.5);
+    } else if (std::strncmp("--text-fg-color=", argv[0], 16) == 0) {
+      std::string str(argv[0] + 16);
+      std::unique_ptr<Color> color =
+          INTERNAL_parse_str_to_Color(str, "--text-fg-color");
+      if (!color) {
+        flags.set(0);
+        return;
+      }
+      this->text_fg_color = std::move(color);
+    } else if (std::strncmp("--text-bg-color=", argv[0], 16) == 0) {
+      std::string str(argv[0] + 16);
+      std::unique_ptr<Color> color =
+          INTERNAL_parse_str_to_Color(str, "--text-bg-color");
+      if (!color) {
+        flags.set(0);
+        return;
+      }
+      this->text_bg_color = std::move(color);
     } else if (std::strcmp("--version", argv[0]) == 0) {
       flags.set(0);
       flags.set(14);
@@ -280,6 +397,12 @@ void Args::print_usage() {
   PrintHelper::println(
       "  --background-color=<value> : Sets the grayscale color of the "
       "background (between 0.0 and 1.0; black and white)");
+  PrintHelper::println(
+      "  --text-fg-color=<RED>,<BLUE>,<GREEN>,<ALPHA> : Sets the fg-color of "
+      "the main displayed text. Expects values between 0.0 and 1.0 per item");
+  PrintHelper::println(
+      "  --text-bg-color=<RED>,<BLUE>,<GREEN>,<ALPHA> : Sets the bg-color of "
+      "the main displayed text. Expects values between 0.0 and 1.0 per item");
 }
 
 bool Args::is_error() const { return flags.test(0); }
@@ -319,3 +442,11 @@ LogLevel Args::get_log_level() const { return level; }
 uint16_t Args::get_host_port() const { return host_port; }
 
 uint8_t Args::get_bg_grayscale() const { return bg_grayscale; }
+
+const std::unique_ptr<Color> &Args::get_text_fg_color() const {
+  return text_fg_color;
+}
+
+const std::unique_ptr<Color> &Args::get_text_bg_color() const {
+  return text_bg_color;
+}
