@@ -134,6 +134,16 @@ value is close to 0.0, but not 0.0. Note that if this value is greater than
 0.5, then the color of the \fB\-\-pprompt\fR text and other similarly displayed
 text is black instead of white.
 .TP
+.BR --text-fg-color=<RED>,<BLUE>,<GREEN>,<ALPHA>
+Set the foreground color of displayed text (not including informational texts
+like when mpd is stopped or the \fB\-\-pprompt\fR text). Values are expected to
+be between 0.0 and 1.0 .
+.TP
+.BR --text-bg-color=<RED>,<BLUE>,<GREEN>,<ALPHA>
+Set the background color of displayed text (not including informational texts
+like when mpd is stopped or the \fB\-\-pprompt\fR text). Values are expected to
+be between 0.0 and 1.0 .
+.TP
 .BR --version
 Prints the current version of \fBmpd_info_screen2\fR.
 .SH NOTES
