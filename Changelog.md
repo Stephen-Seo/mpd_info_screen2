@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.18.2
+
 Attempt fix of failing to load an album art image for the currently playing
 song. On failure, `mpd_info_screen2` will attempt to reload the album art from
 MPD up to 5 times. If it still fails to load, the album art will no longer be
