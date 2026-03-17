@@ -74,7 +74,7 @@ class MPDDisplay {
   MPDDisplay(MPDDisplay &&);
   MPDDisplay &operator=(MPDDisplay &&);
 
-  void update(const MPDClient &, const Args &);
+  void update(MPDClient &, const Args &);
   void draw(const MPDClient &, const Args &);
 
   void request_reposition_texture();
@@ -105,6 +105,7 @@ class MPDDisplay {
   // 14 - filename MeasureTextEx loaded
   // 15 - MeasureTextEx re-measure requested
   // 16 - H toggle - display text enabled
+  // 17 - image loading failed
   std::bitset<64> flags;
   std::unique_ptr<Texture> texture;
   std::shared_ptr<Font> raylib_default_font;
@@ -146,6 +147,7 @@ class MPDDisplay {
   float filename_size;
   int filename_x;
   int filename_y;
+  int img_load_fail_count;
 
   void update_remaining_texts(const MPDClient &, const Args &);
   void update_draw_texts(const MPDClient &, const Args &);
