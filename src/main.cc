@@ -160,7 +160,7 @@ int main(int argc, char **argv) {
 #endif
 
     if (IsWindowResized()) {
-      disp->request_reposition_texture();
+      disp->request_reposition_texture(args);
     }
 
     if (!cli.is_ok() &&

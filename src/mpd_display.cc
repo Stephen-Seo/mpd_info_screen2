@@ -167,7 +167,7 @@ void MPDDisplay::update(MPDClient &cli, const Args &args) {
       !args.get_default_font_filename().empty()) {
     flags.set(6);
     Font f = LoadFontEx(args.get_default_font_filename().c_str(),
-                        static_cast<int>(scaled_font_size()), nullptr, 0);
+                        static_cast<int>(scaled_font_size(args)), nullptr, 0);
     if (f.baseSize != 0) {
       default_font = std::make_shared<Font>(f);
     }
@@ -394,13 +394,14 @@ void MPDDisplay::draw(const MPDClient &cli, const Args &args) {
   }
 }
 
-void MPDDisplay::request_reposition_texture() {
+void MPDDisplay::request_reposition_texture(const Args &args) {
   flags.set(2);
 
   flags.set(0);
 
 #ifndef NDEBUG
-  LOG_PRINT(level, LogLevel::DEBUG, "scaled_font_size: {}", scaled_font_size());
+  LOG_PRINT(level, LogLevel::DEBUG, "scaled_font_size: {}",
+            scaled_font_size(args));
 #endif
 }
 
@@ -424,9 +425,33 @@ void MPDDisplay::set_failed_auth() { flags.set(5); }
 
 void MPDDisplay::clear_cached_pass() { cached_pass.clear(); }
 
-float MPDDisplay::scaled_font_size() {
-  return std::ceil(TEXT_DEFAULT_SIZE_F * static_cast<float>(GetScreenWidth()) /
-                   800.0F);
+float MPDDisplay::scaled_font_size(const Args &args) {
+  const auto &flags = args.get_flags();
+  if (flags.test(20) && flags.test(21)) {
+    // scale by max(width, height)
+    const int width = GetScreenWidth();
+    const int height = GetScreenHeight();
+
+    return std::ceil(TEXT_DEFAULT_SIZE_F *
+                     (width > height ? static_cast<float>(width) / 800.0F
+                                     : static_cast<float>(height) / 600.0F));
+  } else if (!flags.test(20) && flags.test(21)) {
+    // scale by min(width, height)
+    const int width = GetScreenWidth();
+    const int height = GetScreenHeight();
+
+    return std::ceil(TEXT_DEFAULT_SIZE_F *
+                     (width < height ? static_cast<float>(width) / 800.0F
+                                     : static_cast<float>(height) / 600.0F));
+  } else if (!flags.test(20) && !flags.test(21)) {
+    // scale by width
+    return std::ceil(TEXT_DEFAULT_SIZE_F *
+                     static_cast<float>(GetScreenWidth()) / 800.0F);
+  } else /* if (flags.test(20) && !flags.test(21)) */ {
+    // scale by height. Last possible case, no need to check flags again.
+    return std::ceil(TEXT_DEFAULT_SIZE_F *
+                     static_cast<float>(GetScreenHeight()) / 600.0F);
+  }
 }
 
 void MPDDisplay::update_remaining_texts(const MPDClient &cli,
@@ -471,18 +496,20 @@ void MPDDisplay::update_remaining_texts(const MPDClient &cli,
 
   std::shared_ptr<Font> default_font = get_default_font();
   Vector2 text_size;
+  const float cached_scaled_font_size = scaled_font_size(args);
   if (args.get_flags().test(18)) {
     text_size = MeasureTextEx(
         args.get_flags().test(13) ? GetFontDefault() : *default_font,
         this->remaining_time.c_str(),
-        scaled_font_size() * args.get_remaining_font_scale_factor(),
-        scaled_font_size() * args.get_remaining_font_scale_factor() / 10.0F);
+        cached_scaled_font_size * args.get_remaining_font_scale_factor(),
+        cached_scaled_font_size * args.get_remaining_font_scale_factor() /
+            10.0F);
   } else {
     text_size = MeasureTextEx(
         args.get_flags().test(13) ? GetFontDefault() : *default_font,
         this->remaining_time.c_str(),
-        scaled_font_size() * args.get_font_scale_factor(),
-        scaled_font_size() * args.get_font_scale_factor() / 10.0F);
+        cached_scaled_font_size * args.get_font_scale_factor(),
+        cached_scaled_font_size * args.get_font_scale_factor() / 10.0F);
   }
 
   remaining_width = static_cast<int>(std::ceil(text_size.x));
@@ -509,7 +536,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
       if (fiter != fonts.end()) {
         font = *fiter->second.get();
       }
-      filename_size = scaled_font_size() * args.get_font_scale_factor();
+      filename_size = scaled_font_size(args) * args.get_font_scale_factor();
       Vector2 text_size;
       do {
         text_size = MeasureTextEx(font, draw_cached_filename.c_str(),
@@ -542,7 +569,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
       if (fiter != fonts.end()) {
         font = *fiter->second.get();
       }
-      album_size = scaled_font_size() * args.get_font_scale_factor();
+      album_size = scaled_font_size(args) * args.get_font_scale_factor();
       Vector2 text_size;
       do {
         text_size = MeasureTextEx(font, draw_cached_album.c_str(),
@@ -575,7 +602,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
       if (fiter != fonts.end()) {
         font = *fiter->second.get();
       }
-      artist_size = scaled_font_size() * args.get_font_scale_factor();
+      artist_size = scaled_font_size(args) * args.get_font_scale_factor();
       Vector2 text_size;
       do {
         text_size = MeasureTextEx(font, draw_cached_artist.c_str(),
@@ -608,7 +635,7 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
       if (fiter != fonts.end()) {
         font = *fiter->second.get();
       }
-      title_size = scaled_font_size() * args.get_font_scale_factor();
+      title_size = scaled_font_size(args) * args.get_font_scale_factor();
       Vector2 text_size;
       do {
         text_size = MeasureTextEx(font, draw_cached_title.c_str(),
@@ -664,21 +691,23 @@ void MPDDisplay::draw_draw_texts(const MPDClient &cli, const Args &args) {
     if (!remaining_time.empty()) {
       DrawRectangle(remaining_x, remaining_y, remaining_width, remaining_height,
                     bg_color ? *bg_color : Color{0, 0, 0, opacity});
+      const float cached_scaled_font_size = scaled_font_size(args);
       if (args.get_flags().test(18)) {
         DrawTextEx(
             args.get_flags().test(13) ? GetFontDefault() : *default_font,
             remaining_time.c_str(),
             {static_cast<float>(remaining_x), static_cast<float>(remaining_y)},
-            scaled_font_size() * args.get_remaining_font_scale_factor(),
-            scaled_font_size() * args.get_remaining_font_scale_factor() / 10.0F,
+            cached_scaled_font_size * args.get_remaining_font_scale_factor(),
+            cached_scaled_font_size * args.get_remaining_font_scale_factor() /
+                10.0F,
             fg_color ? *fg_color : WHITE);
       } else {
         DrawTextEx(
             args.get_flags().test(13) ? GetFontDefault() : *default_font,
             remaining_time.c_str(),
             {static_cast<float>(remaining_x), static_cast<float>(remaining_y)},
-            scaled_font_size() * args.get_font_scale_factor(),
-            scaled_font_size() * args.get_font_scale_factor() / 10.0F,
+            cached_scaled_font_size * args.get_font_scale_factor(),
+            cached_scaled_font_size * args.get_font_scale_factor() / 10.0F,
             fg_color ? *fg_color : WHITE);
       }
     }

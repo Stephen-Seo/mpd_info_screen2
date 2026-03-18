@@ -145,6 +145,22 @@ Set the background color of displayed text (not including informational texts
 like when mpd is stopped or the \fB\-\-pprompt\fR text). Values are expected to
 be between 0.0 and 1.0 . Note that this has priority over \fB\-\-bg\-opacity\fR.
 .TP
+.BR --scale-text-by-width
+Scales displayed text (remaining time, title, artist, album name, filename) by
+the width of the window. Note that this is the default.
+.TP
+.BR --scale-text-by-height
+Scales displayed text (remaining time, title, artist, album name, filename) by
+the height of the window.
+.TP
+.BR --scale-text-by-wh-min
+Scales displayed text (remaining time, title, artist, album name, filename) by
+either the width or height of the window (whichever is smaller).
+.TP
+.BR --scale-text-by-wh-max
+Scales displayed text (remaining time, title, artist, album name, filename) by
+either the width or height of the window (whichever is greater).
+.TP
 .BR --version
 Prints the current version of \fBmpd_info_screen2\fR.
 .SH NOTES
