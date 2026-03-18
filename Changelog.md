@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.19
+
 Implement `--scale-text-by-width`, `--scale-text-by-height`,
 `--scale-text-by-wh-min`, and `--scale-text-by-wh-max`.  
 Note that by default, `--scale-text-by-width` is in effect.
