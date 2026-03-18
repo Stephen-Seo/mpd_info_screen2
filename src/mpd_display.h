@@ -77,14 +77,14 @@ class MPDDisplay {
   void update(MPDClient &, const Args &);
   void draw(const MPDClient &, const Args &);
 
-  void request_reposition_texture();
+  void request_reposition_texture(const Args &);
 
   void request_password_prompt();
   std::optional<std::string> fetch_prompted_pass();
   void set_failed_auth();
   void clear_cached_pass();
 
-  static float scaled_font_size();
+  static float scaled_font_size(const Args &args);
 
  private:
   LogLevel level;

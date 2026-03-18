@@ -307,6 +307,18 @@ Args::Args(int argc, char **argv)
         return;
       }
       this->text_bg_color = std::move(color);
+    } else if (std::strcmp("--scale-text-by-width", argv[0]) == 0) {
+      flags.set(20, false);
+      flags.set(21, false);
+    } else if (std::strcmp("--scale-text-by-height", argv[0]) == 0) {
+      flags.set(20, true);
+      flags.set(21, false);
+    } else if (std::strcmp("--scale-text-by-wh-min", argv[0]) == 0) {
+      flags.set(20, false);
+      flags.set(21, true);
+    } else if (std::strcmp("--scale-text-by-wh-max", argv[0]) == 0) {
+      flags.set(20, true);
+      flags.set(21, true);
     } else if (std::strcmp("--version", argv[0]) == 0) {
       flags.set(0);
       flags.set(14);
@@ -403,6 +415,15 @@ void Args::print_usage() {
   PrintHelper::println(
       "  --text-bg-color=<RED>,<BLUE>,<GREEN>,<ALPHA> : Sets the bg-color of "
       "the main displayed text. Expects values between 0.0 and 1.0 per item");
+  PrintHelper::println(
+      "  --scale-text-by-width : Scales the text by width (the default)");
+  PrintHelper::println("  --scale-text-by-height : Scales the text by height");
+  PrintHelper::println(
+      "  --scale-text-by-wh-min : Scales the text by the minimum of "
+      "width/height");
+  PrintHelper::println(
+      "  --scale-text-by-wh-max : Scales the text by the maximum of "
+      "width/height");
 }
 
 bool Args::is_error() const { return flags.test(0); }
