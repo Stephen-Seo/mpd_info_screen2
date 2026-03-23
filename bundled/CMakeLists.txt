@@ -127,11 +127,11 @@ set_target_properties(LIBFFI PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/bin/wayland-scanner"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party/native"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig"
-    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.24.0.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.24.0.tar.xz" https://gitlab.freedesktop.org/wayland/wayland/-/releases/1.24.0/downloads/wayland-1.24.0.tar.xz
-    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.24.0.tar.xz" | grep 82892487a01ad67b334eca83b54317a7c86a03a89cfadacfef5211f11a5d0536
-    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.24.0.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/native"
-    COMMAND env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/lib/pkgconfig" meson setup --prefix "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT" --buildtype release -D documentation=false -D dtd_validation=false --prefer-static --default-library static --default-both-libraries static "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/wayland-1.24.0/BUILD" "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/wayland-1.24.0"
-    COMMAND ninja -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/wayland-1.24.0/BUILD" install
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.25.0.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.25.0.tar.xz" "https://gitlab.freedesktop.org/wayland/wayland/-/releases/1.25.0/downloads/wayland-1.25.0.tar.xz"
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.25.0.tar.xz" | grep c065f040afdff3177680600f249727e41a1afc22fccf27222f15f5306faa1f03
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.25.0.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/native"
+    COMMAND env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/lib/pkgconfig" meson setup --prefix "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT" --buildtype release -D documentation=false -D dtd_validation=false --prefer-static --default-library static --default-both-libraries static "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/wayland-1.25.0/BUILD" "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/wayland-1.25.0"
+    COMMAND ninja -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/wayland-1.25.0/BUILD" install
     COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT" -name wayland-scanner.pc -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig/" "\;"
     COMMAND_EXPAND_LISTS
     VERBATIM)
@@ -144,24 +144,24 @@ add_dependencies(WAYLAND_SCANNER LIBFFINATIVE)
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libwayland-server.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig"
-    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.24.0.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.24.0.tar.xz" https://gitlab.freedesktop.org/wayland/wayland/-/releases/1.24.0/downloads/wayland-1.24.0.tar.xz
-    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.24.0.tar.xz" | grep 82892487a01ad67b334eca83b54317a7c86a03a89cfadacfef5211f11a5d0536
-    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.24.0.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig" meson setup --prefix "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --buildtype release -D documentation=false -D dtd_validation=false -D scanner=false --prefer-static --default-library static --default-both-libraries static "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,--native-file>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,${MESON_CROSS_FILE}>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,--cross-file>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,${MESON_CROSS_FILE}>" "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0/BUILD" "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0"
-    COMMAND ninja -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0/BUILD" install
-    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0/BUILD/src" -name libwayland-server.a -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/" "\;"
-    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0/BUILD/src" -name libwayland-client.a -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/" "\;"
-    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0/BUILD/src" -name libwayland-cursor.a -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/" "\;"
-    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0/BUILD/src" -name libwayland-egl.a -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/" "\;"
-    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0/BUILD" -name wayland-client.pc -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig/" "\;"
-    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0/BUILD" -name wayland-cursor.pc -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig/" "\;"
-    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0/BUILD" -name wayland-egl-backend.pc -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig/" "\;"
-    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0/BUILD" -name wayland-server.pc -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig/" "\;"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.25.0.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.25.0.tar.xz" "https://gitlab.freedesktop.org/wayland/wayland/-/releases/1.25.0/downloads/wayland-1.25.0.tar.xz"
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.25.0.tar.xz" | grep c065f040afdff3177680600f249727e41a1afc22fccf27222f15f5306faa1f03
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.25.0.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig" meson setup --prefix "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --buildtype release -D documentation=false -D dtd_validation=false -D scanner=false --prefer-static --default-library static --default-both-libraries static "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,--native-file>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,${MESON_CROSS_FILE}>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,--cross-file>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,${MESON_CROSS_FILE}>" "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.25.0/BUILD" "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.25.0"
+    COMMAND ninja -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.25.0/BUILD" install
+    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.25.0/BUILD/src" -name libwayland-server.a -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/" "\;"
+    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.25.0/BUILD/src" -name libwayland-client.a -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/" "\;"
+    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.25.0/BUILD/src" -name libwayland-cursor.a -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/" "\;"
+    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.25.0/BUILD/src" -name libwayland-egl.a -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/" "\;"
+    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.25.0/BUILD" -name wayland-client.pc -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig/" "\;"
+    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.25.0/BUILD" -name wayland-cursor.pc -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig/" "\;"
+    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.25.0/BUILD" -name wayland-egl-backend.pc -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig/" "\;"
+    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.25.0/BUILD" -name wayland-server.pc -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig/" "\;"
     COMMAND_EXPAND_LISTS
     VERBATIM)
 
 add_custom_target(LIBWAYLAND DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libwayland-server.a")
-set_target_properties(LIBWAYLAND PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.24.0;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+set_target_properties(LIBWAYLAND PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.25.0;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
 
 add_dependencies(LIBWAYLAND WAYLAND_SCANNER)
 add_dependencies(LIBWAYLAND LIBFFI)
