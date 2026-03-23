@@ -1,5 +1,14 @@
 # Upcoming Changes
 
+# Version 1.19.1
+
+Update bundled dependencies:
+
+ - libexpat 2.7.4 -> 2.7.5
+ - libfreetype 2.14.2 -> 2.14.3
+ - harfbuzz 13.1.1 -> 13.2.1
+ - wayland 1.24.0 -> 1.25.0
+
 # Version 1.19
 
 Implement `--scale-text-by-width`, `--scale-text-by-height`,
