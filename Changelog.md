@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.19.1
+
 Update bundled dependencies:
 
  - libexpat 2.7.4 -> 2.7.5
