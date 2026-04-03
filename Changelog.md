@@ -1,5 +1,10 @@
 # Upcoming Changes
 
+Update bundled dependencies:
+
+ - harfbuzz 13.2.1 -> 14.0.0
+ - wayland-protocols 1.47 -> 1.48
+
 # Version 1.19.2
 
 Update bundled dependencies:
