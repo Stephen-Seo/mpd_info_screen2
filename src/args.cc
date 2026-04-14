@@ -130,6 +130,7 @@ Args::Args(int argc, char **argv)
       text_bg_opacity(0.745),
       font_scale_factor(1.0F),
       remaining_font_scale_factor(1.0F),
+      text_y_offset(0.0F),
       level(LogLevel::ERROR),
       host_port(6600),
       bg_grayscale(CLEAR_BG_COLOR_RGB) {
@@ -319,6 +320,40 @@ Args::Args(int argc, char **argv)
     } else if (std::strcmp("--scale-text-by-wh-max", argv[0]) == 0) {
       flags.set(20, true);
       flags.set(21, true);
+    } else if (std::strncmp("--y-offset-bottom=", argv[0], 18) == 0) {
+      std::string value(argv[0] + 18);
+      try {
+        text_y_offset = std::stof(value);
+        if (text_y_offset < 0.0F) {
+          PrintHelper::println(
+              stderr, "ERROR: Invalid y-offset-bottom {} (must be positive)!",
+              value);
+          flags.set(0);
+          return;
+        }
+      } catch (const std::exception &e) {
+        PrintHelper::println(stderr, "ERROR: Failed to parse y-offset-bottom!");
+        flags.set(0);
+        return;
+      }
+      flags.reset(22);
+    } else if (std::strncmp("--y-offset-top=", argv[0], 15) == 0) {
+      std::string value(argv[0] + 15);
+      try {
+        text_y_offset = std::stof(value);
+        if (text_y_offset < 0.0F) {
+          PrintHelper::println(
+              stderr, "ERROR: Invalid y-offset-top {} (must be positive)!",
+              value);
+          flags.set(0);
+          return;
+        }
+      } catch (const std::exception &e) {
+        PrintHelper::println(stderr, "ERROR: Failed to parse y-offset-top!");
+        flags.set(0);
+        return;
+      }
+      flags.set(22);
     } else if (std::strcmp("--version", argv[0]) == 0) {
       flags.set(0);
       flags.set(14);
@@ -424,6 +459,10 @@ void Args::print_usage() {
   PrintHelper::println(
       "  --scale-text-by-wh-max : Scales the text by the maximum of "
       "width/height");
+  PrintHelper::println(
+      "  --y-offset-bottom=<pixels> : Offset of displayed text from bottom");
+  PrintHelper::println(
+      "  --y-offset-top=<pixels> : Offset of displayed text from top");
 }
 
 bool Args::is_error() const { return flags.test(0); }
@@ -471,3 +510,7 @@ const std::unique_ptr<Color> &Args::get_text_fg_color() const {
 const std::unique_ptr<Color> &Args::get_text_bg_color() const {
   return text_bg_color;
 }
+
+float Args::get_y_offset() const { return text_y_offset; }
+
+bool Args::is_y_offset_from_top() const { return flags.test(22); }

@@ -51,6 +51,8 @@ class Args {
   uint8_t get_bg_grayscale() const;
   const std::unique_ptr<Color> &get_text_fg_color() const;
   const std::unique_ptr<Color> &get_text_bg_color() const;
+  float get_y_offset() const;
+  bool is_y_offset_from_top() const;
 
  private:
   // 0 - error parsing args
@@ -77,6 +79,7 @@ class Args {
   // 20 AND NOT 21 - scale text by height
   // NOT 20 AND 21 - scale text by min(height, width)
   // 20 AND 21 - scale text by max(height, width)
+  // 22 - y offset from top
   std::bitset<64> flags;
   std::unordered_set<std::string> font_blacklist_strings;
   std::unordered_set<std::string> font_whitelist_strings;
@@ -88,6 +91,7 @@ class Args {
   double text_bg_opacity;
   float font_scale_factor;
   float remaining_font_scale_factor;
+  float text_y_offset;
   LogLevel level;
   uint16_t host_port;
   uint8_t bg_grayscale;
