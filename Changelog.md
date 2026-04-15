@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.20
+
 Implement options `--y-offset-top=...` and `--y-offset-bottom=...`.
 
 The "top" variant aligns the text to the top of the screen with an offset.
