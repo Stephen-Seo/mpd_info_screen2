@@ -524,7 +524,10 @@ void MPDDisplay::update_remaining_texts(const MPDClient &cli,
 
 void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
   const int width = GetScreenWidth();
-  int y_offset = GetScreenHeight();
+  int y_offset = args.is_y_offset_from_top()
+                     ? static_cast<int>(args.get_y_offset() + 0.5F)
+                     : static_cast<int>(static_cast<float>(GetScreenHeight()) -
+                                        args.get_y_offset() + 0.5F);
 
   std::shared_ptr<Font> default_font = get_default_font();
 
@@ -548,8 +551,14 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
         filename_width = std::ceil(text_size.x);
         filename_height = std::ceil(text_size.y);
       } while (text_size.x > static_cast<float>(width) && filename_size > 1.0F);
-      y_offset -= static_cast<int>(filename_height);
-      filename_y = y_offset;
+
+      if (args.is_y_offset_from_top()) {
+        filename_y = y_offset;
+        y_offset += static_cast<int>(filename_height);
+      } else {
+        y_offset -= static_cast<int>(filename_height);
+        filename_y = y_offset;
+      }
 
       if (args.get_flags().test(15)) {
         filename_x = width - static_cast<int>(filename_width);
@@ -581,8 +590,14 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
         album_width = std::ceil(text_size.x);
         album_height = std::ceil(text_size.y);
       } while (text_size.x > static_cast<float>(width) && album_size > 1.0F);
-      y_offset -= static_cast<int>(album_height);
-      album_y = y_offset;
+
+      if (args.is_y_offset_from_top()) {
+        album_y = y_offset;
+        y_offset += static_cast<int>(album_height);
+      } else {
+        y_offset -= static_cast<int>(album_height);
+        album_y = y_offset;
+      }
 
       if (args.get_flags().test(15)) {
         album_x = width - static_cast<int>(album_width);
@@ -614,8 +629,14 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
         artist_width = std::ceil(text_size.x);
         artist_height = std::ceil(text_size.y);
       } while (text_size.x > static_cast<float>(width) && artist_size > 1.0F);
-      y_offset -= static_cast<int>(artist_height);
-      artist_y = y_offset;
+
+      if (args.is_y_offset_from_top()) {
+        artist_y = y_offset;
+        y_offset += static_cast<int>(artist_height);
+      } else {
+        y_offset -= static_cast<int>(artist_height);
+        artist_y = y_offset;
+      }
 
       if (args.get_flags().test(15)) {
         artist_x = width - static_cast<int>(artist_width);
@@ -647,8 +668,14 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
         title_width = std::ceil(text_size.x);
         title_height = std::ceil(text_size.y);
       } while (text_size.x > static_cast<float>(width) && title_size > 1.0F);
-      y_offset -= static_cast<int>(title_height);
-      title_y = y_offset;
+
+      if (args.is_y_offset_from_top()) {
+        title_y = y_offset;
+        y_offset += static_cast<int>(title_height);
+      } else {
+        y_offset -= static_cast<int>(title_height);
+        title_y = y_offset;
+      }
 
       if (args.get_flags().test(15)) {
         title_x = width - static_cast<int>(title_width);
@@ -661,7 +688,11 @@ void MPDDisplay::update_draw_texts(const MPDClient &cli, const Args &args) {
   }
 
   if (flags.test(15)) {
-    remaining_y = y_offset - remaining_height;
+    if (args.is_y_offset_from_top()) {
+      remaining_y = y_offset;
+    } else {
+      remaining_y = y_offset - remaining_height;
+    }
     flags.reset(15);
   }
 }

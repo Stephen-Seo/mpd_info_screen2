@@ -52,6 +52,12 @@ Usage:
   --background-color=<value> : Sets the grayscale color of the background (between 0.0 and 1.0; black and white)
   --text-fg-color=<RED>,<BLUE>,<GREEN>,<ALPHA> : Sets the fg-color of the main displayed text. Expects values between 0.0 and 1.0 per item
   --text-bg-color=<RED>,<BLUE>,<GREEN>,<ALPHA> : Sets the bg-color of the main displayed text. Expects values between 0.0 and 1.0 per item
+  --scale-text-by-width : Scales the text by width (the default)
+  --scale-text-by-height : Scales the text by height
+  --scale-text-by-wh-min : Scales the text by the minimum of width/height
+  --scale-text-by-wh-max : Scales the text by the maximum of width/height
+  --y-offset-bottom=<pixels> : Offset of displayed text from bottom
+  --y-offset-top=<pixels> : Offset of displayed text from top
 
 --------------------------------------------------------------------------------
     Man Page

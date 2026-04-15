@@ -161,6 +161,15 @@ either the width or height of the window (whichever is smaller).
 Scales displayed text (remaining time, title, artist, album name, filename) by
 either the width or height of the window (whichever is greater).
 .TP
+.BR --y-offset-bottom=<pixels>
+Offsets the text from the bottom of the screen. Setting this to 0 is the same
+as the default behavior. Only positive values are accepted.
+.TP
+.BR --y-offset-top=<pixels>
+Offsets the text from the top of the screen. Note that this causes the text to
+be vertically aligned to the top with the specified offset. Only positive
+values are accepted.
+.TP
 .BR --version
 Prints the current version of \fBmpd_info_screen2\fR.
 .SH NOTES
