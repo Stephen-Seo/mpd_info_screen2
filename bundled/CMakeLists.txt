@@ -186,15 +186,15 @@ add_dependencies(LIBWAYLAND_PROTOCOLS LIBWAYLAND)
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libxml2.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libxml2-2.15.2.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libxml2-2.15.2.tar.gz" https://github.com/GNOME/libxml2/archive/refs/tags/v2.15.2.tar.gz
-    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libxml2-2.15.2.tar.gz" | grep 2769234c4fe2fab9b0b043e891c2af0f1ae51c8d4b94799472981e676ed8009e
-    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libxml2-2.15.2.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxml2-2.15.2" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./autogen.sh ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
-    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxml2-2.15.2" install
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libxml2-2.15.3.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libxml2-2.15.3.tar.gz" "https://github.com/GNOME/libxml2/archive/refs/tags/v2.15.3.tar.gz"
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libxml2-2.15.3.tar.gz" | grep 5c6060277173270356c3f1c321a640ab629bdabc5e5ba9095b99e00759ba0c39
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libxml2-2.15.3.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxml2-2.15.3" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./autogen.sh ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxml2-2.15.3" install
     VERBATIM)
 
 add_custom_target(LIBXML2 DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libxml2.a")
-set_target_properties(LIBXML2 PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxml2-2.15.2;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+set_target_properties(LIBXML2 PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxml2-2.15.3;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/bin/bison"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party/native"
