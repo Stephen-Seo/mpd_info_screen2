@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.20.1
+
 Update bundled dependencies:
 
  - libxml2 2.15.2 -> 2.15.3
