@@ -1,5 +1,9 @@
 # Upcoming Changes
 
+Update bundled dependencies:
+
+ - libxml2 2.15.2 -> 2.15.3
+
 # Version 1.20
 
 Implement options `--y-offset-top=...` and `--y-offset-bottom=...`.
