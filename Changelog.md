@@ -1,5 +1,9 @@
 # Upcoming Changes
 
+Update bundled dependencies:
+
+ - libpng 1.6.57 -> 1.6.58
+
 # Version 1.20.1
 
 Update bundled dependencies:
