@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.20.3
+
 Update bundled dependencies:
 
  - harfbuzz 14.1.0 -> 14.2.0
