@@ -1,13 +1,13 @@
 /compile_commands.json
 /third_party/include/
 /third_party/lib/
-/third_party/raylib-5.5.tar.gz
+/third_party/raylib-6.0.tar.gz
 /objdir/
 /mpd_info_screen2
 /.cache/
 /unittest
 /build*
-/third_party/raylib-5.5/
+/third_party/raylib-6.0/
 /third_party/raylib_BUILD/
 /third_party/expat-2.7.5.tar.xz
 /third_party/fontconfig-2.17.1.tar.gz
@@ -39,3 +39,4 @@
 /third_party/libffi-3.5.2.tar.gz
 /third_party/libxml2-2.15.3.tar.gz
 /third_party/bison-3.8.2.tar.xz
+/third_party/libXdmcp-1.1.5.tar.xz
