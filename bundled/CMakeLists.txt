@@ -444,7 +444,8 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD/
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/raylib-6.0.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/raylib-6.0.tar.gz" https://github.com/raysan5/raylib/archive/refs/tags/6.0.tar.gz
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/raylib-6.0.tar.gz" | grep 2b3ee1e2120c7a0796b33062c7e9a694dd8a8caa56a96319ac8c8ecf54a90d0b
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/raylib-6.0.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}" && patch -p1 < "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/disable-busy-wait-loop.patch"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}" && patch -p1 < "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/raylib-disable-busy-wait-loop.patch"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}" && patch -p1 < "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/raylib-enable-jpg.patch"
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/glfw-3.4.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/glfw-3.4.tar.gz" "https://github.com/glfw/glfw/archive/refs/tags/3.4.tar.gz"
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/glfw-3.4.tar.gz" | grep c038d34200234d071fae9345bc455e4a8f2f544ab60150765d7704e08f3dac01
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/glfw-3.4.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
