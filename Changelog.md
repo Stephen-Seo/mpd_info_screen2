@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.21
+
 Update dependency Raylib to 6.0 .
 
 Update bundled dependencies:
