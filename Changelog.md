@@ -1,5 +1,11 @@
 # Upcoming Changes
 
+Update dependency Raylib to 6.0 .
+
+Update bundled dependencies:
+
+ - expat 2.7.5 -> 2.8.0
+
 # Version 1.20.3
 
 Update bundled dependencies:
