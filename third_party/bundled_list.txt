@@ -15,6 +15,6 @@ https://wayland.freedesktop.org/releases.html
 https://github.com/xkbcommon/libxkbcommon/releases
 https://gitlab.freedesktop.org/xorg/lib/libx11/-/tags
 https://www.x.org/releases/individual/util/ -> util-macros
-https://www.x.org/releases/individual/lib/ -> libxau, libxcb, libXcursor, libXext, libXfixes, libXi, libXinerama, libXrandr, libXrender, xtrans
+https://www.x.org/releases/individual/lib/ -> libxau, libxcb, libXcursor, libXdmcp, libXext, libXfixes, libXi, libXinerama, libXrandr, libXrender, xtrans
 https://www.x.org/releases/individual/proto/ -> xorgproto, xcb-proto
 https://github.com/GNOME/libxml2/tags

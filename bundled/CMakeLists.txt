@@ -288,6 +288,20 @@ set_target_properties(LIBXAU PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_
 
 add_dependencies(LIBXAU XORGPROTO)
 
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXdmcp.a"
+    COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libXdmcp-1.1.5.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libXdmcp-1.1.5.tar.xz" "https://www.x.org/releases/individual/lib/libXdmcp-1.1.5.tar.xz"
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libXdmcp-1.1.5.tar.xz" | grep d8a5222828c3adab70adf69a5583f1d32eb5ece04304f7f8392b6a353aa2228c
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libXdmcp-1.1.5.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXdmcp-1.1.5" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig" CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXdmcp-1.1.5" install
+    VERBATIM)
+
+add_custom_target(LIBXDMCP DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXdmcp.a")
+set_target_properties(LIBXDMCP PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXdmcp-1.1.5;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+
+add_dependencies(LIBXDMCP XORGPROTO)
+
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libxcb-xkb.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libxcb-1.17.0.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libxcb-1.17.0.tar.xz" https://www.x.org/releases/individual/lib/libxcb-1.17.0.tar.xz
@@ -427,21 +441,21 @@ add_dependencies(LIBXI LIBXFIXES)
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD/raylib/libraylib.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/raylib-5.5.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/raylib-5.5.tar.gz" https://github.com/raysan5/raylib/archive/refs/tags/5.5.tar.gz
-    COMMAND cd "${CMAKE_CURRENT_SOURCE_DIR}/.." && sha256sum -c "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/raylib-5.5_SHA256SUMS.txt"
-    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/raylib-5.5.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}" && patch -p1 < "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/disable-busy-wait-loop.patch"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}" && patch -p1 < "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/font-atlas-size-conservative.patch"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/raylib-6.0.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/raylib-6.0.tar.gz" https://github.com/raysan5/raylib/archive/refs/tags/6.0.tar.gz
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/raylib-6.0.tar.gz" | grep 2b3ee1e2120c7a0796b33062c7e9a694dd8a8caa56a96319ac8c8ecf54a90d0b
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/raylib-6.0.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}" && patch -p1 < "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/raylib-disable-busy-wait-loop.patch"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}" && patch -p1 < "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/raylib-enable-jpg.patch"
     COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/glfw-3.4.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/glfw-3.4.tar.gz" "https://github.com/glfw/glfw/archive/refs/tags/3.4.tar.gz"
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/glfw-3.4.tar.gz" | grep c038d34200234d071fae9345bc455e4a8f2f544ab60150765d7704e08f3dac01
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/glfw-3.4.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND sed -i -e "/^    add_subdirectory(external\\/glfw)/cadd_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/third_party/glfw-3.4 ${CMAKE_CURRENT_BINARY_DIR}/third_party/glfw-3.4/BUILD_DIR)" "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-5.5/cmake/GlfwImport.cmake"
-    COMMAND env "CMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} cmake -S "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-5.5" -B "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD" -DCMAKE_BUILD_TYPE=Release -DGLFW_BUILD_WAYLAND=ON "-DWAYLAND_SCANNER_EXECUTABLE=${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/bin/wayland-scanner" "-DOPENGL_INCLUDE_DIR=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/include"
+    COMMAND sed -i -e "/^    add_subdirectory(external\\/glfw)/cadd_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/third_party/glfw-3.4 ${CMAKE_CURRENT_BINARY_DIR}/third_party/glfw-3.4/BUILD_DIR)" "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-6.0/cmake/GlfwImport.cmake"
+    COMMAND env "CMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} cmake -S "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-6.0" -B "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD" -DCMAKE_BUILD_TYPE=Release -DGLFW_BUILD_WAYLAND=ON "-DWAYLAND_SCANNER_EXECUTABLE=${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/bin/wayland-scanner" "-DOPENGL_INCLUDE_DIR=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/include"
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD" raylib
     VERBATIM)
 
 add_custom_target(LIBRAYLIB DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD/raylib/libraylib.a")
-set_target_properties(LIBRAYLIB PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-5.5;${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD;${CMAKE_CURRENT_BINARY_DIR}/third_party/glfw-3.4")
+set_target_properties(LIBRAYLIB PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-6.0;${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD;${CMAKE_CURRENT_BINARY_DIR}/third_party/glfw-3.4")
 
 add_dependencies(LIBRAYLIB LIBXKBCOMMON)
 add_dependencies(LIBRAYLIB LIBX11)
@@ -449,21 +463,22 @@ add_dependencies(LIBRAYLIB LIBXRANDR)
 add_dependencies(LIBRAYLIB LIBXINERAMA)
 add_dependencies(LIBRAYLIB LIBXCURSOR)
 add_dependencies(LIBRAYLIB LIBXI)
+add_dependencies(LIBRAYLIB LIBXDMCP)
 
 add_dependencies(mpd_info_screen2 LIBRAYLIB)
 add_dependencies(unittests LIBRAYLIB)
 
-add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.7.5/lib/.libs/libexpat.a"
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.8.0/lib/.libs/libexpat.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/expat-2.7.5.tar.xz" || curl -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/expat-2.7.5.tar.xz" -L "https://github.com/libexpat/libexpat/releases/download/R_2_7_5/expat-2.7.5.tar.xz"
-    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/expat-2.7.5.tar.xz" | grep 1032dfef4ff17f70464827daa28369b20f6584d108bc36f17ab1676e1edd2f91
-    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/expat-2.7.5.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.7.5" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./buildconf.sh && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-static=yes --enable-shared=no ${CROSS_HOST_FLAG}
-    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.7.5"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/expat-2.8.0.tar.xz" || curl -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/expat-2.8.0.tar.xz" -L "https://github.com/libexpat/libexpat/releases/download/R_2_8_0/expat-2.8.0.tar.xz"
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/expat-2.8.0.tar.xz" | grep a37bfae0aa9775bd8521ebd85dc456d486f0ff31138f6c91fd902ea732624542
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/expat-2.8.0.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.8.0" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./buildconf.sh && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-static=yes --enable-shared=no ${CROSS_HOST_FLAG}
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.8.0"
     VERBATIM)
 
-add_custom_target(LIBEXPAT DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.7.5/lib/.libs/libexpat.a")
-set_target_properties(LIBEXPAT PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.7.5")
+add_custom_target(LIBEXPAT DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.8.0/lib/.libs/libexpat.a")
+set_target_properties(LIBEXPAT PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.8.0")
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.2/libz.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
@@ -569,7 +584,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/fontconfig-2.17.1.tar.gz" | grep 82e73b26adad651b236e5f5d4b3074daf8ff0910188808496326bd3449e5261d
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/fontconfig-2.17.1.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
     COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}" && patch -p1 < "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/fontconfig_autogen.patch"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1" && env CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} EXPAT_CFLAGS=-I${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.7.5/lib EXPAT_LIBS=-L${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.7.5/lib/.libs\ -lexpat FREETYPE_CFLAGS=-I${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.3/include FREETYPE_LIBS=-L${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.3/objs/.libs\ -lfreetype LDFLAGS=-L${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.2\ -L${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1.0.8\ -L${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng-1.6.58/.libs\ -L${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD\ -L${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-14.2.0/BUILD ./autogen.sh --sysconfdir=/etc --prefix=/usr --mandir=/usr/share/man --enable-static=yes --enable-shared=no ${CROSS_HOST_FLAG}
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1" && env CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} EXPAT_CFLAGS=-I${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.8.0/lib EXPAT_LIBS=-L${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.8.0/lib/.libs\ -lexpat FREETYPE_CFLAGS=-I${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.3/include FREETYPE_LIBS=-L${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.3/objs/.libs\ -lfreetype LDFLAGS=-L${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.2\ -L${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1.0.8\ -L${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng-1.6.58/.libs\ -L${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD\ -L${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-14.2.0/BUILD ./autogen.sh --sysconfdir=/etc --prefix=/usr --mandir=/usr/share/man --enable-static=yes --enable-shared=no ${CROSS_HOST_FLAG}
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1/fc-lang"
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1/fc-case"
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1/src" fcftalias.h
@@ -601,14 +616,14 @@ else()
     unset(FORCE_DEBUG_FLAG)
 endif()
 
-target_compile_options(mpd_info_screen2 PRIVATE -I${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-5.5/src -I${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1
+target_compile_options(mpd_info_screen2 PRIVATE -I${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-6.0/src -I${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1
     PRIVATE -Wall -Wformat -Wformat=2 -Wconversion -Wimplicit-fallthrough  -Werror=format-security  -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3  -D_GLIBCXX_ASSERTIONS  -fstrict-flex-arrays=3  -fstack-clash-protection -fstack-protector-strong  -Wl,-z,nodlopen -Wl,-z,noexecstack  -Wl,-z,relro -Wl,-z,now  -Wl,--as-needed -Wl,--no-copy-dt-needed-entriesa -fPIE -pie $<$<STREQUAL:"Release","${CMAKE_BUILD_TYPE}">:-O2 -DNDEBUG -fno-delete-null-pointer-checks -fno-strict-overflow -fno-strict-aliasing -ftrivial-auto-var-init=zero> $<$<STREQUAL:"Debug","${CMAKE_BUILD_TYPE}">:-Werror -Og -g> $<$<BOOL:${FORCE_DEBUG_FLAG}>:-g>
 )
-target_link_libraries(mpd_info_screen2 "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD/raylib/libraylib.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1/src/.libs/libfontconfig.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.7.5/lib/.libs/libexpat.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.3/objs/.libs/libfreetype.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1.0.8/libbz2.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlidec.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlienc.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlicommon.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng-1.6.58/.libs/libpng16.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.2/libz.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/gzip-1.14/lib/libgzip.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-14.2.0/BUILD/libharfbuzz.a" ${EXTERNAL_GLFW_LINKER_LIBS})
-target_compile_options(unittests PRIVATE -I${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-5.5/src -I${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1
+target_link_libraries(mpd_info_screen2 "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD/raylib/libraylib.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1/src/.libs/libfontconfig.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.8.0/lib/.libs/libexpat.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.3/objs/.libs/libfreetype.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1.0.8/libbz2.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlidec.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlienc.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlicommon.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng-1.6.58/.libs/libpng16.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.2/libz.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/gzip-1.14/lib/libgzip.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-14.2.0/BUILD/libharfbuzz.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libX11.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libX11-xcb.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libxcb.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXau.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXdmcp.a" ${EXTERNAL_GLFW_LINKER_LIBS})
+target_compile_options(unittests PRIVATE -I${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-6.0/src -I${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1
     PRIVATE -Wall -Wformat -Wformat=2 -Wconversion -Wimplicit-fallthrough  -Werror=format-security  -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3  -D_GLIBCXX_ASSERTIONS  -fstrict-flex-arrays=3  -fstack-clash-protection -fstack-protector-strong  -Wl,-z,nodlopen -Wl,-z,noexecstack  -Wl,-z,relro -Wl,-z,now  -Wl,--as-needed -Wl,--no-copy-dt-needed-entriesa -fPIE -pie $<$<STREQUAL:"Release","${CMAKE_BUILD_TYPE}">:-O2 -DNDEBUG -fno-delete-null-pointer-checks -fno-strict-overflow -fno-strict-aliasing -ftrivial-auto-var-init=zero> $<$<STREQUAL:"Debug","${CMAKE_BUILD_TYPE}">:-Werror -Og -g> $<$<BOOL:${FORCE_DEBUG_FLAG}>:-g>
 )
-target_link_libraries(unittests "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD/raylib/libraylib.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1/src/.libs/libfontconfig.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.7.5/lib/.libs/libexpat.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.3/objs/.libs/libfreetype.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1.0.8/libbz2.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlidec.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlienc.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlicommon.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng-1.6.58/.libs/libpng16.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.2/libz.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/gzip-1.14/lib/libgzip.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-14.2.0/BUILD/libharfbuzz.a" ${EXTERNAL_GLFW_LINKER_LIBS} atomic)
+target_link_libraries(unittests "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD/raylib/libraylib.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.17.1/src/.libs/libfontconfig.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.8.0/lib/.libs/libexpat.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.3/objs/.libs/libfreetype.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1.0.8/libbz2.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlidec.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlienc.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlicommon.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng-1.6.58/.libs/libpng16.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.2/libz.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/gzip-1.14/lib/libgzip.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-14.2.0/BUILD/libharfbuzz.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libX11.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libX11-xcb.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libxcb.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXau.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXdmcp.a" ${EXTERNAL_GLFW_LINKER_LIBS} atomic)
 
 if(EXISTS "/usr/bin/clang-format")
     add_custom_target(CLANG_FORMAT COMMAND /usr/bin/clang-format -i --style=file ${mpd_info_screen2_SOURCES} ${unittests_SOURCES} ${mpd_info_screen2_HEADERS}
