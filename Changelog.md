@@ -1,7 +1,6 @@
 # Upcoming Changes
 
-Verified that ipv4 parsing works on big-endian (no actual code change, just
-documented for history's sake).
+Fixed ipv4 handling on big-endian systems.
 
 # Version 1.21.1
 
