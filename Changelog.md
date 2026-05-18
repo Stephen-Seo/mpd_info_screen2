@@ -1,6 +1,7 @@
 # Upcoming Changes
 
-Fixed ipv4 handling on big-endian systems.
+Fixed ipv4 handling on big-endian systems.  
+Also fixed `unittests` for big-endian systems.
 
 # Version 1.21.1
 
