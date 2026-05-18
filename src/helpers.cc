@@ -58,10 +58,6 @@ std::optional<uint32_t> helper_ipv4_str_to_value(std::string ipv4) {
     return std::nullopt;
   }
 
-  if (helper_is_big_endian()) {
-    result = helper_uint32_byte_swap(result);
-  }
-
   return result;
 }
 
