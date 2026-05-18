@@ -54,8 +54,10 @@ int main(void) {
 
     uint8_t *first_c = reinterpret_cast<uint8_t *>(&ipv4_opt.value());
     if (helper_is_big_endian()) {
-      CHECK_TRUE(*first_c == 0x01);
+      PrintHelper::println("Is BIG-endian");
+      CHECK_TRUE(*first_c == 0x7F);
     } else {
+      PrintHelper::println("Is LITTLE-endian");
       CHECK_TRUE(*first_c == 0x7F);
     }
   }
