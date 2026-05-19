@@ -58,19 +58,6 @@ std::optional<uint32_t> helper_ipv4_str_to_value(std::string ipv4) {
     return std::nullopt;
   }
 
-  // TODO Fix/Revise this
-  // if (helper_is_big_endian()) {
-  //  htonl is a no-op on big endian systems. (Network byte order is Big-endian)
-  //  Perhaps the way the 32-bit integer was constructed makes it ok for both
-  //  big/little endian systems?
-  //  result = htonl(result);
-  //}
-
-  // TODO Verify this works
-  if (helper_is_big_endian()) {
-    result = helper_uint32_byte_swap(result);
-  }
-
   return result;
 }
 
