@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.21.3
+
 Update bundled dependencies:
 
  - libXi 1.8.2 -> 1.8.3
