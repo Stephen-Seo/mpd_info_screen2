@@ -60,6 +60,13 @@ Usage:
   --y-offset-top=<pixels> : Offset of displayed text from top
 
 --------------------------------------------------------------------------------
+    Running
+--------------------------------------------------------------------------------
+
+mpd_info_screen2 can run with software rendering by setting the environment
+variable LIBGL_ALWAYS_SOFTWARE=1 . This is due to Raylib being OpenGL based.
+
+--------------------------------------------------------------------------------
     Man Page
 --------------------------------------------------------------------------------
 
