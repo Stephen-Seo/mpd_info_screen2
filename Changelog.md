@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.21.4
+
 Update bundled dependencies:
 
  - fontconfig 2.17.1 -> 2.18.0
