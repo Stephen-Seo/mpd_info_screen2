@@ -1,5 +1,9 @@
 # Upcoming Changes
 
+Update bundled dependencies:
+
+ - xkbcommon 1.13.1 -> 1.13.2
+
 # Version 1.21.4
 
 Update bundled dependencies:
