@@ -220,16 +220,16 @@ set_target_properties(BISON_NATIVE PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CU
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libxkbcommon.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/xkbcommon-1.13.1.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/xkbcommon-1.13.1.tar.gz" https://github.com/xkbcommon/libxkbcommon/archive/refs/tags/xkbcommon-1.13.1.tar.gz
-    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/xkbcommon-1.13.1.tar.gz" | grep aeb951964c2f7ecc08174cb5517962d157595e9e3f38fc4a130b91dc2f9fec18
-    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/xkbcommon-1.13.1.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND env "PATH=$ENV{PATH}:${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/bin" "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig" meson setup --prefix "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --pkg-config-path "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" --buildtype release --prefer-static --default-library static --default-both-libraries static -D enable-x11=false -D enable-bash-completion=false "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,--native-file>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,${MESON_CROSS_FILE}>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,--cross-file>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,${MESON_CROSS_FILE}>" "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxkbcommon-xkbcommon-1.13.1/BUILD" "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxkbcommon-xkbcommon-1.13.1"
-    COMMAND env "PATH=$ENV{PATH}:${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/bin" ninja -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxkbcommon-xkbcommon-1.13.1/BUILD" install
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/xkbcommon-1.13.2.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/xkbcommon-1.13.2.tar.gz" "https://github.com/xkbcommon/libxkbcommon/archive/refs/tags/xkbcommon-1.13.2.tar.gz"
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/xkbcommon-1.13.2.tar.gz" | grep acc4d5f7c3cbba5f9f8d08d8bdbeede84ecede46792f47929aa9321873385528
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/xkbcommon-1.13.2.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND env "PATH=$ENV{PATH}:${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/bin" "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig" meson setup --prefix "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --pkg-config-path "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" --buildtype release --prefer-static --default-library static --default-both-libraries static -D enable-x11=false -D enable-bash-completion=false "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,--native-file>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,${MESON_CROSS_FILE}>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,--cross-file>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,${MESON_CROSS_FILE}>" "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxkbcommon-xkbcommon-1.13.2/BUILD" "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxkbcommon-xkbcommon-1.13.2"
+    COMMAND env "PATH=$ENV{PATH}:${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/bin" ninja -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxkbcommon-xkbcommon-1.13.2/BUILD" install
     COMMAND_EXPAND_LISTS
     VERBATIM)
 
 add_custom_target(LIBXKBCOMMON DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libxkbcommon.a")
-set_target_properties(LIBXKBCOMMON PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxkbcommon-xkbcommon-1.13.1;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+set_target_properties(LIBXKBCOMMON PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libxkbcommon-xkbcommon-1.13.2;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
 
 add_dependencies(LIBXKBCOMMON LIBWAYLAND)
 add_dependencies(LIBXKBCOMMON LIBWAYLAND_PROTOCOLS)
