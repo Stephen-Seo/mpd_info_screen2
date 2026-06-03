@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.21.6
+
 Fix bundled cross-compiling by not building "tools" in dependency `xkbcommon`.
 
 Update bundled dependencies:
