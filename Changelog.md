@@ -1,6 +1,13 @@
 # Upcoming Changes
 
+# Version 1.21.6
+
 Fix bundled cross-compiling by not building "tools" in dependency `xkbcommon`.
+
+Update bundled dependencies:
+
+ - fontconfig 2.18.0 -> 2.18.1
+ - harfbuzz 14.2.0 -> 14.2.1
 
 # Version 1.21.5
 
