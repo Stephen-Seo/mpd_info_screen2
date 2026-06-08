@@ -1,5 +1,11 @@
 # Upcoming Changes
 
+# Version 1.21.7
+
+Update bundled dependencies:
+
+ - wayland-protocols 1.48 -> 1.49
+
 # Version 1.21.6
 
 Fix bundled cross-compiling by not building "tools" in dependency `xkbcommon`.
