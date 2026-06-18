@@ -38,7 +38,9 @@ class Args {
 
   bool is_error() const;
   const std::bitset<64> &get_flags() const;
+  bool is_using_unix_socket() const;
   const std::string &get_host_ip_addr() const;
+  const std::string &get_host_unix_socket() const;
   const std::optional<std::string> &get_password_file() const;
   double get_text_bg_opacity() const;
   float get_font_scale_factor() const;
@@ -80,10 +82,12 @@ class Args {
   // NOT 20 AND 21 - scale text by min(height, width)
   // 20 AND 21 - scale text by max(height, width)
   // 22 - y offset from top
+  // 23 - unix socket instead of address if set
   std::bitset<64> flags;
   std::unordered_set<std::string> font_blacklist_strings;
   std::unordered_set<std::string> font_whitelist_strings;
   std::string host_ip_addr;
+  std::string host_unix_socket;
   std::string default_font_filename;
   std::optional<std::string> password_file;
   std::unique_ptr<Color> text_fg_color;

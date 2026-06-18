@@ -30,7 +30,8 @@
 
 class MPDClient {
  public:
-  MPDClient(std::string host_ip, uint16_t host_port, LogLevel level);
+  MPDClient(std::string host, uint16_t host_port, LogLevel level,
+            bool is_socket);
   ~MPDClient();
 
   // No copy
@@ -94,6 +95,7 @@ class MPDClient {
     }
   }
 
+  std::string socket_path;
   // 0 - invalid state
   // 1 - initial state
   // 2 - successful ping
@@ -106,11 +108,12 @@ class MPDClient {
   // 9 - current song no "readpicture"
   // 10 - current song no "albumart"
   // 11 - failed to fetch album art
+  // 12 - is using unix socket
   std::bitset<64> flags;
   LogLevel level;
   std::optional<uint32_t> host_ip_value;
   uint16_t host_port;
-  int tcp_socket;
+  int conn_socket;
 
   // current song info
   std::string song_title;
@@ -129,7 +132,7 @@ class MPDClient {
 
   std::tuple<StatusEnum, std::string> write_read(std::string to_send);
 
-  void cleanup_close_tcp();
+  void cleanup_close_conn();
 
   void parse_for_song_info(const std::string &buf);
   void parse_for_album_art(const std::string &buf);

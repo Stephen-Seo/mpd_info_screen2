@@ -138,7 +138,26 @@ Args::Args(int argc, char **argv)
   ++argv;
   while (argc > 0) {
     if (std::strncmp("--host=", argv[0], 7) == 0) {
-      host_ip_addr = std::string(argv[0] + 7);
+      if (host_unix_socket.empty()) {
+        host_ip_addr = std::string(argv[0] + 7);
+      } else {
+        PrintHelper::println(
+            stderr,
+            "ERROR: --host=... and --host-socket=... are mutually exclusive!");
+        flags.set(0);
+        return;
+      }
+    } else if (std::strncmp("--host-socket=", argv[0], 14) == 0) {
+      if (host_ip_addr.empty()) {
+        host_unix_socket = std::string(argv[0] + 14);
+        flags.set(23);
+      } else {
+        PrintHelper::println(
+            stderr,
+            "ERROR: --host-socket=... and --host=... are mutually exclusive!");
+        flags.set(0);
+        return;
+      }
     } else if (std::strncmp("--port=", argv[0], 7) == 0) {
       unsigned long long p = std::strtoul(argv[0] + 7, nullptr, 10);
       if (p > 0xFFFF) {
@@ -373,8 +392,10 @@ Args::Args(int argc, char **argv)
     ++argv;
   }
 
-  if (host_ip_addr.empty()) {
-    PrintHelper::println(stderr, "ERROR: --host=<ip_addr> not specified!");
+  if (host_ip_addr.empty() && host_unix_socket.empty()) {
+    PrintHelper::println(
+        stderr,
+        "ERROR: --host=<ip_addr> or --host-socket=<path> not specified!");
     flags.set(0);
     return;
   }
@@ -385,6 +406,7 @@ void Args::print_usage() {
   PrintHelper::println("  -h | --help : show this usage text");
   PrintHelper::println("  --version : show the version of this program");
   PrintHelper::println("  --host=<ip_addr> : ip address of mpd server");
+  PrintHelper::println("  --host-socket=<path> : unix socket of mpd server");
   PrintHelper::println("  --port=<port> : port of mpd server (default 6600)");
   PrintHelper::println("  --disable-all-text : disables showing all text");
   PrintHelper::println("  --disable-show-title : disable showing song title");
@@ -469,7 +491,13 @@ bool Args::is_error() const { return flags.test(0); }
 
 const std::bitset<64> &Args::get_flags() const { return flags; }
 
+bool Args::is_using_unix_socket() const { return flags.test(23); }
+
 const std::string &Args::get_host_ip_addr() const { return host_ip_addr; }
+
+const std::string &Args::get_host_unix_socket() const {
+  return host_unix_socket;
+}
 
 const std::string &Args::get_default_font_filename() const {
   return default_font_filename;
