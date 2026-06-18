@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.22.1
+
 Update man page about `--host-socket=<path>`.
 
 Attempt to fix album-art-load-failure by reducing the amount of data sent by
