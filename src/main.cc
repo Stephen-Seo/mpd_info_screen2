@@ -51,8 +51,10 @@ int main(int argc, char **argv) {
   const Color CLEAR_BG_COLOR{args.get_bg_grayscale(), args.get_bg_grayscale(),
                              args.get_bg_grayscale(), 255};
 
-  MPDClient cli(args.get_host_ip_addr(), args.get_host_port(),
-                args.get_log_level());
+  MPDClient cli(args.is_using_unix_socket() ? args.get_host_unix_socket()
+                                            : args.get_host_ip_addr(),
+                args.get_host_port(), args.get_log_level(),
+                args.is_using_unix_socket());
 
   if (!cli.is_ok()) {
     LOG_PRINT(args.get_log_level(), LogLevel::VERBOSE,
@@ -169,8 +171,11 @@ int main(int argc, char **argv) {
         if (new_time_point - reconnect_time_point.value() >
             RECONNECT_INTERVAL) {
           reconnect_time_point = std::nullopt;
-          cli = MPDClient(args.get_host_ip_addr(), args.get_host_port(),
-                          args.get_log_level());
+          cli = MPDClient(args.is_using_unix_socket()
+                              ? args.get_host_unix_socket()
+                              : args.get_host_ip_addr(),
+                          args.get_host_port(), args.get_log_level(),
+                          args.is_using_unix_socket());
           disp = std::make_unique<MPDDisplay>(args.get_flags(),
                                               args.get_log_level());
         }

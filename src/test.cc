@@ -64,11 +64,11 @@ int main(void) {
 
   // MPDClient init
   {
-    MPDClient cli("127.0.0.1.2", 2222, LogLevel::SILENT);
+    MPDClient cli("127.0.0.1.2", 2222, LogLevel::SILENT, false);
     CHECK_FALSE(cli.is_ok());
-    cli = MPDClient("127.0.1", 3333, LogLevel::SILENT);
+    cli = MPDClient("127.0.1", 3333, LogLevel::SILENT, false);
     CHECK_FALSE(cli.is_ok());
-    cli = MPDClient("127.0.0.1", 4444, LogLevel::SILENT);
+    cli = MPDClient("127.0.0.1", 4444, LogLevel::SILENT, false);
     CHECK_TRUE(cli.is_ok());
   }
 

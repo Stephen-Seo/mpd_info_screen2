@@ -1,5 +1,9 @@
 # Upcoming Changes
 
+# Version 1.22.0
+
+Add capability to connect to mpd via socket with: `--host-socket=<path>`.
+
 # Version 1.21.7
 
 Update bundled dependencies:

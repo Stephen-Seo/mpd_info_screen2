@@ -253,6 +253,9 @@ void MPDDisplay::update(MPDClient &cli, const Args &args) {
         ext = ".gif";
       }
 
+      LOG_PRINT(level, LogLevel::DEBUG,
+                "Attempting LoadImageFromMemory with size {}, ext {}",
+                cli_image->size(), ext);
       Image art_img = LoadImageFromMemory(
           ext.c_str(),
           reinterpret_cast<const unsigned char *>(cli_image.value().data()),

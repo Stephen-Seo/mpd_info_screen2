@@ -32,14 +32,17 @@
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <sys/un.h>
 #include <unistd.h>
 
-MPDClient::MPDClient(std::string host_ip, uint16_t host_port, LogLevel level)
-    : flags(),
+MPDClient::MPDClient(std::string host, uint16_t host_port, LogLevel level,
+                     bool is_socket)
+    : socket_path(is_socket ? host : std::string()),
+      flags(),
       level(level),
-      host_ip_value(helper_ipv4_str_to_value(host_ip)),
+      host_ip_value(),
       host_port(host_port),
-      tcp_socket(-1),
+      conn_socket(-1),
       song_title(),
       song_artist(),
       song_album(),
@@ -53,24 +56,32 @@ MPDClient::MPDClient(std::string host_ip, uint16_t host_port, LogLevel level)
       album_art_mime_type(),
       album_art_offset(0),
       album_art_expected_size(0) {
-  if (!host_ip_value.has_value()) {
-    LOG_PRINT(level, LogLevel::ERROR, "ERROR: Failed to parse ipv4 \"{}\"!",
-              host_ip);
-    flags.set(0);
-  } else {
+  if (is_socket) {
     flags.set(1);
     flags.set(8);
+    flags.set(12);
+  } else {
+    host_ip_value = helper_ipv4_str_to_value(host);
+    if (!host_ip_value.has_value()) {
+      LOG_PRINT(level, LogLevel::ERROR, "ERROR: Failed to parse ipv4 \"{}\"!",
+                host);
+      flags.set(0);
+    } else {
+      flags.set(1);
+      flags.set(8);
+    }
   }
 }
 
-MPDClient::~MPDClient() { cleanup_close_tcp(); }
+MPDClient::~MPDClient() { cleanup_close_conn(); }
 
 MPDClient::MPDClient(MPDClient &&other)
-    : flags(std::move(other.flags)),
+    : socket_path(std::move(other.socket_path)),
+      flags(std::move(other.flags)),
       level(std::move(other.level)),
       host_ip_value(std::move(other.host_ip_value)),
       host_port(std::move(other.host_port)),
-      tcp_socket(std::move(other.tcp_socket)),
+      conn_socket(std::move(other.conn_socket)),
       song_title(std::move(other.song_title)),
       song_artist(std::move(other.song_artist)),
       song_album(std::move(other.song_album)),
@@ -84,16 +95,17 @@ MPDClient::MPDClient(MPDClient &&other)
       album_art_mime_type(std::move(other.album_art_mime_type)),
       album_art_offset(std::move(other.album_art_offset)),
       album_art_expected_size(other.album_art_expected_size) {
-  other.tcp_socket = -1;
+  other.conn_socket = -1;
 }
 
 MPDClient &MPDClient::operator=(MPDClient &&other) {
+  this->socket_path = std::move(other.socket_path);
   this->flags = std::move(other.flags);
   this->level = std::move(other.level);
   this->host_ip_value = std::move(other.host_ip_value);
   this->host_port = other.host_port;
-  this->tcp_socket = other.tcp_socket;
-  other.tcp_socket = -1;
+  this->conn_socket = other.conn_socket;
+  other.conn_socket = -1;
   this->song_title = std::move(other.song_title);
   this->song_artist = std::move(other.song_artist);
   this->song_album = std::move(other.song_album);
@@ -128,7 +140,7 @@ void MPDClient::reset_connection() {
   album_art_offset = std::nullopt;
   album_art_expected_size = 0;
   album_art_mime_type.clear();
-  cleanup_close_tcp();
+  cleanup_close_conn();
 }
 
 bool MPDClient::is_ok() const { return !flags.test(0); }
@@ -136,7 +148,7 @@ bool MPDClient::is_ok() const { return !flags.test(0); }
 bool MPDClient::needs_auth() const { return flags.test(5); }
 
 bool MPDClient::attempt_auth(std::string passwd) {
-  if (!is_ok() || tcp_socket < 0) {
+  if (!is_ok() || conn_socket < 0) {
     return false;
   }
 
@@ -156,7 +168,7 @@ bool MPDClient::attempt_auth(std::string passwd) {
   }
   vec.push_back('\n');
 
-  ssize_t write_ret = write(tcp_socket, vec.data(), vec.size());
+  ssize_t write_ret = write(conn_socket, vec.data(), vec.size());
   if (write_ret == static_cast<ssize_t>(vec.size())) {
     // Successful write, do nothing here.
   } else if (errno == EAGAIN) {
@@ -174,7 +186,7 @@ bool MPDClient::attempt_auth(std::string passwd) {
   std::memset(buf, 0, READ_BUF_SIZE_SMALL);
   bool read_success = false;
   do {
-    ssize_t read_ret = read(tcp_socket, buf, READ_BUF_SIZE_SMALL);
+    ssize_t read_ret = read(conn_socket, buf, READ_BUF_SIZE_SMALL);
     if (read_ret > 1) {
       LOG_PRINT(level, LogLevel::VERBOSE, "{:.{}s}",
                 reinterpret_cast<const char *>(buf), read_ret);
@@ -212,47 +224,85 @@ void MPDClient::update() {
     flags.reset(1);
 
     // Initialize connection.
-    cleanup_close_tcp();
+    cleanup_close_conn();
 
-    tcp_socket = socket(AF_INET, SOCK_STREAM, 0);
-    if (tcp_socket < 0) {
-      flags.set(0);
-      LOG_PRINT(level, LogLevel::ERROR, "Failed to create tcp socket: errno {}",
-                errno);
-      return;
-    }
+    if (flags.test(12)) {
+      conn_socket = socket(AF_UNIX, SOCK_STREAM, 0);
+      if (conn_socket < 0) {
+        flags.set(0);
+        LOG_PRINT(level, LogLevel::ERROR,
+                  "Failed to create unix socket: errno {}", errno);
+        return;
+      }
 
-    struct sockaddr_in ipv4_sockaddr;
-    std::memset(&ipv4_sockaddr, 0, sizeof(struct sockaddr_in));
-    ipv4_sockaddr.sin_family = AF_INET;
-    if (helper_is_big_endian()) {
-      ipv4_sockaddr.sin_port = host_port;
+      struct sockaddr_un unix_sockaddr;
+      unix_sockaddr.sun_family = AF_UNIX;
+
+      if (this->socket_path.size() + 1 >= sizeof(unix_sockaddr.sun_path)) {
+        cleanup_close_conn();
+        flags.set(0);
+        LOG_PRINT(level, LogLevel::ERROR,
+                  "Failed to create unix socket, path too long");
+        return;
+      }
+
+      std::memcpy(unix_sockaddr.sun_path, this->socket_path.c_str(),
+                  this->socket_path.size() + 1);
+
+      int ret =
+          connect(conn_socket,
+                  reinterpret_cast<const struct sockaddr *>(&unix_sockaddr),
+                  sizeof(unix_sockaddr));
+
+      if (ret < 0) {
+        cleanup_close_conn();
+        flags.set(0);
+        LOG_PRINT(level, LogLevel::ERROR,
+                  "Failed to connect unix socket, errno {}:", errno);
+        return;
+      }
     } else {
-      ipv4_sockaddr.sin_port = htons(host_port);
+      conn_socket = socket(AF_INET, SOCK_STREAM, 0);
+      if (conn_socket < 0) {
+        flags.set(0);
+        LOG_PRINT(level, LogLevel::ERROR,
+                  "Failed to create tcp socket: errno {}", errno);
+        return;
+      }
+
+      struct sockaddr_in ipv4_sockaddr;
+      std::memset(&ipv4_sockaddr, 0, sizeof(struct sockaddr_in));
+      ipv4_sockaddr.sin_family = AF_INET;
+      if (helper_is_big_endian()) {
+        ipv4_sockaddr.sin_port = host_port;
+      } else {
+        ipv4_sockaddr.sin_port = htons(host_port);
+      }
+      ipv4_sockaddr.sin_addr.s_addr = host_ip_value.value();
+
+      LOG_PRINT(level, LogLevel::VERBOSE,
+                "VERBOSE: host_ip: {:x}, host port: {:x}",
+                ipv4_sockaddr.sin_addr.s_addr, ipv4_sockaddr.sin_port);
+
+      int connect_ret =
+          connect(conn_socket,
+                  reinterpret_cast<const struct sockaddr *>(&ipv4_sockaddr),
+                  sizeof(struct sockaddr_in));
+      if (connect_ret != 0) {
+        cleanup_close_conn();
+        flags.set(0);
+        LOG_PRINT(level, LogLevel::ERROR,
+                  "ERROR: Failed to connect to host! errno {}", errno);
+        return;
+      }
     }
-    ipv4_sockaddr.sin_addr.s_addr = host_ip_value.value();
 
-    LOG_PRINT(level, LogLevel::VERBOSE,
-              "VERBOSE: host_ip: {:x}, host port: {:x}",
-              ipv4_sockaddr.sin_addr.s_addr, ipv4_sockaddr.sin_port);
-
-    int connect_ret = connect(
-        tcp_socket, reinterpret_cast<const struct sockaddr *>(&ipv4_sockaddr),
-        sizeof(struct sockaddr_in));
-    if (connect_ret != 0) {
-      cleanup_close_tcp();
-      flags.set(0);
-      LOG_PRINT(level, LogLevel::ERROR,
-                "ERROR: Failed to connect to host! errno {}", errno);
-      return;
-    }
-
-    int fcntl_ret = fcntl(tcp_socket, F_SETFL, O_NONBLOCK);
+    int fcntl_ret = fcntl(conn_socket, F_SETFL, O_NONBLOCK);
     if (fcntl_ret == -1) {
-      cleanup_close_tcp();
+      cleanup_close_conn();
       flags.set(0);
       LOG_PRINT(level, LogLevel::ERROR,
-                "ERROR: Failed to set non-blocking on tcp socket! errno {}",
+                "ERROR: Failed to set non-blocking on conn_socket! errno {}",
                 errno);
       return;
     }
@@ -267,14 +317,14 @@ void MPDClient::update() {
       if (str.at(0) == 'O' && str.at(1) == 'K') {
         // Successful, do nothing here.
       } else {
-        cleanup_close_tcp();
+        cleanup_close_conn();
         flags.set(0);
         LOG_PRINT(level, LogLevel::ERROR,
                   "ERROR: Failed to get initial OK from MPD!");
         return;
       }
     } else {
-      cleanup_close_tcp();
+      cleanup_close_conn();
       flags.set(0);
       LOG_PRINT(level, LogLevel::ERROR,
                 "ERROR: Failed to read initial OK from MPD!");
@@ -288,7 +338,7 @@ void MPDClient::update() {
           write_read(std::format("binarylimit {}\n", MPD_BINARY_LIMIT));
       if (flags.test(0) || (status != StatusEnum::SE_SUCCESS &&
                             status != StatusEnum::SE_EAGAIN_ON_READ)) {
-        cleanup_close_tcp();
+        cleanup_close_conn();
         flags.set(0);
         return;
       } else if (status == StatusEnum::SE_EAGAIN_ON_READ) {
@@ -299,14 +349,14 @@ void MPDClient::update() {
           binary_size_set = true;
           continue;
         } else {
-          cleanup_close_tcp();
+          cleanup_close_conn();
           flags.set(0);
           LOG_PRINT(level, LogLevel::ERROR,
                     "ERROR: Failed to set \"binarylimit\", no OK!");
           return;
         }
       } else {
-        cleanup_close_tcp();
+        cleanup_close_conn();
         flags.set(0);
         LOG_PRINT(level, LogLevel::ERROR,
                   "ERROR: Failed to set \"binarylimit\"!");
@@ -325,7 +375,7 @@ void MPDClient::update() {
 
       if (flags.test(0) || (status != StatusEnum::SE_SUCCESS &&
                             status != StatusEnum::SE_EAGAIN_ON_READ)) {
-        cleanup_close_tcp();
+        cleanup_close_conn();
         flags.set(0);
         return;
       } else if (status == StatusEnum::SE_EAGAIN_ON_READ) {
@@ -337,14 +387,14 @@ void MPDClient::update() {
           flags.set(2);
           continue;
         } else {
-          cleanup_close_tcp();
+          cleanup_close_conn();
           flags.set(0);
           LOG_PRINT(level, LogLevel::ERROR,
                     "ERROR: Failed to ping MPD (no OK)!");
           return;
         }
       } else {
-        cleanup_close_tcp();
+        cleanup_close_conn();
         flags.set(0);
         LOG_PRINT(level, LogLevel::ERROR, "ERROR: Failed to ping MPD!");
         return;
@@ -360,7 +410,7 @@ void MPDClient::update() {
 
       if (flags.test(0) || (status != StatusEnum::SE_SUCCESS &&
                             status != StatusEnum::SE_EAGAIN_ON_READ)) {
-        cleanup_close_tcp();
+        cleanup_close_conn();
         flags.set(0);
         return;
       } else if (status == StatusEnum::SE_EAGAIN_ON_READ) {
@@ -380,21 +430,21 @@ void MPDClient::update() {
             LOG_PRINT(level, LogLevel::WARNING, "WARNING: MPD requires auth!");
             return;
           } else {
-            cleanup_close_tcp();
+            cleanup_close_conn();
             flags.set(0);
             LOG_PRINT(level, LogLevel::ERROR,
                       "ERROR: Failed to \"status\" MPD (ACK)!");
             return;
           }
         } else {
-          cleanup_close_tcp();
+          cleanup_close_conn();
           flags.set(0);
           LOG_PRINT(level, LogLevel::ERROR,
                     "ERROR: Failed to \"status\" MPD (no OK)!");
           return;
         }
       } else {
-        cleanup_close_tcp();
+        cleanup_close_conn();
         flags.set(0);
         LOG_PRINT(level, LogLevel::ERROR, "ERROR: Failed to \"status\" MPD!");
         return;
@@ -410,7 +460,7 @@ void MPDClient::update() {
 
       if (flags.test(0) || (status != StatusEnum::SE_SUCCESS &&
                             status != StatusEnum::SE_EAGAIN_ON_READ)) {
-        cleanup_close_tcp();
+        cleanup_close_conn();
         flags.set(0);
         return;
       } else if (status == StatusEnum::SE_EAGAIN_ON_READ) {
@@ -430,21 +480,21 @@ void MPDClient::update() {
             LOG_PRINT(level, LogLevel::WARNING, "WARNING: MPD requires auth!");
             return;
           } else {
-            cleanup_close_tcp();
+            cleanup_close_conn();
             flags.set(0);
             LOG_PRINT(level, LogLevel::ERROR,
                       "ERROR: Failed to \"currentsong\" MPD (ACK)!");
             return;
           }
         } else {
-          cleanup_close_tcp();
+          cleanup_close_conn();
           flags.set(0);
           LOG_PRINT(level, LogLevel::ERROR,
                     "ERROR: Failed to \"currentsong\" MPD (no OK)!");
           return;
         }
       } else {
-        cleanup_close_tcp();
+        cleanup_close_conn();
         flags.set(0);
         LOG_PRINT(level, LogLevel::ERROR,
                   "ERROR: Failed to \"currentsong\" MPD!");
@@ -481,7 +531,7 @@ void MPDClient::update() {
     auto [status, buf] = write_read(cmd);
     if (flags.test(0) ||
         (status != SE_SUCCESS && status != SE_EAGAIN_ON_READ)) {
-      cleanup_close_tcp();
+      cleanup_close_conn();
       flags.set(0);
       LOG_PRINT(level, LogLevel::ERROR,
                 "ERROR: Internal error while fetching album art from MPD!");
@@ -529,7 +579,6 @@ void MPDClient::update() {
       flags.reset(8);
       LOG_PRINT(level, LogLevel::DEBUG,
                 "DEBUG: Fetched \"readpicture/albumart\" data.");
-#ifndef NDEBUG
       LOG_PRINT(level, LogLevel::DEBUG,
                 "DEBUG: First bytes of \"readpicture/albumart\" data: {:x} "
                 "{:x} {:x} {:x} {:x} {:x} {:x} {:x}",
@@ -537,7 +586,13 @@ void MPDClient::update() {
                 album_art.value().at(2), album_art.value().at(3),
                 album_art.value().at(4), album_art.value().at(5),
                 album_art.value().at(6), album_art.value().at(7));
-#endif
+      LOG_PRINT(level, LogLevel::DEBUG,
+                "DEBUG: Last 4 bytes of \"readpicture/albumart\" data: {:x} "
+                "{:x} {:x} {:x}",
+                album_art.value().at(album_art.value().size() - 4),
+                album_art.value().at(album_art.value().size() - 3),
+                album_art.value().at(album_art.value().size() - 2),
+                album_art.value().at(album_art.value().size() - 1));
     } else if (album_art.has_value() &&
                album_art.value().size() > album_art_expected_size) {
       LOG_PRINT(level, LogLevel::ERROR, "ERROR: Invalid album_art size!");
@@ -597,7 +652,7 @@ bool MPDClient::ping_success() const { return flags.test(2); }
 
 std::tuple<MPDClient::StatusEnum, std::string> MPDClient::write_read(
     std::string to_send) {
-  if (!is_ok() || tcp_socket < 0) {
+  if (!is_ok() || conn_socket < 0) {
     return {StatusEnum::SE_GENERIC_ERROR, {}};
   }
 
@@ -610,7 +665,7 @@ std::tuple<MPDClient::StatusEnum, std::string> MPDClient::write_read(
   if (!flags.test(4)) {
     bool successful_write = false;
     do {
-      ssize_t write_ret = write(tcp_socket, to_send.data(), to_send.size());
+      ssize_t write_ret = write(conn_socket, to_send.data(), to_send.size());
       if (write_ret == static_cast<ssize_t>(to_send.size())) {
         // Success.
         flags.set(4);
@@ -629,13 +684,13 @@ std::tuple<MPDClient::StatusEnum, std::string> MPDClient::write_read(
           std::this_thread::sleep_for(LOOP_SLEEP_TIME);
           continue;
         }
-        cleanup_close_tcp();
+        cleanup_close_conn();
         flags.set(0);
         LOG_PRINT(level, LogLevel::ERROR,
                   "ERROR: Failed to write \"{}\"! (errno {})", to_send, errno);
         return {};
       } else {
-        cleanup_close_tcp();
+        cleanup_close_conn();
         flags.set(0);
         LOG_PRINT(level, LogLevel::ERROR, "ERROR: Failed to write \"{}\"!",
                   to_send);
@@ -654,7 +709,7 @@ std::tuple<MPDClient::StatusEnum, std::string> MPDClient::write_read(
   const auto read_timestamp = std::chrono::steady_clock::now();
   bool successful_read = false;
   do {
-    ssize_t read_ret = read(tcp_socket, buf.data(), buf.size());
+    ssize_t read_ret = read(conn_socket, buf.data(), buf.size());
     if (read_ret > 0) {
       str.append(buf.data(), static_cast<size_t>(read_ret));
       // Read to full until EAGAIN/EWOULDBLOCK.
@@ -692,7 +747,7 @@ std::tuple<MPDClient::StatusEnum, std::string> MPDClient::write_read(
           return {StatusEnum::SE_SUCCESS, std::move(str)};
         }
       }
-      cleanup_close_tcp();
+      cleanup_close_conn();
       flags.set(0);
       if (did_write_this_iteration) {
         LOG_PRINT(level, LogLevel::ERROR,
@@ -704,7 +759,7 @@ std::tuple<MPDClient::StatusEnum, std::string> MPDClient::write_read(
       }
       return {StatusEnum::SE_GENERIC_ERROR, {}};
     } else {
-      cleanup_close_tcp();
+      cleanup_close_conn();
       flags.set(0);
       if (did_write_this_iteration) {
         LOG_PRINT(level, LogLevel::ERROR,
@@ -721,10 +776,10 @@ std::tuple<MPDClient::StatusEnum, std::string> MPDClient::write_read(
   return {StatusEnum::SE_GENERIC_ERROR, {}};
 }
 
-void MPDClient::cleanup_close_tcp() {
-  if (tcp_socket > 0) {
-    close(tcp_socket);
-    tcp_socket = -1;
+void MPDClient::cleanup_close_conn() {
+  if (conn_socket > 0) {
+    close(conn_socket);
+    conn_socket = -1;
   }
 }
 
