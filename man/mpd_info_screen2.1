@@ -19,6 +19,11 @@ Prints the "help text" which lists all options.
 .TP
 .BR --host=<ip_addr>
 The ip-address of the MPD server to connect to.
+Mutually exclusive with \fB\-\-host\-socket=\fR.
+.TP
+.BR --host-socket=<path>
+The unix-socket path of the MPD server to connect to.
+Mutually exclusive with \fB\-\-host=\fR.
 .TP
 .BR --port=<port>
 The port of the MPD server to connect to. Defaults to 6600.
