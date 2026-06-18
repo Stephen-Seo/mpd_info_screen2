@@ -1,6 +1,11 @@
 # Upcoming Changes
 
+# Version 1.22.1
+
 Update man page about `--host-socket=<path>`.
+
+Attempt to fix album-art-load-failure by reducing the amount of data sent by
+the server for binary data to 32KiB (from roughly 1MiB - 100 Bytes).
 
 # Version 1.22.0
 
