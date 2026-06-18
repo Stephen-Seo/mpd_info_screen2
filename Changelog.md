@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+Update man page about `--host-socket=<path>`.
+
 # Version 1.22.0
 
 Add capability to connect to mpd via socket with: `--host-socket=<path>`.
