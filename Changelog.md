@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.22.2
+
 More robust handling of fetching album-art, and restored binary data size per
 request to 1MiB - 100 Bytes (for keeping fast-fetching of album art).
 
