@@ -24,6 +24,7 @@
 #include <cerrno>
 #include <chrono>
 #include <cstring>
+#include <exception>
 #include <thread>
 #include <vector>
 
@@ -705,6 +706,9 @@ std::tuple<MPDClient::StatusEnum, std::string> MPDClient::write_read(
   std::string str;
   std::vector<char> buf;
   buf.resize(READ_BUF_SIZE);
+  std::optional<unsigned long> binary_size{};
+  std::optional<std::chrono::time_point<std::chrono::steady_clock> >
+      binary_size_read_start{};
 
   const auto read_timestamp = std::chrono::steady_clock::now();
   bool successful_read = false;
@@ -734,6 +738,38 @@ std::tuple<MPDClient::StatusEnum, std::string> MPDClient::write_read(
             ++idx;
             size_t end_idx = str.find('\n', idx);
             if (end_idx != std::string::npos) {
+              // check if binary size amount was read
+              if (!binary_size.has_value()) {
+                try {
+                  binary_size =
+                      std::stoul(str.substr(idx + 8, end_idx - idx - 8));
+                } catch (const std::exception &e) {
+                  LOG_PRINT(level, LogLevel::ERROR,
+                            "Failed to count \"binary\" size!");
+                  return {StatusEnum::SE_GENERIC_ERROR, {}};
+                }
+                if (binary_size.value() == 0) {
+                  LOG_PRINT(level, LogLevel::ERROR,
+                            "Failed to count \"binary\" size (parsed as 0)!");
+                  return {StatusEnum::SE_GENERIC_ERROR, {}};
+                }
+                LOG_PRINT(level, LogLevel::DEBUG, "Got binary size {}",
+                          binary_size.value());
+                binary_size_read_start = std::chrono::steady_clock::now();
+              }
+
+              if (str.size() < end_idx + 1 + binary_size.value()) {
+                if (std::chrono::steady_clock::now() -
+                        binary_size_read_start.value() >
+                    MPD_CLI_READ_TIMEOUT) {
+                  // Timed out
+                  return {StatusEnum::SE_READ_TIMED_OUT, {}};
+                }
+                // Did not read enough data, continue reading
+                flags.set(4);
+                continue;
+              }
+
               LOG_PRINT(level, LogLevel::VERBOSE, "{}",
                         str.substr(idx, end_idx - idx));
               // The only expected binary responses are for album art.

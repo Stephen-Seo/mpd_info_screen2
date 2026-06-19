@@ -26,7 +26,7 @@ constexpr int TARGET_FPS = 5;
 constexpr int PPROMPT_FPS = 60;
 constexpr size_t READ_BUF_SIZE = 1024 * 1024;
 constexpr size_t READ_BUF_SIZE_SMALL = 1024;
-constexpr size_t MPD_BINARY_LIMIT = 1024 * 32;
+constexpr size_t MPD_BINARY_LIMIT = READ_BUF_SIZE - 100;
 constexpr std::chrono::milliseconds LOOP_SLEEP_TIME =
     std::chrono::milliseconds(10);
 constexpr std::chrono::milliseconds UPDATE_INFO_INTERVAL =
