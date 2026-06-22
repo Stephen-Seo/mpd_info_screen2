@@ -1,5 +1,12 @@
 # Upcoming Changes
 
+Make `--pprompt` the default behavior.
+
+Improved binary data handling by avoiding a busy-wait using a 1-ms sleep.
+
+If `mpd_info_screen2` is called without `--host=...` or `--host-socket=...`,
+it will now prompt for the address or socket-path.
+
 # Version 1.22.3
 
 Update bundled dependencies:
