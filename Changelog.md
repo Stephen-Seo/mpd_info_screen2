@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+Fix `bundled` build (added `host_prompt.cc` to sources).
+
 # Version 1.23.0
 
 Make `--pprompt` the default behavior.
