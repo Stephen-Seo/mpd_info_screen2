@@ -38,7 +38,7 @@ bool HostPrompt::update() {
   while (pressed != 0) {
     if (selection == 0) {
       const char *pressed_c = reinterpret_cast<const char *>(&pressed);
-      while (pressed > 0) {
+      while (pressed != 0) {
         addr.push_back(pressed_c[0]);
         pressed = pressed >> 8;
       }
@@ -46,7 +46,7 @@ bool HostPrompt::update() {
       const char *pressed_c = reinterpret_cast<const char *>(&pressed);
       while (pressed > 0) {
         socket.push_back(pressed_c[0]);
-        pressed = pressed >> 8;
+        pressed = (pressed >> 8) & 0x00FFFFFF;
       }
     }
     pressed = GetCharPressed();
