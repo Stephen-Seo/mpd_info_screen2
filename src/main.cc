@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
       if (!cli.attempt_auth(passwd)) {
         disp->set_failed_auth();
       }
-    } else if (args.get_flags().test(6)) {
+    } else {
       auto fetched_pass = disp->fetch_prompted_pass();
       if (fetched_pass.has_value()) {
         if (!cli.attempt_auth(fetched_pass.value())) {
@@ -114,8 +114,6 @@ int main(int argc, char **argv) {
         }
         disp->request_password_prompt();
       }
-    } else {
-      disp->request_password_prompt();
     }
   };
 

@@ -183,7 +183,9 @@ Args::Args(int argc, char **argv)
     } else if (std::strcmp("--align-text-right", argv[0]) == 0) {
       flags.set(15);
     } else if (std::strcmp("--pprompt", argv[0]) == 0) {
-      flags.set(6);
+      PrintHelper::println(stderr,
+                           "WARNING: --pprompt is disabled; its functionality "
+                           "is the default behavior.");
     } else if (std::strncmp("--pfile=", argv[0], 8) == 0) {
       password_file = std::string(argv[0] + 8);
     } else if (std::strcmp("--no-scale-fill", argv[0]) == 0) {
@@ -419,7 +421,8 @@ void Args::print_usage() {
   PrintHelper::println(
       "  --disable-show-percentage : disable showing song percentage");
   PrintHelper::println("  --align-text-right : Aligns the text to the right");
-  PrintHelper::println("  --pprompt : prompt for password on program start");
+  PrintHelper::println(
+      "  --pprompt : deprecated; it is the default to prompt for password");
   PrintHelper::println(
       "  --pfile=<filename> : get password from specified file");
   PrintHelper::println(

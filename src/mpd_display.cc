@@ -175,10 +175,6 @@ void MPDDisplay::update(MPDClient &cli, const Args &args) {
 
   if (flags.test(3)) {
     // password prompt
-    if (!args.get_flags().test(6)) {
-      return;
-    }
-
     if (IsKeyPressed(KEY_BACKSPACE) && !cached_pass.empty()) {
       if (cached_pass.back() & 0x80) {
         while ((cached_pass.back() & 0xC0) == 0x80) {
@@ -369,23 +365,12 @@ void MPDDisplay::draw(const MPDClient &cli, const Args &args) {
     }
     return;
   } else if (flags.test(3)) {
-    if (args.get_flags().test(6)) {
-      if (args.get_bg_grayscale() < 128) {
-        DrawText(display_pass.c_str(), 0, 0, 12, WHITE);
-      } else {
-        DrawText(display_pass.c_str(), 0, 0, 12, BLACK);
-      }
-      return;
+    if (args.get_bg_grayscale() < 128) {
+      DrawText(display_pass.c_str(), 0, 0, 12, WHITE);
     } else {
-      if (args.get_bg_grayscale() < 128) {
-        DrawText("Needs password, but --pprompt nor --pfile=<file> specified!",
-                 0, 0, 12, WHITE);
-      } else {
-        DrawText("Needs password, but --pprompt nor --pfile=<file> specified!",
-                 0, 0, 12, BLACK);
-      }
-      return;
+      DrawText(display_pass.c_str(), 0, 0, 12, BLACK);
     }
+    return;
   }
 
   if (texture) {

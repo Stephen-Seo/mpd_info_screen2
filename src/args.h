@@ -63,7 +63,7 @@ class Args {
   // 3 - disable show album
   // 4 - disable show filename
   // 5 - disable show percentage
-  // 6 - prompt for password
+  // 6 - UNUSED
   // 7 - don't scale fill the album art
   // 8 - -h or --help received
   // 9 - disable all text
