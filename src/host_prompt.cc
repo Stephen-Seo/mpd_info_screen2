@@ -40,11 +40,11 @@ bool HostPrompt::update() {
       const char *pressed_c = reinterpret_cast<const char *>(&pressed);
       while (pressed != 0) {
         addr.push_back(pressed_c[0]);
-        pressed = pressed >> 8;
+        pressed = (pressed >> 8) & 0x00FFFFFF;
       }
     } else if (selection == 1) {
       const char *pressed_c = reinterpret_cast<const char *>(&pressed);
-      while (pressed > 0) {
+      while (pressed != 0) {
         socket.push_back(pressed_c[0]);
         pressed = (pressed >> 8) & 0x00FFFFFF;
       }
