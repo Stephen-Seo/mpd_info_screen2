@@ -110,29 +110,29 @@ endif()
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/lib64/libffi.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party/native"
-    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.5.2.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.5.2.tar.gz" https://github.com/libffi/libffi/archive/refs/tags/v3.5.2.tar.gz
-    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.5.2.tar.gz" | grep dd19253d3007f366319a51d248a40c9e5fcace4498cbea990b566291844e4e30
-    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.5.2.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/native"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/libffi-3.5.2" && ./autogen.sh --enable-static=yes --enable-shared=no "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT" && ./configure --enable-static=yes --enable-shared=no "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT" --disable-docs
-    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/libffi-3.5.2" install
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.6.0.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.6.0.tar.gz" "https://github.com/libffi/libffi/archive/refs/tags/v3.6.0.tar.gz"
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.6.0.tar.gz" | grep 5ad876a153a6ad0d706fcb5a53af1e43efe3be88668f78d833b49353bd51a939
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.6.0.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/native"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/libffi-3.6.0" && ./autogen.sh --enable-static=yes --enable-shared=no "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT" && ./configure --enable-static=yes --enable-shared=no "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT" --disable-docs
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/libffi-3.6.0" install
     COMMAND test -e "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/lib64" || ln -sr "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/lib" "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/lib64"
     VERBATIM)
 
 add_custom_target(LIBFFINATIVE DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/lib64/libffi.a")
-set_target_properties(LIBFFINATIVE PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/libffi-3.5.2;${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT")
+set_target_properties(LIBFFINATIVE PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/libffi-3.6.0;${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT")
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib64/libffi.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.5.2.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.5.2.tar.gz" https://github.com/libffi/libffi/archive/refs/tags/v3.5.2.tar.gz
-    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.5.2.tar.gz" | grep dd19253d3007f366319a51d248a40c9e5fcace4498cbea990b566291844e4e30
-    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.5.2.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libffi-3.5.2" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./autogen.sh --enable-static=yes --enable-shared=no ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure --enable-static=yes --enable-shared=no ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --disable-docs
-    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libffi-3.5.2" install
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.6.0.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.6.0.tar.gz" https://github.com/libffi/libffi/archive/refs/tags/v3.6.0.tar.gz
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.6.0.tar.gz" | grep 5ad876a153a6ad0d706fcb5a53af1e43efe3be88668f78d833b49353bd51a939
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.6.0.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libffi-3.6.0" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./autogen.sh --enable-static=yes --enable-shared=no ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure --enable-static=yes --enable-shared=no ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --disable-docs
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libffi-3.6.0" install
     COMMAND test -e "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib64" || ln -sr "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib64"
     VERBATIM)
 
 add_custom_target(LIBFFI DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib64/libffi.a")
-set_target_properties(LIBFFI PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libffi-3.5.2;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+set_target_properties(LIBFFI PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libffi-3.6.0;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/bin/wayland-scanner"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party/native"
