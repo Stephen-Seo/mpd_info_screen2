@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.23.1
+
 Fix `bundled` build (added `host_prompt.cc` to sources).
 
 Update man page about `--pprompt`.
