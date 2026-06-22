@@ -18,6 +18,7 @@
 #include "args.h"
 #include "constants.h"
 #include "helpers.h"
+#include "host_prompt.h"
 #include "mpd_client.h"
 #include "mpd_display.h"
 #include "print_helper.h"
@@ -50,6 +51,44 @@ int main(int argc, char **argv) {
 
   const Color CLEAR_BG_COLOR{args.get_bg_grayscale(), args.get_bg_grayscale(),
                              args.get_bg_grayscale(), 255};
+
+  InitWindow(800, 600, "mpd_info_screen2");
+  SetWindowState(FLAG_WINDOW_RESIZABLE);
+
+  SetTargetFPS(PPROMPT_FPS);
+
+  // First draw to clear screen.
+  BeginDrawing();
+  ClearBackground(CLEAR_BG_COLOR);
+  EndDrawing();
+
+  {
+    HostPrompt host_prompt{};
+    while (args.get_host_ip_addr().empty() &&
+           args.get_host_unix_socket().empty()) {
+      // Prompt for host addr.
+      if (host_prompt.update()) {
+        if (!host_prompt.get_addr().empty()) {
+          args.set_host_ip_addr(host_prompt.get_addr());
+        } else if (!host_prompt.get_socket().empty()) {
+          args.set_host_socket(host_prompt.get_socket());
+        }
+      }
+      BeginDrawing();
+      ClearBackground(CLEAR_BG_COLOR);
+      host_prompt.draw();
+      EndDrawing();
+
+      if (WindowShouldClose()) {
+        CloseWindow();
+        return 0;
+      }
+    }
+  }
+
+  BeginDrawing();
+  ClearBackground(CLEAR_BG_COLOR);
+  EndDrawing();
 
   MPDClient cli(args.is_using_unix_socket() ? args.get_host_unix_socket()
                                             : args.get_host_ip_addr(),
@@ -117,9 +156,6 @@ int main(int argc, char **argv) {
     }
   };
 
-  InitWindow(800, 600, "mpd_info_screen2");
-  SetWindowState(FLAG_WINDOW_RESIZABLE);
-
   SetTargetFPS(TARGET_FPS);
   set_fps = TARGET_FPS;
 
@@ -131,6 +167,8 @@ int main(int argc, char **argv) {
 #endif
   std::optional<decltype(update_time_point)> reconnect_time_point =
       std::nullopt;
+
+  std::optional<std::string> message;
 
   int reconnect_attempts = 0;
 
@@ -181,26 +219,31 @@ int main(int argc, char **argv) {
         reconnect_time_point = new_time_point;
         if (cli.ping_success()) {
           reconnect_attempts = 1;
+          message.reset();
         } else {
           ++reconnect_attempts;
+          LOG_PRINT(args.get_log_level(), LogLevel::ERROR,
+                    "ERROR: Disconnected from MPD, reconnecting in {} "
+                    "milliseconds (attempt {})...",
+                    std::chrono::duration_cast<std::chrono::milliseconds>(
+                        RECONNECT_INTERVAL)
+                        .count(),
+                    reconnect_attempts);
+          message = std::format("connection attempt {}...", reconnect_attempts);
         }
-        LOG_PRINT(args.get_log_level(), LogLevel::ERROR,
-                  "ERROR: Disconnected from MPD, reconnecting in {} "
-                  "milliseconds (attempt {})...",
-                  std::chrono::duration_cast<std::chrono::milliseconds>(
-                      RECONNECT_INTERVAL)
-                      .count(),
-                  reconnect_attempts);
       }
     } else if (!cli.is_ok() && reconnect_attempts >= MAX_RECONNECT_ATTEMPTS) {
       LOG_PRINT(LogLevel::ERROR, LogLevel::ERROR,
                 "ERROR: Failed to reconnect after {} attempts, stopping...",
                 MAX_RECONNECT_ATTEMPTS);
       break;
+    } else if (cli.is_ok() && message) {
+      message.reset();
     }
 
     cli.update();
     if (cli.needs_auth()) {
+      message.reset();
       do_auth();
     }
     disp->update(cli, args);
@@ -209,6 +252,10 @@ int main(int argc, char **argv) {
     BeginDrawing();
     ClearBackground(CLEAR_BG_COLOR);
     disp->draw(cli, args);
+    if (message) {
+      DrawRectangle(0, 20, GetScreenWidth(), 20, BLACK);
+      DrawText(message->c_str(), 0, 20, 20, WHITE);
+    }
     EndDrawing();
   }
 

@@ -393,14 +393,6 @@ Args::Args(int argc, char **argv)
     --argc;
     ++argv;
   }
-
-  if (host_ip_addr.empty() && host_unix_socket.empty()) {
-    PrintHelper::println(
-        stderr,
-        "ERROR: --host=<ip_addr> or --host-socket=<path> not specified!");
-    flags.set(0);
-    return;
-  }
 }
 
 void Args::print_usage() {
@@ -545,3 +537,12 @@ const std::unique_ptr<Color> &Args::get_text_bg_color() const {
 float Args::get_y_offset() const { return text_y_offset; }
 
 bool Args::is_y_offset_from_top() const { return flags.test(22); }
+
+void Args::set_host_ip_addr(std::string addr) {
+  this->host_ip_addr = std::move(addr);
+}
+
+void Args::set_host_socket(std::string socket) {
+  this->host_unix_socket = std::move(socket);
+  flags.set(23);
+}

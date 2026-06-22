@@ -56,6 +56,9 @@ class Args {
   float get_y_offset() const;
   bool is_y_offset_from_top() const;
 
+  void set_host_ip_addr(std::string addr);
+  void set_host_socket(std::string socket);
+
  private:
   // 0 - error parsing args
   // 1 - disable show title
