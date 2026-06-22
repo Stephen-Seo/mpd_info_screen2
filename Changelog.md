@@ -2,6 +2,8 @@
 
 Fix `bundled` build (added `host_prompt.cc` to sources).
 
+Update man page about `--pprompt`.
+
 # Version 1.23.0
 
 Make `--pprompt` the default behavior.
