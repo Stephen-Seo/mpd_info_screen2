@@ -544,5 +544,5 @@ void Args::set_host_ip_addr(std::string addr) {
 
 void Args::set_host_socket(std::string socket) {
   this->host_unix_socket = std::move(socket);
-  flags.set(23);
+  flags.set(23, !this->host_unix_socket.empty());
 }
