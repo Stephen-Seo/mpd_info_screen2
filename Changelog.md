@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.23.0
+
 Make `--pprompt` the default behavior.
 
 Improved binary data handling by avoiding a busy-wait using a 1-ms sleep.
