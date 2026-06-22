@@ -1,5 +1,9 @@
 # Upcoming Changes
 
+# Version 1.23.2
+
+Minor bug-fixing changes to keep program behavior as intended.
+
 # Version 1.23.1
 
 Fix `bundled` build (added `host_prompt.cc` to sources).
