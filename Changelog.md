@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+Fix change for one of the previous bug-fixing changes.
+
 # Version 1.23.2
 
 Minor bug-fixing changes to keep program behavior as intended.
