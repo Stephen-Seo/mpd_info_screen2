@@ -9,6 +9,7 @@ set(mpd_info_screen2_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/helpers.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/signal_handler.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/mpd_display.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/host_prompt.cc
 )
 
 set(unittest_SOURCES
@@ -28,6 +29,7 @@ set(mpd_info_screen2_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/signal_handler.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/mpd_display.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/print_helper.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/host_prompt.h
 )
 
 add_executable(mpd_info_screen2 ${mpd_info_screen2_SOURCES})

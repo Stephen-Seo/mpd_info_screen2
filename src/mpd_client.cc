@@ -767,6 +767,7 @@ std::tuple<MPDClient::StatusEnum, std::string> MPDClient::write_read(
                 }
                 // Did not read enough data, continue reading
                 flags.set(4);
+                std::this_thread::sleep_for(MPD_CLI_READ_BINARY_WAIT);
                 continue;
               }
 

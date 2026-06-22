@@ -56,6 +56,9 @@ class Args {
   float get_y_offset() const;
   bool is_y_offset_from_top() const;
 
+  void set_host_ip_addr(std::string addr);
+  void set_host_socket(std::string socket);
+
  private:
   // 0 - error parsing args
   // 1 - disable show title
@@ -63,7 +66,7 @@ class Args {
   // 3 - disable show album
   // 4 - disable show filename
   // 5 - disable show percentage
-  // 6 - prompt for password
+  // 6 - UNUSED
   // 7 - don't scale fill the album art
   // 8 - -h or --help received
   // 9 - disable all text
