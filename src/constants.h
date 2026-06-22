@@ -35,6 +35,8 @@ constexpr std::chrono::seconds DEBUG_PRINT_INFO_INTERVAL =
     std::chrono::seconds(5);
 constexpr std::chrono::seconds MPD_CLI_READ_TIMEOUT = std::chrono::seconds(2);
 constexpr std::chrono::seconds MPD_CLI_WRITE_TIMEOUT = MPD_CLI_READ_TIMEOUT;
+constexpr std::chrono::milliseconds MPD_CLI_READ_BINARY_WAIT =
+    std::chrono::milliseconds(1);
 constexpr int DISPLAY_BG_OPACITY = 200;
 constexpr int TEXT_LOAD_SIZE = 96;
 constexpr int TEXT_DEFAULT_SIZE = 48;
