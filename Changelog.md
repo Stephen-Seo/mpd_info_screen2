@@ -1,5 +1,11 @@
 # Upcoming Changes
 
+# Version 1.22.3
+
+Update bundled dependencies:
+
+ - libffi 3.5.2 -> 3.6.0
+
 # Version 1.22.2
 
 More robust handling of fetching album-art, and restored binary data size per
