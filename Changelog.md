@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.23.4
+
 Refactor how MPDDisplay was stored in the main function.
 
 When prompting for host-addr/socket-path, arrow up/down will wrap around in
