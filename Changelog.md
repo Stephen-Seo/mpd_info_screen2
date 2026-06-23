@@ -1,5 +1,19 @@
 # Upcoming Changes
 
+Refactor how MPDDisplay was stored in the main function.
+
+When prompting for host-addr/socket-path, arrow up/down will wrap around in
+either direction now.
+
+Refactoring of draw function drawing host-addr/socket-path prompting.
+
+Cleanup debug prints in `mpd_client.cc`.
+
+Refactor reconnection-attempt count such that it resets after a successful
+connection.
+
+Minor refactoring of `mpd_client.h` (reordering member variables).
+
 # Version 1.23.3
 
 Fix change for one of the previous bug-fixing changes.
