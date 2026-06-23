@@ -213,11 +213,17 @@ int main(int argc, char **argv) {
                           args.get_host_port(), args.get_log_level(),
                           args.is_using_unix_socket());
           disp.emplace(args.get_flags(), args.get_log_level());
+
+          // Force an update on MPDClient to attempt a connection.
+          cli.update();
+          if (cli.ping_success()) {
+            reconnect_attempts = 0;
+          }
         }
       } else {
         reconnect_time_point = new_time_point;
         if (cli.ping_success()) {
-          reconnect_attempts = 1;
+          reconnect_attempts = 0;
           message.reset();
         } else {
           ++reconnect_attempts;
