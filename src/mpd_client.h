@@ -95,7 +95,6 @@ class MPDClient {
     }
   }
 
-  std::string socket_path;
   // 0 - invalid state
   // 1 - initial state
   // 2 - successful ping
@@ -115,6 +114,7 @@ class MPDClient {
   uint16_t host_port;
   int conn_socket;
 
+  std::string socket_path;
   // current song info
   std::string song_title;
   std::string song_artist;

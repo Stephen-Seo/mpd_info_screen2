@@ -38,12 +38,12 @@
 
 MPDClient::MPDClient(std::string host, uint16_t host_port, LogLevel level,
                      bool is_socket)
-    : socket_path(is_socket ? host : std::string()),
-      flags(),
+    : flags(),
       level(level),
       host_ip_value(),
       host_port(host_port),
       conn_socket(-1),
+      socket_path(is_socket ? host : std::string()),
       song_title(),
       song_artist(),
       song_album(),
@@ -77,12 +77,12 @@ MPDClient::MPDClient(std::string host, uint16_t host_port, LogLevel level,
 MPDClient::~MPDClient() { cleanup_close_conn(); }
 
 MPDClient::MPDClient(MPDClient &&other)
-    : socket_path(std::move(other.socket_path)),
-      flags(std::move(other.flags)),
+    : flags(std::move(other.flags)),
       level(std::move(other.level)),
       host_ip_value(std::move(other.host_ip_value)),
       host_port(std::move(other.host_port)),
       conn_socket(std::move(other.conn_socket)),
+      socket_path(std::move(other.socket_path)),
       song_title(std::move(other.song_title)),
       song_artist(std::move(other.song_artist)),
       song_album(std::move(other.song_album)),
@@ -100,13 +100,13 @@ MPDClient::MPDClient(MPDClient &&other)
 }
 
 MPDClient &MPDClient::operator=(MPDClient &&other) {
-  this->socket_path = std::move(other.socket_path);
   this->flags = std::move(other.flags);
   this->level = std::move(other.level);
   this->host_ip_value = std::move(other.host_ip_value);
   this->host_port = other.host_port;
   this->conn_socket = other.conn_socket;
   other.conn_socket = -1;
+  this->socket_path = std::move(other.socket_path);
   this->song_title = std::move(other.song_title);
   this->song_artist = std::move(other.song_artist);
   this->song_album = std::move(other.song_album);
