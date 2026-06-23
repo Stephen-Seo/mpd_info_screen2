@@ -103,8 +103,8 @@ int main(int argc, char **argv) {
     LOG_PRINT(args.get_log_level(), LogLevel::VERBOSE, "VERBOSE: Client is OK");
   }
 
-  std::unique_ptr<MPDDisplay> disp =
-      std::make_unique<MPDDisplay>(args.get_flags(), args.get_log_level());
+  std::optional<MPDDisplay> disp(std::in_place, args.get_flags(),
+                                 args.get_log_level());
 
   int set_fps = TARGET_FPS;
 
@@ -212,8 +212,7 @@ int main(int argc, char **argv) {
                               : args.get_host_ip_addr(),
                           args.get_host_port(), args.get_log_level(),
                           args.is_using_unix_socket());
-          disp = std::make_unique<MPDDisplay>(args.get_flags(),
-                                              args.get_log_level());
+          disp.emplace(args.get_flags(), args.get_log_level());
         }
       } else {
         reconnect_time_point = new_time_point;
