@@ -8,12 +8,14 @@ bool HostPrompt::update() {
   if (IsKeyPressed(KEY_DOWN)) {
     selection = selection + 1;
     if (selection > 1) {
-      selection = 1;
+      // wrap around.
+      selection = 0;
     }
   } else if (IsKeyPressed(KEY_UP)) {
     selection = selection - 1;
     if (selection < 0) {
-      selection = 0;
+      // wrap around.
+      selection = 1;
     }
   } else if (IsKeyPressed(KEY_BACKSPACE)) {
     switch (selection) {
