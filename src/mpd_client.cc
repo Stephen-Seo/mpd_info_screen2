@@ -579,21 +579,8 @@ void MPDClient::update() {
                album_art.value().size() == album_art_expected_size) {
       flags.reset(8);
       LOG_PRINT(level, LogLevel::DEBUG,
-                "DEBUG: Fetched \"readpicture/albumart\" data.");
-      LOG_PRINT(level, LogLevel::DEBUG,
-                "DEBUG: First bytes of \"readpicture/albumart\" data: {:x} "
-                "{:x} {:x} {:x} {:x} {:x} {:x} {:x}",
-                album_art.value().at(0), album_art.value().at(1),
-                album_art.value().at(2), album_art.value().at(3),
-                album_art.value().at(4), album_art.value().at(5),
-                album_art.value().at(6), album_art.value().at(7));
-      LOG_PRINT(level, LogLevel::DEBUG,
-                "DEBUG: Last 4 bytes of \"readpicture/albumart\" data: {:x} "
-                "{:x} {:x} {:x}",
-                album_art.value().at(album_art.value().size() - 4),
-                album_art.value().at(album_art.value().size() - 3),
-                album_art.value().at(album_art.value().size() - 2),
-                album_art.value().at(album_art.value().size() - 1));
+                "DEBUG: Fetched \"readpicture/albumart\" data. (size {})",
+                album_art->size());
     } else if (album_art.has_value() &&
                album_art.value().size() > album_art_expected_size) {
       LOG_PRINT(level, LogLevel::ERROR, "ERROR: Invalid album_art size!");
