@@ -38,12 +38,12 @@
 
 MPDClient::MPDClient(std::string host, uint16_t host_port, LogLevel level,
                      bool is_socket)
-    : socket_path(is_socket ? host : std::string()),
-      flags(),
+    : flags(),
       level(level),
       host_ip_value(),
       host_port(host_port),
       conn_socket(-1),
+      socket_path(is_socket ? host : std::string()),
       song_title(),
       song_artist(),
       song_album(),
@@ -77,12 +77,12 @@ MPDClient::MPDClient(std::string host, uint16_t host_port, LogLevel level,
 MPDClient::~MPDClient() { cleanup_close_conn(); }
 
 MPDClient::MPDClient(MPDClient &&other)
-    : socket_path(std::move(other.socket_path)),
-      flags(std::move(other.flags)),
+    : flags(std::move(other.flags)),
       level(std::move(other.level)),
       host_ip_value(std::move(other.host_ip_value)),
       host_port(std::move(other.host_port)),
       conn_socket(std::move(other.conn_socket)),
+      socket_path(std::move(other.socket_path)),
       song_title(std::move(other.song_title)),
       song_artist(std::move(other.song_artist)),
       song_album(std::move(other.song_album)),
@@ -100,13 +100,13 @@ MPDClient::MPDClient(MPDClient &&other)
 }
 
 MPDClient &MPDClient::operator=(MPDClient &&other) {
-  this->socket_path = std::move(other.socket_path);
   this->flags = std::move(other.flags);
   this->level = std::move(other.level);
   this->host_ip_value = std::move(other.host_ip_value);
   this->host_port = other.host_port;
   this->conn_socket = other.conn_socket;
   other.conn_socket = -1;
+  this->socket_path = std::move(other.socket_path);
   this->song_title = std::move(other.song_title);
   this->song_artist = std::move(other.song_artist);
   this->song_album = std::move(other.song_album);
@@ -579,21 +579,8 @@ void MPDClient::update() {
                album_art.value().size() == album_art_expected_size) {
       flags.reset(8);
       LOG_PRINT(level, LogLevel::DEBUG,
-                "DEBUG: Fetched \"readpicture/albumart\" data.");
-      LOG_PRINT(level, LogLevel::DEBUG,
-                "DEBUG: First bytes of \"readpicture/albumart\" data: {:x} "
-                "{:x} {:x} {:x} {:x} {:x} {:x} {:x}",
-                album_art.value().at(0), album_art.value().at(1),
-                album_art.value().at(2), album_art.value().at(3),
-                album_art.value().at(4), album_art.value().at(5),
-                album_art.value().at(6), album_art.value().at(7));
-      LOG_PRINT(level, LogLevel::DEBUG,
-                "DEBUG: Last 4 bytes of \"readpicture/albumart\" data: {:x} "
-                "{:x} {:x} {:x}",
-                album_art.value().at(album_art.value().size() - 4),
-                album_art.value().at(album_art.value().size() - 3),
-                album_art.value().at(album_art.value().size() - 2),
-                album_art.value().at(album_art.value().size() - 1));
+                "DEBUG: Fetched \"readpicture/albumart\" data. (size {})",
+                album_art->size());
     } else if (album_art.has_value() &&
                album_art.value().size() > album_art_expected_size) {
       LOG_PRINT(level, LogLevel::ERROR, "ERROR: Invalid album_art size!");

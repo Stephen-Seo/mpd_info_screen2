@@ -8,12 +8,14 @@ bool HostPrompt::update() {
   if (IsKeyPressed(KEY_DOWN)) {
     selection = selection + 1;
     if (selection > 1) {
-      selection = 1;
+      // wrap around.
+      selection = 0;
     }
   } else if (IsKeyPressed(KEY_UP)) {
     selection = selection - 1;
     if (selection < 0) {
-      selection = 0;
+      // wrap around.
+      selection = 1;
     }
   } else if (IsKeyPressed(KEY_BACKSPACE)) {
     switch (selection) {
@@ -56,21 +58,33 @@ bool HostPrompt::update() {
 }
 
 void HostPrompt::draw() {
-  DrawRectangle(0, 0, GetScreenWidth(), HOST_PROMPT_LINE_SIZE,
-                selection == 0 ? WHITE : BLACK);
-  DrawText("Host Addr: ", 0, 0, HOST_PROMPT_LINE_SIZE,
-           selection == 0 ? BLACK : WHITE);
-  int width = MeasureText("Host Addr: ", HOST_PROMPT_LINE_SIZE);
-  DrawText(addr.c_str(), width, 0, HOST_PROMPT_LINE_SIZE,
-           selection == 0 ? BLACK : WHITE);
+  if (selection == 0) {
+    DrawRectangle(0, 0, GetScreenWidth(), HOST_PROMPT_LINE_SIZE, WHITE);
+    DrawText("Host Addr: ", 0, 0, HOST_PROMPT_LINE_SIZE, BLACK);
+    int width = MeasureText("Host Addr: ", HOST_PROMPT_LINE_SIZE);
+    DrawText(addr.c_str(), width, 0, HOST_PROMPT_LINE_SIZE, BLACK);
 
-  DrawRectangle(0, HOST_PROMPT_LINE_SIZE, GetScreenWidth(),
-                HOST_PROMPT_LINE_SIZE, selection == 1 ? WHITE : BLACK);
-  DrawText("Host Socket: ", 0, HOST_PROMPT_LINE_SIZE, HOST_PROMPT_LINE_SIZE,
-           selection == 1 ? BLACK : WHITE);
-  width = MeasureText("Host Socket: ", HOST_PROMPT_LINE_SIZE);
-  DrawText(socket.c_str(), width, HOST_PROMPT_LINE_SIZE, HOST_PROMPT_LINE_SIZE,
-           selection == 1 ? BLACK : WHITE);
+    DrawRectangle(0, HOST_PROMPT_LINE_SIZE, GetScreenWidth(),
+                  HOST_PROMPT_LINE_SIZE, BLACK);
+    DrawText("Host Socket: ", 0, HOST_PROMPT_LINE_SIZE, HOST_PROMPT_LINE_SIZE,
+             WHITE);
+    width = MeasureText("Host Socket: ", HOST_PROMPT_LINE_SIZE);
+    DrawText(socket.c_str(), width, HOST_PROMPT_LINE_SIZE,
+             HOST_PROMPT_LINE_SIZE, WHITE);
+  } else if (selection == 1) {
+    DrawRectangle(0, 0, GetScreenWidth(), HOST_PROMPT_LINE_SIZE, BLACK);
+    DrawText("Host Addr: ", 0, 0, HOST_PROMPT_LINE_SIZE, WHITE);
+    int width = MeasureText("Host Addr: ", HOST_PROMPT_LINE_SIZE);
+    DrawText(addr.c_str(), width, 0, HOST_PROMPT_LINE_SIZE, WHITE);
+
+    DrawRectangle(0, HOST_PROMPT_LINE_SIZE, GetScreenWidth(),
+                  HOST_PROMPT_LINE_SIZE, WHITE);
+    DrawText("Host Socket: ", 0, HOST_PROMPT_LINE_SIZE, HOST_PROMPT_LINE_SIZE,
+             BLACK);
+    width = MeasureText("Host Socket: ", HOST_PROMPT_LINE_SIZE);
+    DrawText(socket.c_str(), width, HOST_PROMPT_LINE_SIZE,
+             HOST_PROMPT_LINE_SIZE, BLACK);
+  }
 }
 
 const std::string &HostPrompt::get_addr() const { return addr; }
