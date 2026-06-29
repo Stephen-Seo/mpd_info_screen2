@@ -1,5 +1,9 @@
 # Upcoming Changes
 
+Update bundled dependencies:
+
+ - expat 2.8.1 -> 2.8.2
+
 # Version 1.23.4
 
 Refactor how MPDDisplay was stored in the main function.
