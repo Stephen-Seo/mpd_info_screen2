@@ -86,6 +86,8 @@ class Args {
   // 20 AND 21 - scale text by max(height, width)
   // 22 - y offset from top
   // 23 - unix socket instead of address if set
+  // 24 - align album art to the top
+  // 25 - align album art to the bottom
   std::bitset<64> flags;
   std::unordered_set<std::string> font_blacklist_strings;
   std::unordered_set<std::string> font_whitelist_strings;
