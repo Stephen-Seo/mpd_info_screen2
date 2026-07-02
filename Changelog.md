@@ -1,5 +1,10 @@
 # Upcoming Changes
 
+Implement args:
+
+    --align-album-art-top
+    --align-album-art-bottom
+
 # Version 1.23.5
 
 Update bundled dependencies:
