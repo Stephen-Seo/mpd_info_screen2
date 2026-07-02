@@ -1,5 +1,9 @@
 # Upcoming Changes
 
+Update README.txt with new options.
+
+Update man page with new options.
+
 # Version 1.24.0
 
 Implement args:
