@@ -208,6 +208,25 @@ Args::Args(int argc, char **argv)
         return;
       }
       flags.set(17);
+    } else if (std::strcmp("--align-album-art-top", argv[0]) == 0) {
+      if (flags.test(25)) {
+        PrintHelper::println(stderr,
+                             "ERROR: --align-album-art-top and "
+                             "--align-album-art-bottom are mutually "
+                             "exclusive!");
+        flags.set(0);
+        return;
+      }
+      flags.set(24);
+    } else if (std::strcmp("--align-album-art-bottom", argv[0]) == 0) {
+      if (flags.test(24)) {
+        PrintHelper::println(stderr,
+                             "ERROR: --align-album-art-bottom and "
+                             "--align-album-art-top are mutually exclusive!");
+        flags.set(0);
+        return;
+      }
+      flags.set(25);
     } else if (std::strncmp("--log-level=", argv[0], 12) == 0) {
       std::string level(argv[0] + 12);
       for (char &c : level) {
@@ -423,6 +442,10 @@ void Args::print_usage() {
       "  --align-album-art-left : align the album art to the left");
   PrintHelper::println(
       "  --align-album-art-right: align the album art to the right");
+  PrintHelper::println(
+      "  --align-album-art-top: align the album art to the top");
+  PrintHelper::println(
+      "  --align-album-art-bottom: align the album art to the bottom");
   PrintHelper::println(
       "  --log-level=<level> : set the log level (ERROR, WARNING, DEBUG, "
       "VERBOSE)");
