@@ -72,12 +72,22 @@ to the window if this is specified.
 .BR --align-album-art-left
 When drawing the album art, align the image to the left. This option is mutually
 exclusive with \fB\-\-align\-album\-art\-right\fR. If neither options are
-specified, then the image is centered.
+specified, then the image is centered horizontally.
 .TP
 .BR --align-album-art-right
 When drawing the album art, align the image to the right. This option is
 mutually exclusive with \fB\-\-align\-album\-art\-left\fR. If neither options
-are specified, then the image is centered.
+are specified, then the image is centered horizontally.
+.TP
+.BR --align-album-art-top
+When drawing the album art, align the image to the top. This option is mutually
+exclusive with \fB\-\-align\-album\-art\-bottom\fR. If neither options are
+specified, then the image is centered vertically.
+.TP
+.BR --align-album-art-bottom
+When drawing the album art, align the image to the bottom. This option is
+mutually exclusive with \fB\-\-align\-album\-art\-top\fR. If neither options
+are specified, then the image is centered vertically.
 .TP
 .BR --log-level=<level>
 Sets the verbosity/log-level of outputs from \fBmpd_info_screen2\fR. The
