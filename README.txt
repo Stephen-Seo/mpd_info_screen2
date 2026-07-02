@@ -24,6 +24,7 @@ Usage:
   -h | --help : show this usage text
   --version : show the version of this program
   --host=<ip_addr> : ip address of mpd server
+  --host-socket=<path> : unix socket of mpd server
   --port=<port> : port of mpd server (default 6600)
   --disable-all-text : disables showing all text
   --disable-show-title : disable showing song title
@@ -33,11 +34,13 @@ Usage:
   --disable-show-remaining : disables showing remaining time
   --disable-show-percentage : disable showing song percentage
   --align-text-right : Aligns the text to the right
-  --pprompt : prompt for password on program start
+  --pprompt : deprecated; it is the default to prompt for password
   --pfile=<filename> : get password from specified file
   --no-scale-fill : don't scale fill the album art to the window
   --align-album-art-left : align the album art to the left
   --align-album-art-right: align the album art to the right
+  --align-album-art-top: align the album art to the top
+  --align-album-art-bottom: align the album art to the bottom
   --log-level=<level> : set the log level (ERROR, WARNING, DEBUG, VERBOSE)
   --bg-opacity=<percentage> : set the text bg opacity by percentage (decimal point allowed)
   --default-font-filename=<font_filename> : set the default font
