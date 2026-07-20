@@ -112,38 +112,38 @@ endif()
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/lib64/libffi.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party/native"
-    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.6.0.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.6.0.tar.gz" "https://github.com/libffi/libffi/archive/refs/tags/v3.6.0.tar.gz"
-    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.6.0.tar.gz" | grep 5ad876a153a6ad0d706fcb5a53af1e43efe3be88668f78d833b49353bd51a939
-    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.6.0.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/native"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/libffi-3.6.0" && ./autogen.sh --enable-static=yes --enable-shared=no "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT" && ./configure --enable-static=yes --enable-shared=no "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT" --disable-docs
-    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/libffi-3.6.0" install
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.7.1.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.7.1.tar.gz" "https://github.com/libffi/libffi/archive/refs/tags/v3.7.1.tar.gz"
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.7.1.tar.gz" | grep df80a3ff1d3421ac2ae0e368575f82f30383f932481ecf2dd1d5f7f88c92f547
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.7.1.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/native"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/libffi-3.7.1" && ./autogen.sh --enable-static=yes --enable-shared=no "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT" && ./configure --enable-static=yes --enable-shared=no "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT" --disable-docs
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/libffi-3.7.1" install
     COMMAND test -e "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/lib64" || ln -sr "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/lib" "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/lib64"
     VERBATIM)
 
 add_custom_target(LIBFFINATIVE DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/lib64/libffi.a")
-set_target_properties(LIBFFINATIVE PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/libffi-3.6.0;${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT")
+set_target_properties(LIBFFINATIVE PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/libffi-3.7.1;${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT")
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib64/libffi.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.6.0.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.6.0.tar.gz" https://github.com/libffi/libffi/archive/refs/tags/v3.6.0.tar.gz
-    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.6.0.tar.gz" | grep 5ad876a153a6ad0d706fcb5a53af1e43efe3be88668f78d833b49353bd51a939
-    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.6.0.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libffi-3.6.0" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./autogen.sh --enable-static=yes --enable-shared=no ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure --enable-static=yes --enable-shared=no ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --disable-docs
-    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libffi-3.6.0" install
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.7.1.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.7.1.tar.gz" "https://github.com/libffi/libffi/archive/refs/tags/v3.7.1.tar.gz"
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.7.1.tar.gz" | grep df80a3ff1d3421ac2ae0e368575f82f30383f932481ecf2dd1d5f7f88c92f547
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libffi-3.7.1.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libffi-3.7.1" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./autogen.sh --enable-static=yes --enable-shared=no ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure --enable-static=yes --enable-shared=no ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --disable-docs
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libffi-3.7.1" install
     COMMAND test -e "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib64" || ln -sr "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib64"
     VERBATIM)
 
 add_custom_target(LIBFFI DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib64/libffi.a")
-set_target_properties(LIBFFI PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libffi-3.6.0;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+set_target_properties(LIBFFI PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libffi-3.7.1;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/bin/wayland-scanner"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party/native"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig"
-    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.25.0.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.25.0.tar.xz" "https://gitlab.freedesktop.org/wayland/wayland/-/releases/1.25.0/downloads/wayland-1.25.0.tar.xz"
-    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.25.0.tar.xz" | grep c065f040afdff3177680600f249727e41a1afc22fccf27222f15f5306faa1f03
-    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.25.0.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/native"
-    COMMAND env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/lib/pkgconfig" meson setup --prefix "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT" --buildtype release -D documentation=false -D dtd_validation=false --prefer-static --default-library static --default-both-libraries static "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/wayland-1.25.0/BUILD" "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/wayland-1.25.0"
-    COMMAND ninja -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/wayland-1.25.0/BUILD" install
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.26.0.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.26.0.tar.xz" "https://gitlab.freedesktop.org/wayland/wayland/-/releases/1.26.0/downloads/wayland-1.26.0.tar.xz"
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.26.0.tar.xz" | grep 64176eaa46e4969903e286f8e5ef8331affc17fdf03ac9b58381d2b23162b7a3
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.26.0.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/native"
+    COMMAND env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/lib/pkgconfig" meson setup --prefix "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT" --buildtype release -D documentation=false -D dtd_validation=false --prefer-static --default-library static --default-both-libraries static "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/wayland-1.26.0/BUILD" "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/wayland-1.26.0"
+    COMMAND ninja -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/wayland-1.26.0/BUILD" install
     COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT" -name wayland-scanner.pc -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig/" "\;"
     COMMAND_EXPAND_LISTS
     VERBATIM)
@@ -156,24 +156,24 @@ add_dependencies(WAYLAND_SCANNER LIBFFINATIVE)
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libwayland-server.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig"
-    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.25.0.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.25.0.tar.xz" "https://gitlab.freedesktop.org/wayland/wayland/-/releases/1.25.0/downloads/wayland-1.25.0.tar.xz"
-    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.25.0.tar.xz" | grep c065f040afdff3177680600f249727e41a1afc22fccf27222f15f5306faa1f03
-    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.25.0.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig" meson setup --prefix "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --buildtype release -D documentation=false -D dtd_validation=false -D scanner=false --prefer-static --default-library static --default-both-libraries static "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,--native-file>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,${MESON_CROSS_FILE}>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,--cross-file>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,${MESON_CROSS_FILE}>" "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.25.0/BUILD" "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.25.0"
-    COMMAND ninja -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.25.0/BUILD" install
-    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.25.0/BUILD/src" -name libwayland-server.a -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/" "\;"
-    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.25.0/BUILD/src" -name libwayland-client.a -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/" "\;"
-    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.25.0/BUILD/src" -name libwayland-cursor.a -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/" "\;"
-    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.25.0/BUILD/src" -name libwayland-egl.a -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/" "\;"
-    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.25.0/BUILD" -name wayland-client.pc -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig/" "\;"
-    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.25.0/BUILD" -name wayland-cursor.pc -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig/" "\;"
-    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.25.0/BUILD" -name wayland-egl-backend.pc -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig/" "\;"
-    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.25.0/BUILD" -name wayland-server.pc -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig/" "\;"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.26.0.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.26.0.tar.xz" "https://gitlab.freedesktop.org/wayland/wayland/-/releases/1.26.0/downloads/wayland-1.26.0.tar.xz"
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.26.0.tar.xz" | grep 64176eaa46e4969903e286f8e5ef8331affc17fdf03ac9b58381d2b23162b7a3
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/wayland-1.26.0.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig" meson setup --prefix "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --buildtype release -D documentation=false -D dtd_validation=false -D scanner=false --prefer-static --default-library static --default-both-libraries static "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,--native-file>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,${MESON_CROSS_FILE}>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,--cross-file>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,${MESON_CROSS_FILE}>" "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.26.0/BUILD" "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.26.0"
+    COMMAND ninja -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.26.0/BUILD" install
+    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.26.0/BUILD/src" -name libwayland-server.a -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/" "\;"
+    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.26.0/BUILD/src" -name libwayland-client.a -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/" "\;"
+    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.26.0/BUILD/src" -name libwayland-cursor.a -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/" "\;"
+    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.26.0/BUILD/src" -name libwayland-egl.a -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/" "\;"
+    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.26.0/BUILD" -name wayland-client.pc -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig/" "\;"
+    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.26.0/BUILD" -name wayland-cursor.pc -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig/" "\;"
+    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.26.0/BUILD" -name wayland-egl-backend.pc -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig/" "\;"
+    COMMAND find "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.26.0/BUILD" -name wayland-server.pc -execdir cp "{}" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig/" "\;"
     COMMAND_EXPAND_LISTS
     VERBATIM)
 
 add_custom_target(LIBWAYLAND DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libwayland-server.a")
-set_target_properties(LIBWAYLAND PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.25.0;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+set_target_properties(LIBWAYLAND PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/wayland-1.26.0;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
 
 add_dependencies(LIBWAYLAND WAYLAND_SCANNER)
 add_dependencies(LIBWAYLAND LIBFFI)
@@ -590,22 +590,23 @@ add_dependencies(LIBFREETYPE2 LIBBZIP2)
 add_dependencies(LIBFREETYPE2 LIBBROTLI)
 add_dependencies(LIBFREETYPE2 LIBPNG)
 
-add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.1/src/.libs/libfontconfig.a"
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.2/src/.libs/libfontconfig.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/fontconfig-2.18.1.tar.gz" || curl -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/fontconfig-2.18.1.tar.gz" -L "https://gitlab.freedesktop.org/fontconfig/fontconfig/-/archive/2.18.1/fontconfig-2.18.1.tar.gz"
-    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/fontconfig-2.18.1.tar.gz" | grep e9309564717b6301230112b173f36c288489479d381d2f0add1210ca5b16ba7e
-    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/fontconfig-2.18.1.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.1" && env CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} EXPAT_CFLAGS=-I${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.8.2/lib EXPAT_LIBS=-L${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.8.2/lib/.libs\ -lexpat FREETYPE_CFLAGS=-I${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.3/include FREETYPE_LIBS=-L${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.3/objs/.libs\ -lfreetype LDFLAGS=-L${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.2\ -L${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1.0.8\ -L${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng-1.6.58/.libs\ -L${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD\ -L${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-14.2.1/BUILD ${CROSS_VA_COPY_ENV} ./autogen.sh --sysconfdir=/etc --prefix=/usr --mandir=/usr/share/man --enable-static=yes --enable-shared=no ${CROSS_HOST_FLAG}
-    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.1/fc-lang"
-    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.1/fc-case"
-    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.1/fc-const"
-    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.1/src" fcftalias.h
-    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.1/src" fcobjshash.h
-    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.1/src" libfontconfig.la
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/fontconfig-2.18.2.tar.bz2" || curl -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/fontconfig-2.18.2.tar.bz2" -L "https://gitlab.freedesktop.org/fontconfig/fontconfig/-/archive/2.18.2/fontconfig-2.18.2.tar.bz2"
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/fontconfig-2.18.2.tar.bz2" | grep 34d612edc4a1ed7aa032fc0b9ab7ca52803032f94b1a47e37ee5d49a1db4cbeb
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/fontconfig-2.18.2.tar.bz2" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.2" && env CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} EXPAT_CFLAGS=-I${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.8.2/lib EXPAT_LIBS=-L${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.8.2/lib/.libs\ -lexpat FREETYPE_CFLAGS=-I${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.3/include FREETYPE_LIBS=-L${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.3/objs/.libs\ -lfreetype LDFLAGS=-L${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.2\ -L${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1.0.8\ -L${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng-1.6.58/.libs\ -L${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD\ -L${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-14.2.1/BUILD ${CROSS_VA_COPY_ENV} ./autogen.sh --sysconfdir=/etc --prefix=/usr --mandir=/usr/share/man --enable-static=yes --enable-shared=no ${CROSS_HOST_FLAG}
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.2/fc-lang"
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.2/fc-case"
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.2/fc-const"
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.2/fc-genericfamily"
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.2/src" fcftalias.h
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.2/src" fcobjshash.h
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.2/src" libfontconfig.la
     VERBATIM)
 
-add_custom_target(LIBFONTCONFIG DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.1/src/.libs/libfontconfig.a")
-set_target_properties(LIBFONTCONFIG PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.1")
+add_custom_target(LIBFONTCONFIG DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.2/src/.libs/libfontconfig.a")
+set_target_properties(LIBFONTCONFIG PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.2")
 
 add_dependencies(LIBFONTCONFIG LIBEXPAT)
 add_dependencies(LIBFONTCONFIG LIBFREETYPE2)
@@ -628,14 +629,14 @@ else()
     unset(FORCE_DEBUG_FLAG)
 endif()
 
-target_compile_options(mpd_info_screen2 PRIVATE -I${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-6.0/src -I${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.1
+target_compile_options(mpd_info_screen2 PRIVATE -I${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-6.0/src -I${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.2
     PRIVATE -Wall -Wformat -Wformat=2 -Wconversion -Wimplicit-fallthrough  -Werror=format-security  -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3  -D_GLIBCXX_ASSERTIONS  -fstrict-flex-arrays=3  -fstack-clash-protection -fstack-protector-strong  -Wl,-z,nodlopen -Wl,-z,noexecstack  -Wl,-z,relro -Wl,-z,now  -Wl,--as-needed -Wl,--no-copy-dt-needed-entriesa -fPIE -pie $<$<STREQUAL:"Release","${CMAKE_BUILD_TYPE}">:-O2 -DNDEBUG -fno-delete-null-pointer-checks -fno-strict-overflow -fno-strict-aliasing -ftrivial-auto-var-init=zero> $<$<STREQUAL:"Debug","${CMAKE_BUILD_TYPE}">:-Werror -Og -g> $<$<BOOL:${FORCE_DEBUG_FLAG}>:-g>
 )
-target_link_libraries(mpd_info_screen2 "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD/raylib/libraylib.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.1/src/.libs/libfontconfig.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.8.2/lib/.libs/libexpat.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.3/objs/.libs/libfreetype.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1.0.8/libbz2.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlidec.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlienc.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlicommon.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng-1.6.58/.libs/libpng16.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.2/libz.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/gzip-1.14/lib/libgzip.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-14.2.1/BUILD/libharfbuzz.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libX11.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libX11-xcb.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libxcb.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXau.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXdmcp.a" ${EXTERNAL_GLFW_LINKER_LIBS})
-target_compile_options(unittests PRIVATE -I${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-6.0/src -I${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.1
+target_link_libraries(mpd_info_screen2 "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD/raylib/libraylib.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.2/src/.libs/libfontconfig.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.8.2/lib/.libs/libexpat.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.3/objs/.libs/libfreetype.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1.0.8/libbz2.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlidec.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlienc.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlicommon.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng-1.6.58/.libs/libpng16.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.2/libz.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/gzip-1.14/lib/libgzip.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-14.2.1/BUILD/libharfbuzz.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libX11.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libX11-xcb.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libxcb.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXau.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXdmcp.a" ${EXTERNAL_GLFW_LINKER_LIBS})
+target_compile_options(unittests PRIVATE -I${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-6.0/src -I${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.2
     PRIVATE -Wall -Wformat -Wformat=2 -Wconversion -Wimplicit-fallthrough  -Werror=format-security  -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3  -D_GLIBCXX_ASSERTIONS  -fstrict-flex-arrays=3  -fstack-clash-protection -fstack-protector-strong  -Wl,-z,nodlopen -Wl,-z,noexecstack  -Wl,-z,relro -Wl,-z,now  -Wl,--as-needed -Wl,--no-copy-dt-needed-entriesa -fPIE -pie $<$<STREQUAL:"Release","${CMAKE_BUILD_TYPE}">:-O2 -DNDEBUG -fno-delete-null-pointer-checks -fno-strict-overflow -fno-strict-aliasing -ftrivial-auto-var-init=zero> $<$<STREQUAL:"Debug","${CMAKE_BUILD_TYPE}">:-Werror -Og -g> $<$<BOOL:${FORCE_DEBUG_FLAG}>:-g>
 )
-target_link_libraries(unittests "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD/raylib/libraylib.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.1/src/.libs/libfontconfig.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.8.2/lib/.libs/libexpat.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.3/objs/.libs/libfreetype.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1.0.8/libbz2.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlidec.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlienc.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlicommon.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng-1.6.58/.libs/libpng16.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.2/libz.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/gzip-1.14/lib/libgzip.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-14.2.1/BUILD/libharfbuzz.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libX11.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libX11-xcb.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libxcb.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXau.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXdmcp.a" ${EXTERNAL_GLFW_LINKER_LIBS} atomic)
+target_link_libraries(unittests "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD/raylib/libraylib.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/fontconfig-2.18.2/src/.libs/libfontconfig.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/expat-2.8.2/lib/.libs/libexpat.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype-2.14.3/objs/.libs/libfreetype.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1.0.8/libbz2.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlidec.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlienc.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/BUILD/libbrotlicommon.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng-1.6.58/.libs/libpng16.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.2/libz.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/gzip-1.14/lib/libgzip.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-14.2.1/BUILD/libharfbuzz.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libX11.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libX11-xcb.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libxcb.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXau.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXdmcp.a" ${EXTERNAL_GLFW_LINKER_LIBS} atomic)
 
 if(EXISTS "/usr/bin/clang-format")
     add_custom_target(CLANG_FORMAT COMMAND /usr/bin/clang-format -i --style=file ${mpd_info_screen2_SOURCES} ${unittests_SOURCES} ${mpd_info_screen2_HEADERS}
