@@ -4,6 +4,12 @@ Update README.txt with new options.
 
 Update man page with new options.
 
+Update bundled dependencies:
+
+ - fontconfig 2.18.1 -> 2.18.2
+ - libffi 3.6.0 -> 3.7.1
+ - wayland 1.25.0 -> 1.26.0
+
 # Version 1.24.0
 
 Implement args:
