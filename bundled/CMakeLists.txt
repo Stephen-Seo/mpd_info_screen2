@@ -458,16 +458,16 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD/
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/raylib-6.0.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
     COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}" && patch -p1 < "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/raylib-disable-busy-wait-loop.patch"
     COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}" && patch -p1 < "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/raylib-enable-jpg.patch"
-    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/glfw-3.4.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/glfw-3.4.tar.gz" "https://github.com/glfw/glfw/archive/refs/tags/3.4.tar.gz"
-    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/glfw-3.4.tar.gz" | grep c038d34200234d071fae9345bc455e4a8f2f544ab60150765d7704e08f3dac01
-    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/glfw-3.4.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND sed -i -e "/^    add_subdirectory(external\\/glfw)/cadd_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/third_party/glfw-3.4 ${CMAKE_CURRENT_BINARY_DIR}/third_party/glfw-3.4/BUILD_DIR)" "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-6.0/cmake/GlfwImport.cmake"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/glfw-3.5.1.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/glfw-3.5.1.tar.gz" "https://github.com/glfw/glfw/archive/refs/tags/3.5.1.tar.gz"
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/glfw-3.5.1.tar.gz" | grep 5234f4f29473e9a06bc7847d8371858dd135d38466eeeaa652fdc9f8f9ff0c20
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/glfw-3.5.1.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND sed -i -e "/^    add_subdirectory(external\\/glfw)/cadd_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/third_party/glfw-3.5.1 ${CMAKE_CURRENT_BINARY_DIR}/third_party/glfw-3.5.1/BUILD_DIR)" "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-6.0/cmake/GlfwImport.cmake"
     COMMAND env "CMAKE_PREFIX_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} cmake -S "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-6.0" -B "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD" -DCMAKE_BUILD_TYPE=Release -DGLFW_BUILD_WAYLAND=ON "-DWAYLAND_SCANNER_EXECUTABLE=${CMAKE_CURRENT_BINARY_DIR}/third_party/native/PREFIX_OUT/bin/wayland-scanner" "-DOPENGL_INCLUDE_DIR=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/include"
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD" raylib
     VERBATIM)
 
 add_custom_target(LIBRAYLIB DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD/raylib/libraylib.a")
-set_target_properties(LIBRAYLIB PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-6.0;${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD;${CMAKE_CURRENT_BINARY_DIR}/third_party/glfw-3.4")
+set_target_properties(LIBRAYLIB PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib-6.0;${CMAKE_CURRENT_BINARY_DIR}/third_party/raylib_BUILD;${CMAKE_CURRENT_BINARY_DIR}/third_party/glfw-3.5.1")
 
 add_dependencies(LIBRAYLIB LIBXKBCOMMON)
 add_dependencies(LIBRAYLIB LIBX11)
