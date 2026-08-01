@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.24.2
+
 Update bundled dependencies:
 
  - glfw 3.4 -> 3.5.1
