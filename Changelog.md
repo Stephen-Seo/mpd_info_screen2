@@ -1,5 +1,12 @@
 # Upcoming Changes
 
+Update bundled dependencies:
+
+ - glfw 3.4 -> 3.5.1
+ - harfbuzz 14.2.1 -> 14.3.0
+
+Update third\_party/bundled\_list.txt
+
 # Version 1.24.1
 
 Update README.txt with new options.
