@@ -1,5 +1,10 @@
 # Upcoming Changes
 
+Update bundled dependencies:
+
+ - libffi 3.7.1 -> 3.8.0
+ - fontconfig 2.18.2 -> 2.18.3
+
 # Version 1.24.2
 
 Update bundled dependencies:
