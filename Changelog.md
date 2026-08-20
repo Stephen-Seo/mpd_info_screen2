@@ -1,5 +1,10 @@
 # Upcoming Changes
 
+Update bundled dependencies:
+
+ - harfbuzz 14.3.0 -> 14.3.1
+ - expat 2.8.2 -> 2.8.3
+
 # Version 1.24.3
 
 Update bundled dependencies:
