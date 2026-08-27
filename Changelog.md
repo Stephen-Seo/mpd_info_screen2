@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Verison 1.24.5
+
 Update bundled dependencies:
 
  - harfbuzz 14.3.1 -> 14.4.0
