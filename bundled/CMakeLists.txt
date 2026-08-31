@@ -578,6 +578,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype/objs
     COMMAND cd "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/freetype_repo" && git fetch
     COMMAND env "GIT_DIR=${CMAKE_CURRENT_SOURCE_DIR}/../third_party/freetype_repo" git archive --format=tar "VER-2-14-3" | sha256sum | grep fbd592d50596d98cba6b27bf6028c8ed9edd473d42325e84995849c39d998836
     COMMAND git clone "file://${CMAKE_CURRENT_SOURCE_DIR}/../third_party/freetype_repo" "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype" && git checkout "VER-2-14-3"
     COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./autogen.sh && env CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} CPPFLAGS=-I${CMAKE_CURRENT_BINARY_DIR}/third_party/brotli-1.2.0/c/include\ -I${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-1.3.2\ -I${CMAKE_CURRENT_BINARY_DIR}/third_party/bzip2-bzip2-1.0.8 ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-static=yes --enable-shared=no ${CROSS_HOST_FLAG}
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype"
     VERBATIM)
