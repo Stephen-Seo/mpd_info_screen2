@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Verison 1.24.6
+
 Update bundled dependencies:
 
  - expat 2.8.3 -> 2.8.4
