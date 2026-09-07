@@ -1,5 +1,10 @@
 # Upcoming Changes
 
+Update bundled dependencies:
+
+ - expat 2.8.3 -> 2.8.4
+ - libxml2 2.15.3 -> 2.15.4
+
 # Verison 1.24.5
 
 Update bundled dependencies:
