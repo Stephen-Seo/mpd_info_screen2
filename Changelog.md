@@ -10,6 +10,9 @@ Update bundled dependencies:
 Minor refactoring to bundled/CMakeLists.txt for better log output when verifying
 sha256sums.
 
+Note that there was a patch included to fix gzip 1.15 build on aarch64.  
+[More details here.](https://lists.gnu.org/archive/html/bug-gzip/2026-09/msg00031.html)
+
 # Verison 1.24.6
 
 Update bundled dependencies:
