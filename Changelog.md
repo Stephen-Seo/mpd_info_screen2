@@ -1,5 +1,13 @@
 # Upcoming Changes
 
+Update bundled dependencies:
+
+ - harfbuzz 14.4.0 -> 14.5.0
+ - gzip 1.14 -> 1.15
+
+Minor refactoring to bundled/CMakeLists.txt for better log output when verifying
+sha256sums.
+
 # Verison 1.24.6
 
 Update bundled dependencies:
