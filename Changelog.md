@@ -1,5 +1,9 @@
 # Upcoming Changes
 
+Update bundled dependencies:
+
+ - expat 2.8.4 -> 2.8.5
+
 # Version 1.24.7
 
 Update bundled dependencies:
