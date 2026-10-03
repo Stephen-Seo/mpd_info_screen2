@@ -1,5 +1,10 @@
 # Upcoming Changes
 
+Update bundled dependencies:
+
+ - harfbuzz 14.5.0 -> 14.5.1
+ - libpng 1.6.58 -> 1.6.59
+
 # Version 1.24.8
 
 Update bundled dependencies:
