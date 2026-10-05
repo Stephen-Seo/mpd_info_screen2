@@ -1,5 +1,8 @@
 # Upcoming Changes
 
+Change bundled build to use `meson` instead of `cmake` to build dependency
+`harfbuzz`.
+
 # Version 1.24.9
 
 Update bundled dependencies:
