@@ -48,6 +48,11 @@ if(DEFINED CROSS_CC AND NOT DEFINED CROSS_RANLIB)
 elseif(NOT DEFINED CROSS_CC AND NOT DEFINED CROSS_RANLIB)
     set(CROSS_RANLIB "/usr/bin/ranlib")
 endif()
+if(DEFINED CROSS_CC AND NOT DEFINED CROSS_STRIP)
+    message(FATAL_ERROR "CROSS_CC defined but not CROSS_STRIP! (e.g. \"/usr/bin/aarch64-linux-gnu-strip\")")
+elseif(NOT DEFINED CROSS_CC AND NOT DEFINED CROSS_STRIP)
+    set(CROSS_STRIP "/usr/bin/strip")
+endif()
 if(DEFINED CROSS_CC AND NOT DEFINED CROSS_SYSTEM)
     message(FATAL_ERROR "CROSS_CC defined but not CROSS_SYSTEM! (e.g. \"linux\")")
 endif()
@@ -93,6 +98,7 @@ if(CROSS_COMP_ENABLED)
         COMMAND echo "cpp = '${CROSS_CXX}'" >> "${CMAKE_CURRENT_BINARY_DIR}/third_party/meson_cross.txt"
         COMMAND echo "ar = '${CROSS_AR}'" >> "${CMAKE_CURRENT_BINARY_DIR}/third_party/meson_cross.txt"
         COMMAND echo "ranlib = '${CROSS_RANLIB}'" >> "${CMAKE_CURRENT_BINARY_DIR}/third_party/meson_cross.txt"
+        COMMAND echo "strip = '${CROSS_STRIP}'" >> "${CMAKE_CURRENT_BINARY_DIR}/third_party/meson_cross.txt"
         COMMAND echo "pkg-config = 'pkg-config'" >> "${CMAKE_CURRENT_BINARY_DIR}/third_party/meson_cross.txt"
         COMMAND echo "[host_machine]" >> "${CMAKE_CURRENT_BINARY_DIR}/third_party/meson_cross.txt"
         COMMAND echo "system = '${CROSS_SYSTEM}'" >> "${CMAKE_CURRENT_BINARY_DIR}/third_party/meson_cross.txt"
@@ -600,12 +606,18 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-14.5
     COMMAND echo "Checking third_party/harfbuzz.14.5.1.tar.xz sha256sum..."
     COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/harfbuzz-14.5.1.tar.xz" | grep 7e2fa4e8c7c98e8d8140671f5772542afaaa6acccfbd746506886b6d85f7f8d6
     COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/harfbuzz-14.5.1.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} cmake -S "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-14.5.1" -B "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-14.5.1/BUILD" -DCMAKE_BUILD_TYPE=Release
-    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-14.5.1/BUILD" harfbuzz
+    COMMAND env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig" meson setup -D freetype=disabled -D glib=disabled -D gobject=disabled -D graphite2=disabled -D graphite=disabled -D icu=disabled -D cairo=disabled -D chafa=disabled -D png=disabled -D zlib=disabled -D fontations=disabled -D harfrust=disabled -D kbts=disabled -D icu_builtin=false -D experimental_api=false -D utilities=disabled -D tests=disabled -D benchmark=disabled -D docs=disabled --prefix "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --buildtype release --prefer-static --default-library static --default-both-libraries static "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,--native-file>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,${MESON_CROSS_FILE}>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,--cross-file>" "$<IF:$<STREQUAL:\"${MESON_CROSS_FILE}\",\"\">,,${MESON_CROSS_FILE}>" "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-14.5.1/BUILD" "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-14.5.1"
+    COMMAND ninja -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-14.5.1/BUILD" lib
+    COMMAND ln -s "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-14.5.1/BUILD/src/libharfbuzz.a" "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-14.5.1/BUILD/libharfbuzz.a"
+    COMMAND_EXPAND_LISTS
     VERBATIM)
 
 add_custom_target(LIBHARFBUZZ DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-14.5.1/BUILD/libharfbuzz.a")
 set_target_properties(LIBHARFBUZZ PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/harfbuzz-14.5.1")
+
+if(CROSS_COMP_ENABLED)
+    add_dependencies(LIBHARFBUZZ MESON_CROSS)
+endif()
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/freetype/objs/.libs/libfreetype.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
