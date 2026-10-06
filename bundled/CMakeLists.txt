@@ -280,16 +280,16 @@ set_target_properties(XTRANSFILES PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CUR
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/include/X11/Xproto.h"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/xorgproto-2025.1.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/xorgproto-2025.1.tar.xz" https://www.x.org/releases/individual/proto/xorgproto-2025.1.tar.xz
-    COMMAND echo "Checking third_party/xorgproto-2025.1.tar.xz sha256sum..."
-    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/xorgproto-2025.1.tar.xz" | grep 56898c716c0578df8a2d828c9c3e5c528277705c0484381a81960fe1a67668e8
-    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/xorgproto-2025.1.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/xorgproto-2025.1" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT"
-    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/xorgproto-2025.1" install
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/xorgproto-2026.1.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/xorgproto-2026.1.tar.xz" "https://xorg.freedesktop.org/archive/individual/proto/xorgproto-2026.1.tar.xz"
+    COMMAND echo "Checking third_party/xorgproto-2026.1.tar.xz sha256sum..."
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/xorgproto-2026.1.tar.xz" | grep f9bfe4a9ed8c8ab9d2a3b0d49797f046052dadd06b7a8b45dbffaffb137e8290
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/xorgproto-2026.1.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/xorgproto-2026.1" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT"
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/xorgproto-2026.1" install
     VERBATIM)
 
 add_custom_target(XORGPROTO DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/include/X11/Xproto.h")
-set_target_properties(XORGPROTO PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/xorgproto-2025.1;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+set_target_properties(XORGPROTO PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/xorgproto-2026.1;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/xcb/xproto.xml"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
