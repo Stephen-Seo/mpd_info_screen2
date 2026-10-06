@@ -3,6 +3,12 @@
 Change bundled build to use `meson` instead of `cmake` to build dependency
 `harfbuzz`.
 
+Update bundled dependencies:
+
+ - expat 2.8.5 -> 2.9.0
+ - harfbuzz 14.5.1 -> 14.6.0
+ - xorgproto 2025.1 -> 2026.1
+
 # Version 1.24.9
 
 Update bundled dependencies:
