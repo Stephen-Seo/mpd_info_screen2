@@ -1,5 +1,9 @@
 # Upcoming Changes
 
+Update bundled dependencies:
+
+ - freetype 2.14.3 -> 2.15.0
+
 # Version 1.24.10
 
 Change bundled build to use `meson` instead of `cmake` to build dependency
