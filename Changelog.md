@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.24.11
+
 Update bundled dependencies:
 
  - freetype 2.14.3 -> 2.15.0
