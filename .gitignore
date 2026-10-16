@@ -1,13 +1,13 @@
-/compile_commands.json
+acompile_commands.json
 /third_party/include/
 /third_party/lib/
-/third_party/raylib-6.0.tar.gz
+/third_party/raylib-6.2.tar.gz
 /objdir/
 /mpd_info_screen2
 /.cache/
 /unittest
 /build*
-/third_party/raylib-6.0/
+/third_party/raylib-6.2/
 /third_party/raylib_BUILD/
 /third_party/expat-2.9.0.tar.lz
 /third_party/fontconfig-2.18.3.tar.bz2
