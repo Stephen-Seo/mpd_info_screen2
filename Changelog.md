@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+Update Makefile for dep raylib 6.2 .
+
 # Version 1.24.13
 
 Fix bundled build for AArch64.

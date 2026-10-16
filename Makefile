@@ -82,23 +82,23 @@ ${OBJDIR}/%.cc.o: %.cc ${HEADERS} third_party/lib/libraylib.a | format
 	@mkdir -p $(dir $@)
 	${CXX} -o $@ -c ${CXX_FLAGS} $<
 
-third_party/lib/libraylib.a: third_party/raylib-6.0.tar.gz
+third_party/lib/libraylib.a: third_party/raylib-6.2.tar.gz
 	@mkdir -p third_party/lib
 	@mkdir -p third_party/include
-	tar -xf third_party/raylib-6.0.tar.gz -C third_party
+	tar -xf third_party/raylib-6.2.tar.gz -C third_party
 	patch -p1 < third_party/raylib-disable-busy-wait-loop.patch
 	patch -p1 < third_party/raylib-enable-jpg.patch
-	cmake -S third_party/raylib-6.0 -B third_party/raylib_BUILD -DCMAKE_BUILD_TYPE=Release ${USE_EXTERNAL_GLFW_CMAKE_FLAGS}
+	cmake -S third_party/raylib-6.2 -B third_party/raylib_BUILD -DCMAKE_BUILD_TYPE=Release ${USE_EXTERNAL_GLFW_CMAKE_FLAGS}
 	${MAKE} -C third_party/raylib_BUILD raylib
 	cp third_party/raylib_BUILD/raylib/libraylib.a third_party/lib/libraylib.a
 	rm -rf third_party/raylib_BUILD
-	cd third_party/raylib-6.0/src && find . -regex '.*\.h$$' -exec install -D -m644 '{}' "${WORKING_DIR}/third_party/include/{}" ';'
-	rm -rf third_party/raylib-6.0
+	cd third_party/raylib-6.2/src && find . -regex '.*\.h$$' -exec install -D -m644 '{}' "${WORKING_DIR}/third_party/include/{}" ';'
+	rm -rf third_party/raylib-6.2
 
-third_party/raylib-6.0.tar.gz:
+third_party/raylib-6.2.tar.gz:
 	@mkdir -p third_party
-	curl -L -o third_party/raylib-6.0.tar.gz https://github.com/raysan5/raylib/archive/refs/tags/6.0.tar.gz
-	sha256sum third_party/raylib-6.0.tar.gz | grep 2b3ee1e2120c7a0796b33062c7e9a694dd8a8caa56a96319ac8c8ecf54a90d0b
+	curl -L -o third_party/raylib-6.2.tar.gz https://github.com/raysan5/raylib/archive/refs/tags/6.2.tar.gz
+	sha256sum third_party/raylib-6.2.tar.gz | grep df7a13129b1bec9e73a6962efff170beba310ee6eab8f94cd000b7316b4db5ee
 
 .PHONY: clean format ${OBJDIR}/MPD_INFO_SCREEN_2_VERSION.h
 
@@ -108,7 +108,7 @@ clean:
 	rm -rf ${OBJDIR}
 	rm -rf third_party/lib
 	rm -rf third_party/include
-	rm -rf third_party/raylib-6.0
+	rm -rf third_party/raylib-6.2
 	rm -rf third_party/raylib_BUILD
 
 format:
