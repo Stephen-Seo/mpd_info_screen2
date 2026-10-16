@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+Fix bundled build for AArch64.
+
 # Version 1.24.12
 
 Update bundled dependencies:
