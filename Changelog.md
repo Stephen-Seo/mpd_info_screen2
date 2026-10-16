@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.24.12
+
 Update bundled dependencies:
 
  - raylib 6.0 -> 6.2
