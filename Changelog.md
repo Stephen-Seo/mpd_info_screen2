@@ -2,6 +2,13 @@
 
 Update Makefile for dep raylib 6.2 .
 
+Update bundled deps:
+
+ - brotli 1.2.0 -> 1.2.1
+ - libx11 1.8.13 -> 1.8.14
+ - libXi 1.8.3 -> 1.8.4
+ - libXrender 0.9.12 -> 0.9.13
+
 # Version 1.24.13
 
 Fix bundled build for AArch64.
