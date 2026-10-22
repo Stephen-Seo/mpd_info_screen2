@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.24.14
+
 Update Makefile for dep raylib 6.2 .
 
 Update bundled deps:
