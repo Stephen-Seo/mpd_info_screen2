@@ -465,16 +465,16 @@ add_dependencies(LIBXCURSOR LIBXRENDER)
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXi.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libXi-1.8.3.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libXi-1.8.3.tar.xz" "https://www.x.org/releases/individual/lib/libXi-1.8.3.tar.xz"
-    COMMAND echo "Checking third_party/libXi-1.8.3.tar.xz sha256sum..."
-    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libXi-1.8.3.tar.xz" | grep 7ad60056f01af4f786cfe93b3a7707447711626fc8da2637bec71a90409babe5
-    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libXi-1.8.3.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXi-1.8.3" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no --enable-docs=no --disable-malloc0returnsnull
-    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXi-1.8.3" install
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libXi-1.8.4.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libXi-1.8.4.tar.xz" "https://xorg.freedesktop.org/archive/individual/lib/libXi-1.8.4.tar.xz"
+    COMMAND echo "Checking third_party/libXi-1.8.4.tar.xz sha256sum..."
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libXi-1.8.4.tar.xz" | grep ddd6057b89a91903bc2f884d55c8467440906945e482c36547260dff28661afc
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libXi-1.8.4.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXi-1.8.4" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no --enable-docs=no --disable-malloc0returnsnull
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXi-1.8.4" install
     VERBATIM)
 
 add_custom_target(LIBXI DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXi.a")
-set_target_properties(LIBXI PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXi-1.8.3;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+set_target_properties(LIBXI PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXi-1.8.4;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
 
 add_dependencies(LIBXI LIBX11)
 add_dependencies(LIBXI LIBXEXT)
