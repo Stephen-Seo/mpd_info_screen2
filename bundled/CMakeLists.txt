@@ -387,16 +387,16 @@ add_dependencies(LIBXEXT LIBX11)
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXrender.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libXrender-0.9.12.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libXrender-0.9.12.tar.xz" https://www.x.org/releases/individual/lib/libXrender-0.9.12.tar.xz
-    COMMAND echo "Checking third_party/libXrender-0.9.12.tar.xz sha256sum..."
-    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libXrender-0.9.12.tar.xz" | grep b832128da48b39c8d608224481743403ad1691bf4e554e4be9c174df171d1b97
-    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libXrender-0.9.12.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXrender-0.9.12" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
-    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXrender-0.9.12" install
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libXrender-0.9.13.tar.xz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libXrender-0.9.13.tar.xz" https://xorg.freedesktop.org/archive/individual/lib/libXrender-0.9.13.tar.xz
+    COMMAND echo "Checking third_party/libXrender-0.9.13.tar.xz sha256sum..."
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libXrender-0.9.13.tar.xz" | grep 3fe88c609df6782e1e7af2e4de36b2563d70cd70ff7dcb1cda561ad64912bb64
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libXrender-0.9.13.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXrender-0.9.13" && env "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig" CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXrender-0.9.13" install
     VERBATIM)
 
 add_custom_target(LIBXRENDER DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libXrender.a")
-set_target_properties(LIBXRENDER PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXrender-0.9.12;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+set_target_properties(LIBXRENDER PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libXrender-0.9.13;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
 
 add_dependencies(LIBXRENDER LIBX11)
 
