@@ -27,7 +27,7 @@ acompile_commands.json
 /third_party/libXinerama-1.1.6.tar.xz
 /third_party/libXrandr-1.5.5.tar.xz
 /third_party/libXrender-0.9.12.tar.xz
-/third_party/libx11-1.8.13.tar.gz
+/third_party/libx11-1.8.14.tar.gz
 /third_party/libxcb-1.17.0.tar.xz
 /third_party/wayland-1.26.0.tar.xz
 /third_party/wayland-protocols-1.49.tar.xz

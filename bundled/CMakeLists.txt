@@ -352,16 +352,16 @@ add_dependencies(LIBXCB XCBPROTO)
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libX11.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libx11-1.8.13.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libx11-1.8.13.tar.gz" https://www.x.org/releases/individual/lib/libX11-1.8.13.tar.gz
-    COMMAND echo "Checking third_party/libx11-1.8.13.tar.gz sha256sum..."
-    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libx11-1.8.13.tar.gz" | grep acf0e7cd7541110e6330ecb539441a2d53061f386ec7be6906dfde0de2598470
-    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libx11-1.8.13.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libX11-1.8.13" && env "ACLOCAL_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/aclocal" "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig" CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
-    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libX11-1.8.13" install
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libx11-1.8.14.tar.gz" || curl -L -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libx11-1.8.14.tar.gz" "https://xorg.freedesktop.org/archive/individual/lib/libX11-1.8.14.tar.gz"
+    COMMAND echo "Checking third_party/libx11-1.8.14.tar.gz sha256sum..."
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libx11-1.8.14.tar.gz" | grep ebb8a58549ddde50aa2e742b3b256557f451053d173be8dbfc2e8ac078eee1d6
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libx11-1.8.14.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/libX11-1.8.14" && env "ACLOCAL_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/aclocal" "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/share/pkgconfig:${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/pkgconfig" CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure ${CROSS_HOST_FLAG} "--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT" --enable-static=yes --enable-shared=no
+    COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/libX11-1.8.14" install
     VERBATIM)
 
 add_custom_target(LIBX11 DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT/lib/libX11.a")
-set_target_properties(LIBX11 PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libX11-1.8.13;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
+set_target_properties(LIBX11 PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/third_party/libX11-1.8.14;${CMAKE_CURRENT_BINARY_DIR}/third_party/PREFIX_OUT")
 
 add_dependencies(LIBX11 XORGUTILMACROS)
 add_dependencies(LIBX11 XTRANSFILES)
