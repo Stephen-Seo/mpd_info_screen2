@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.24.15
+
 Update bundled deps:
 
  - harfbuzz 14.6.0 -> 15.0.0
