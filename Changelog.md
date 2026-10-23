@@ -1,5 +1,9 @@
 # Upcoming Changes
 
+Update bundled deps:
+
+ - harfbuzz 14.6.0 -> 15.0.0
+
 # Version 1.24.14
 
 Update Makefile for dep raylib 6.2 .
