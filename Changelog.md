@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.24.16
+
 Update bundled deps:
 
  - expat 2.9.0 -> 2.10.0
