@@ -95,14 +95,46 @@ if(EXISTS "/usr/bin/clang-format")
     add_dependencies(unittests CLANG_FORMAT)
 endif()
 
-if(DEFINED MPD_INFO_SCREEN_2_VERSION)
-    message(STATUS "MPD_INFO_SCREEN_2_VERSION is defined, using version str: ${MPD_INFO_SCREEN_2_VERSION}")
-    target_compile_options(mpd_info_screen2 PRIVATE "-DMPD_INFO_SCREEN_2_VERSION=\"${MPD_INFO_SCREEN_2_VERSION}\"")
+find_program(GIT_BINARY NAMES git)
+find_program(SH_BINARY NAMES sh)
+find_program(ECHO_BINARY NAMES echo)
+find_program(ENV_BINARY NAMES env)
+find_program(SED_BINARY NAMES sed)
+
+if(GIT_BINARY AND SH_BINARY AND ECHO_BINARY AND ENV_BINARY AND SED_BINARY)
+    message("git_version.h enabled")
+    add_custom_target(GitVersion
+        COMMAND sh -c "echo -n \"#define COM_SEODISPARATE_MPD_INFO_SCREEN2_GIT_VERSION_STRING \\\"\" > ${CMAKE_CURRENT_BINARY_DIR}/git_version.h"
+        COMMAND sh -c "env GIT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/.git\" git describe --tags --long >> ${CMAKE_CURRENT_BINARY_DIR}/git_version.h"
+        COMMAND sed -i -e "1s/$/\\\"/" "${CMAKE_CURRENT_BINARY_DIR}/git_version.h"
+        BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/git_version.h"
+        VERBATIM
+    )
+    set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/src/main.cc"
+        PROPERTIES
+            COMPILE_OPTIONS "--include=${CMAKE_CURRENT_BINARY_DIR}/git_version.h"
+            OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/git_version.h"
+    )
+    set(MPD_INFO_SCREEN2_GIT_VERSION TRUE)
 else()
-    message(STATUS "MPD_INFO_SCREEN_2_VERSION is NOT defined, using 'git describe ...' for version str.")
-    add_custom_target(MPD_INFO_SCREEN2_VER_STR
-        COMMAND cd "${CMAKE_CURRENT_SOURCE_DIR}" && git describe --long --tags | xargs -I verstring echo -e "#define MPD_INFO_SCREEN_2_VERSION \"verstring\"" > "${CMAKE_CURRENT_BINARY_DIR}/MPD_INFO_SCREEN2_VER_STR.h"
-        VERBATIM)
-    add_dependencies(mpd_info_screen2 MPD_INFO_SCREEN2_VER_STR)
-    set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/main.cc PROPERTIES COMPILE_OPTIONS "-include;${CMAKE_CURRENT_BINARY_DIR}/MPD_INFO_SCREEN2_VER_STR.h")
+    message("git_version.h disabled")
+    set(MPD_INFO_SCREEN2_GIT_VERSION FALSE)
+endif()
+
+if(MPD_INFO_SCREEN2_EXTRA_VERSION)
+    message("Using extra-version ${MPD_INFO_SCREEN2_EXTRA_VERSION}")
+    file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/extra-version-string.h"
+        CONTENT "#define COM_SEODISPARATE_MPD_INFO_SCREEN2_EXTRA_VERSION_STRING \"${MPD_INFO_SCREEN2_EXTRA_VERSION}\""
+        NEWLINE_STYLE UNIX)
+    if(MPD_INFO_SCREEN2_GIT_VERSION)
+        set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/src/main.cc"
+            PROPERTIES
+                COMPILE_OPTIONS "--include=${CMAKE_CURRENT_BINARY_DIR}/extra-version-string.h;--include=${CMAKE_CURRENT_BINARY_DIR}/git_version.h"
+        )
+    else()
+        set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/src/main.cc"
+            PROPERTIES
+                COMPILE_OPTIONS "--include=${CMAKE_CURRENT_BINARY_DIR}/extra-version-string.h"
+        )
+    endif()
 endif()

@@ -42,8 +42,17 @@ int main(int argc, char **argv) {
       args.print_usage();
       return 0;
     } else if (args.get_flags().test(14)) {
-      PrintHelper::println("Version {} of mpd_info_screen2.",
-                           MPD_INFO_SCREEN_2_VERSION);
+      PrintHelper::println("Version {}", MPD_INFO_SCREEN_2_VERSION);
+#ifdef COM_SEODISPARATE_MPD_INFO_SCREEN2_GIT_VERSION_STRING
+      PrintHelper::println(
+          "git-version {}",
+          COM_SEODISPARATE_MPD_INFO_SCREEN2_GIT_VERSION_STRING);
+#endif
+#ifdef COM_SEODISPARATE_MPD_INFO_SCREEN2_EXTRA_VERSION_STRING
+      PrintHelper::println(
+          "extra-version {}",
+          COM_SEODISPARATE_MPD_INFO_SCREEN2_EXTRA_VERSION_STRING);
+#endif
       return 0;
     }
     return 1;
