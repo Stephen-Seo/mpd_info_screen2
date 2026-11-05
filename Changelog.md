@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.24.17
+
 Refactor how `--version` is handled.
 
 # Version 1.24.16
