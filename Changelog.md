@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+Refactor how `--version` is handled.
+
 # Version 1.24.16
 
 Update bundled deps:
