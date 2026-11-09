@@ -98,9 +98,9 @@ set(EXPAT_TAG "R_2_10_0")
 set(EXPAT_DOWNLOAD_URL "https://github.com/libexpat/libexpat/releases/download/${EXPAT_TAG}/expat-${EXPAT_VERSION}.tar.lz")
 set(EXPAT_SHA256SUM "30d081f01e803c96be5d09e6ed4345d37a28f3514963459ef116093b7bde44af")
 
-set(ZLIB_VERSION "1.3.2")
-set(ZLIB_DOWNLOAD_URL "https://github.com/madler/zlib/releases/download/v${ZLIB_VERSION}/zlib-${ZLIB_VERSION}.tar.gz")
-set(ZLIB_SHA256SUM "bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16")
+set(ZLIB_VERSION "1.4")
+set(ZLIB_DOWNLOAD_URL "https://github.com/madler/zlib/releases/download/v${ZLIB_VERSION}/zlib-${ZLIB_VERSION}.tar.xz")
+set(ZLIB_SHA256SUM "4f11c512053d7bab8d9e9b89bde3575add3e4c50a383b42ef6cb837035fc5a7c")
 
 set(GZIP_VERSION "1.15")
 set(GZIP_DOWNLOAD_URL "https://mirrors.ocf.berkeley.edu/gnu/gzip/gzip-${GZIP_VERSION}.tar.xz")
@@ -654,10 +654,10 @@ set_target_properties(LIBEXPAT PROPERTIES ADDITIONAL_CLEAN_FILES "${CMAKE_CURREN
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-${ZLIB_VERSION}/libz.a"
     COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/third_party"
-    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/zlib-${ZLIB_VERSION}.tar.gz" || curl -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/zlib-${ZLIB_VERSION}.tar.gz" -L "${ZLIB_DOWNLOAD_URL}"
-    COMMAND echo "Checking third_party/zlib-${ZLIB_VERSION}.tar.gz sha256sum..."
-    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/zlib-${ZLIB_VERSION}.tar.gz" | grep "${ZLIB_SHA256SUM}"
-    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/zlib-${ZLIB_VERSION}.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
+    COMMAND test -e "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/zlib-${ZLIB_VERSION}.tar.xz" || curl -o "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/zlib-${ZLIB_VERSION}.tar.xz" -L "${ZLIB_DOWNLOAD_URL}"
+    COMMAND echo "Checking third_party/zlib-${ZLIB_VERSION}.tar.xz sha256sum..."
+    COMMAND sha256sum "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/zlib-${ZLIB_VERSION}.tar.xz" | grep "${ZLIB_SHA256SUM}"
+    COMMAND tar -xf "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/zlib-${ZLIB_VERSION}.tar.xz" -C "${CMAKE_CURRENT_BINARY_DIR}/third_party"
     COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-${ZLIB_VERSION}" && CC=${CROSS_CC} CXX=${CROSS_CXX} AR=${CROSS_AR} RANLIB=${CROSS_RANLIB} ./configure --prefix=/usr --static
     COMMAND make -C "${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib-${ZLIB_VERSION}"
     VERBATIM)
