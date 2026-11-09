@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.24.18
+
 Refactor bundled/CMakeLists.txt to be more manageable.
 
 Update bundled dependencies:
