@@ -2,6 +2,10 @@
 
 Refactor bundled/CMakeLists.txt to be more manageable.
 
+Update bundled dependencies:
+
+ - zlib 1.3.2 -> 1.4
+
 # Version 1.24.17
 
 Refactor how `--version` is handled.
