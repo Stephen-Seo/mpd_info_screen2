@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+Refactor bundled/CMakeLists.txt to be more manageable.
+
 # Version 1.24.17
 
 Refactor how `--version` is handled.
