@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.31)
 project(mpd_info_screen2 CXX)
 
-set(LIBFFI_VERSION "3.8.0")
+set(LIBFFI_VERSION "3.8.1")
 set(LIBFFI_DOWNLOAD_URL "https://github.com/libffi/libffi/archive/refs/tags/v${LIBFFI_VERSION}.tar.gz")
-set(LIBFFI_SHA256SUM "bf40d752d8f5fd4505bcd1c7d4208ea87fd12c91f087e359651c776748352dc0")
+set(LIBFFI_SHA256SUM "d20879cd35dae11feb1d6637e37630a65ca1a10c27eeb8236b77762f9ef003d0")
 
 set(WAYLAND_VERSION "1.26.0")
 set(WAYLAND_DOWNLOAD_URL "https://gitlab.freedesktop.org/wayland/wayland/-/releases/${WAYLAND_VERSION}/downloads/wayland-${WAYLAND_VERSION}.tar.xz")
@@ -831,7 +831,7 @@ find_program(ENV_BINARY NAMES env)
 find_program(SED_BINARY NAMES sed)
 
 if(GIT_BINARY AND SH_BINARY AND ECHO_BINARY AND ENV_BINARY AND SED_BINARY)
-    message("git_version.h enabled")
+    message(STATUS "git_version.h enabled")
     add_custom_target(GitVersion
         COMMAND sh -c "echo -n \"#define COM_SEODISPARATE_MPD_INFO_SCREEN2_GIT_VERSION_STRING \\\"\" > ${CMAKE_CURRENT_BINARY_DIR}/git_version.h"
         COMMAND sh -c "env GIT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../.git\" git describe --tags --long >> ${CMAKE_CURRENT_BINARY_DIR}/git_version.h"
@@ -846,12 +846,12 @@ if(GIT_BINARY AND SH_BINARY AND ECHO_BINARY AND ENV_BINARY AND SED_BINARY)
     )
     set(MPD_INFO_SCREEN2_GIT_VERSION TRUE)
 else()
-    message("git_version.h disabled")
+    message(STATUS "git_version.h disabled")
     set(MPD_INFO_SCREEN2_GIT_VERSION FALSE)
 endif()
 
 if(MPD_INFO_SCREEN2_EXTRA_VERSION)
-    message("Using extra-version ${MPD_INFO_SCREEN2_EXTRA_VERSION}")
+    message(STATUS "Using extra-version ${MPD_INFO_SCREEN2_EXTRA_VERSION}")
     file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/extra-version-string.h"
         CONTENT "#define COM_SEODISPARATE_MPD_INFO_SCREEN2_EXTRA_VERSION_STRING \"${MPD_INFO_SCREEN2_EXTRA_VERSION}\""
         NEWLINE_STYLE UNIX)

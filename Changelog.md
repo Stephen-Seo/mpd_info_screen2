@@ -1,5 +1,11 @@
 # Upcoming Changes
 
+Update bundled dependencies:
+
+ - libffi 3.8.0 -> 3.8.1
+
+Minor fixes to CMakeLists.txt .
+
 # Version 1.24.18
 
 Refactor bundled/CMakeLists.txt to be more manageable.
