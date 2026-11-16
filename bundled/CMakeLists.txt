@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.31)
 project(mpd_info_screen2 CXX)
 
-set(LIBFFI_VERSION "3.8.0")
+set(LIBFFI_VERSION "3.8.1")
 set(LIBFFI_DOWNLOAD_URL "https://github.com/libffi/libffi/archive/refs/tags/v${LIBFFI_VERSION}.tar.gz")
-set(LIBFFI_SHA256SUM "bf40d752d8f5fd4505bcd1c7d4208ea87fd12c91f087e359651c776748352dc0")
+set(LIBFFI_SHA256SUM "d20879cd35dae11feb1d6637e37630a65ca1a10c27eeb8236b77762f9ef003d0")
 
 set(WAYLAND_VERSION "1.26.0")
 set(WAYLAND_DOWNLOAD_URL "https://gitlab.freedesktop.org/wayland/wayland/-/releases/${WAYLAND_VERSION}/downloads/wayland-${WAYLAND_VERSION}.tar.xz")
