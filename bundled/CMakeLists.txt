@@ -831,7 +831,7 @@ find_program(ENV_BINARY NAMES env)
 find_program(SED_BINARY NAMES sed)
 
 if(GIT_BINARY AND SH_BINARY AND ECHO_BINARY AND ENV_BINARY AND SED_BINARY)
-    message("git_version.h enabled")
+    message(STATUS "git_version.h enabled")
     add_custom_target(GitVersion
         COMMAND sh -c "echo -n \"#define COM_SEODISPARATE_MPD_INFO_SCREEN2_GIT_VERSION_STRING \\\"\" > ${CMAKE_CURRENT_BINARY_DIR}/git_version.h"
         COMMAND sh -c "env GIT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../.git\" git describe --tags --long >> ${CMAKE_CURRENT_BINARY_DIR}/git_version.h"
@@ -846,12 +846,12 @@ if(GIT_BINARY AND SH_BINARY AND ECHO_BINARY AND ENV_BINARY AND SED_BINARY)
     )
     set(MPD_INFO_SCREEN2_GIT_VERSION TRUE)
 else()
-    message("git_version.h disabled")
+    message(STATUS "git_version.h disabled")
     set(MPD_INFO_SCREEN2_GIT_VERSION FALSE)
 endif()
 
 if(MPD_INFO_SCREEN2_EXTRA_VERSION)
-    message("Using extra-version ${MPD_INFO_SCREEN2_EXTRA_VERSION}")
+    message(STATUS "Using extra-version ${MPD_INFO_SCREEN2_EXTRA_VERSION}")
     file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/extra-version-string.h"
         CONTENT "#define COM_SEODISPARATE_MPD_INFO_SCREEN2_EXTRA_VERSION_STRING \"${MPD_INFO_SCREEN2_EXTRA_VERSION}\""
         NEWLINE_STYLE UNIX)
