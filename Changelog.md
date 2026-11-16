@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.24.19
+
 Update bundled dependencies:
 
  - libffi 3.8.0 -> 3.8.1
