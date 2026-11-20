@@ -118,9 +118,9 @@ set(LIBPNG_VERSION "1.6.59")
 set(LIBPNG_DOWNLOAD_URL "http://prdownloads.sourceforge.net/libpng/libpng-${LIBPNG_VERSION}.tar.xz?download")
 set(LIBPNG_SHA256SUM "d80dd2a38a37f803cb9b6ac7b14bd6e74ddc3b654780a8380bdf93523fdb4389")
 
-set(HARFBUZZ_VERSION "15.1.0")
+set(HARFBUZZ_VERSION "15.2.0")
 set(HARFBUZZ_DOWNLOAD_URL "https://github.com/harfbuzz/harfbuzz/releases/download/${HARFBUZZ_VERSION}/harfbuzz-${HARFBUZZ_VERSION}.tar.xz")
-set(HARFBUZZ_SHA256SUM "0fc7c565443a5f4be7da65ac5ee5bd737d9b158dc908708b7689a0a5796b0c8d")
+set(HARFBUZZ_SHA256SUM "e2ec49090744383cdbe7df808c1cedaafba06a97be8dc4211fe546ba585f12cb")
 
 set(FREETYPE_TAG "VER-2-15-0")
 set(FREETYPE_SHA256SUM "0e0e5635e47cb38b446265262b53a5a5f457958ae55da206ad621020f6d34290")
