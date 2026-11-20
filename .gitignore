@@ -10,14 +10,14 @@ acompile_commands.json
 /third_party/raylib-6.2/
 /third_party/raylib_BUILD/
 /third_party/expat-2.10.0.tar.lz
-/third_party/fontconfig-2.18.3.tar.bz2
+/third_party/fontconfig-2.18.4.tar.bz2
 /third_party/freetype_repo
 /third_party/zlib-1.4.tar.xz
 /third_party/gzip-1.15.tar.xz
 /third_party/bzip2-bzip2-1.0.8.tar.gz
 /third_party/brotli-1.2.1.tar.gz
 /third_party/libpng-1.6.59.tar.xz
-/third_party/harfbuzz-15.1.0.tar.xz
+/third_party/harfbuzz-15.2.0.tar.xz
 /third_party/glfw-3.5.1.tar.gz
 /third_party/libXau-1.0.12.tar.xz
 /third_party/libXcursor-1.2.3.tar.xz

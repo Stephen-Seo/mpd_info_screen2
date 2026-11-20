@@ -118,16 +118,16 @@ set(LIBPNG_VERSION "1.6.59")
 set(LIBPNG_DOWNLOAD_URL "http://prdownloads.sourceforge.net/libpng/libpng-${LIBPNG_VERSION}.tar.xz?download")
 set(LIBPNG_SHA256SUM "d80dd2a38a37f803cb9b6ac7b14bd6e74ddc3b654780a8380bdf93523fdb4389")
 
-set(HARFBUZZ_VERSION "15.1.0")
+set(HARFBUZZ_VERSION "15.2.0")
 set(HARFBUZZ_DOWNLOAD_URL "https://github.com/harfbuzz/harfbuzz/releases/download/${HARFBUZZ_VERSION}/harfbuzz-${HARFBUZZ_VERSION}.tar.xz")
-set(HARFBUZZ_SHA256SUM "0fc7c565443a5f4be7da65ac5ee5bd737d9b158dc908708b7689a0a5796b0c8d")
+set(HARFBUZZ_SHA256SUM "e2ec49090744383cdbe7df808c1cedaafba06a97be8dc4211fe546ba585f12cb")
 
 set(FREETYPE_TAG "VER-2-15-0")
 set(FREETYPE_SHA256SUM "0e0e5635e47cb38b446265262b53a5a5f457958ae55da206ad621020f6d34290")
 
-set(FONTCONFIG_VERSION "2.18.3")
+set(FONTCONFIG_VERSION "2.18.4")
 set(FONTCONFIG_DOWNLOAD_URL "https://gitlab.freedesktop.org/fontconfig/fontconfig/-/archive/${FONTCONFIG_VERSION}/fontconfig-${FONTCONFIG_VERSION}.tar.bz2?ref_type=tags")
-set(FONTCONFIG_SHA256SUM "8d28f79d2017cbe1fbb7da84b2502c86421b4f45860234d2f4ab5b35564c8d01")
+set(FONTCONFIG_SHA256SUM "f10495c6d8cad87089b9bfa583491a7ef63180a7be19339e1f02c60c4f35a152")
 
 set(mpd_info_screen2_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/main.cc
