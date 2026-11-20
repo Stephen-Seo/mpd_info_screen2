@@ -1,5 +1,10 @@
 # Upcoming Changes
 
+Update bundled dependencies:
+
+ - fontconfig 2.18.3 -> 2.18.4
+ - harfbuzz 15.1.0 -> 15.2.0
+
 # Version 1.24.19
 
 Update bundled dependencies:
