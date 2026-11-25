@@ -1,5 +1,9 @@
 # Upcoming Changes
 
+Update bundled dependencies:
+
+ - expat 2.10.0 -> 2.11.0
+
 # Version 1.24.20
 
 Update bundled dependencies:
