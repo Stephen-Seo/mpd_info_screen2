@@ -93,10 +93,10 @@ set(GLFW_VERSION "3.5.1")
 set(GLFW_DOWNLOAD_URL "https://github.com/glfw/glfw/archive/refs/tags/${GLFW_VERSION}.tar.gz")
 set(GLFW_SHA256SUM "5234f4f29473e9a06bc7847d8371858dd135d38466eeeaa652fdc9f8f9ff0c20")
 
-set(EXPAT_VERSION "2.10.0")
-set(EXPAT_TAG "R_2_10_0")
+set(EXPAT_VERSION "2.11.0")
+set(EXPAT_TAG "R_2_11_0")
 set(EXPAT_DOWNLOAD_URL "https://github.com/libexpat/libexpat/releases/download/${EXPAT_TAG}/expat-${EXPAT_VERSION}.tar.lz")
-set(EXPAT_SHA256SUM "30d081f01e803c96be5d09e6ed4345d37a28f3514963459ef116093b7bde44af")
+set(EXPAT_SHA256SUM "27bb2c9d1d9d0e66b62a02d3df4397628dd209e089e09cab62c935c29370c2c9")
 
 set(ZLIB_VERSION "1.4")
 set(ZLIB_DOWNLOAD_URL "https://github.com/madler/zlib/releases/download/v${ZLIB_VERSION}/zlib-${ZLIB_VERSION}.tar.xz")
