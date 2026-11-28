@@ -1,7 +1,7 @@
 ifdef MPD_INFO_SCREEN_2_VERSION
 	MPD_INFO_SCREEN2_GIT_VER := "${MPD_INFO_SCREEN_2_VERSION}"
 else
-	MPD_INFO_SCREEN2_GIT_VER != git describe --long --tags 2>/dev/null || echo "1.24.21"
+	MPD_INFO_SCREEN2_GIT_VER != git describe --long --tags 2>/dev/null || echo "1.24.22"
 endif
 
 ifdef RELEASE

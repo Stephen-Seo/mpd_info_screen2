@@ -1,5 +1,7 @@
 # Upcoming Changes
 
+# Version 1.24.22
+
 Fix build if project was not cloned from git repository (CMake files, minor
 source changes).
 
