@@ -1,7 +1,7 @@
 ifdef MPD_INFO_SCREEN_2_VERSION
 	MPD_INFO_SCREEN2_GIT_VER := "${MPD_INFO_SCREEN_2_VERSION}"
 else
-	MPD_INFO_SCREEN2_GIT_VER != git describe --long --tags
+	MPD_INFO_SCREEN2_GIT_VER != git describe --long --tags 2>/dev/null || echo "1.24.21"
 endif
 
 ifdef RELEASE
@@ -45,7 +45,8 @@ SOURCES := \
 	src/constants.cc \
 	src/helpers.cc \
 	src/signal_handler.cc \
-	src/mpd_display.cc
+	src/mpd_display.cc \
+	src/host_prompt.cc
 
 HEADERS := \
 	src/args.h \
@@ -55,6 +56,7 @@ HEADERS := \
 	src/signal_handler.h \
 	src/mpd_display.h \
 	src/print_helper.h \
+	src/host_prompt.h \
 	src/version.h
 
 OBJDIR := objdir
@@ -70,7 +72,7 @@ unittest: ${OBJDIR}/src/test.cc.o ${OBJECTS} third_party/lib/libraylib.a
 
 ${OBJDIR}/MPD_INFO_SCREEN_2_VERSION.h:
 	@mkdir -p $(dir $@)
-	echo -n '#define MPD_INFO_SCREEN_2_VERSION "' > ${OBJDIR}/MPD_INFO_SCREEN_2_VERSION.h
+	echo -n '#define COM_SEODISPARATE_MPD_INFO_SCREEN2_GIT_VERSION_STRING "' > ${OBJDIR}/MPD_INFO_SCREEN_2_VERSION.h
 	echo -n "${MPD_INFO_SCREEN2_GIT_VER}" >> ${OBJDIR}/MPD_INFO_SCREEN_2_VERSION.h
 	echo '"' >> ${OBJDIR}/MPD_INFO_SCREEN_2_VERSION.h
 

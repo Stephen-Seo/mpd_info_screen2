@@ -28,6 +28,7 @@
 // Standard library includes
 #include <atomic>
 #include <chrono>
+#include <cstring>
 #include <fstream>
 #include <optional>
 
@@ -44,9 +45,12 @@ int main(int argc, char **argv) {
     } else if (args.get_flags().test(14)) {
       PrintHelper::println("Version {}", MPD_INFO_SCREEN_2_VERSION);
 #ifdef COM_SEODISPARATE_MPD_INFO_SCREEN2_GIT_VERSION_STRING
-      PrintHelper::println(
-          "git-version {}",
-          COM_SEODISPARATE_MPD_INFO_SCREEN2_GIT_VERSION_STRING);
+      if (std::strcmp(COM_SEODISPARATE_MPD_INFO_SCREEN2_GIT_VERSION_STRING,
+                      "(no version)") != 0) {
+        PrintHelper::println(
+            "git-version {}",
+            COM_SEODISPARATE_MPD_INFO_SCREEN2_GIT_VERSION_STRING);
+      }
 #endif
 #ifdef COM_SEODISPARATE_MPD_INFO_SCREEN2_EXTRA_VERSION_STRING
       PrintHelper::println(
