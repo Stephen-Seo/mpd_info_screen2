@@ -1,5 +1,8 @@
 # Upcoming Changes
 
+Fix build if project was not cloned from git repository (CMake files, minor
+source changes).
+
 # Version 1.24.21
 
 Update bundled dependencies:
