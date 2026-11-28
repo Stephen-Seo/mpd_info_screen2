@@ -3,6 +3,10 @@
 Fix build if project was not cloned from git repository (CMake files, minor
 source changes).
 
+Update bundled dependencies:
+
+ - libffi 3.8.1 -> 3.8.2
+
 # Version 1.24.21
 
 Update bundled dependencies:
